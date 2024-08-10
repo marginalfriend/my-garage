@@ -1,26 +1,35 @@
 import React from "react";
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import Navbar from "./components/Navbar"; // Adjust the path accordingly
-// import HomePage from "./pages/HomePage";
+import { Routes, Route, Navigate } from "react-router-dom";
+import LoginPage from "./pages/LoginPage";
 import ProductsPage from "./pages/ProductsPage";
+import { useAuth } from "./hooks/useAuth"; // Custom hook for authentication
 import CreateProductPage from "./pages/CreateProductPage";
-// import AboutPage from "./pages/AboutPage";
 
 const App: React.FC = () => {
+  const { user } = useAuth();
+	const isAuthenticated = user !== null
+
   return (
-    <Router>
-      <div>
-        <Navbar />
-        <div className="container mx-auto mt-4">
-          <Routes>
-            {/* <Route path="/" element={<HomePage />} /> */}
-            <Route path="/products" element={<ProductsPage />} />
-            <Route path="/products/create" element={<CreateProductPage />} />
-            {/* <Route path="/about" element={<AboutPage />} /> */}
-          </Routes>
-        </div>
-      </div>
-    </Router>
+    <Routes>
+      <Route path="/login" element={<LoginPage />} />
+      {/* Protected Admin Routes */}
+      <Route
+        path="/admin/products"
+        element={isAuthenticated ? <ProductsPage /> : <Navigate to="/login" />}
+      />
+      <Route
+        path="/admin/products/create"
+        element={
+          isAuthenticated ? <CreateProductPage /> : <Navigate to="/login" />
+        }
+      />
+      {/* <Route
+        path="/admin/reports"
+        element={isAuthenticated ? <ReportPage /> : <Navigate to="/login" />}
+      /> */}
+      {/* Redirect to login if no match */}
+      <Route path="*" element={<Navigate to="/login" />} />
+    </Routes>
   );
 };
 
