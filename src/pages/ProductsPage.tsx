@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import ProductTable from "../components/ProductTable"; // Assuming ProductTable is in the same directory
+import { CREATE_PRODUCT } from "../constants/routes";
 
 type Product = {
   id: string;
@@ -51,7 +52,7 @@ const ProductsPage: React.FC = () => {
         <h1 className="text-heading text-2xl font-semibold mb-4">Products</h1>
         <div className="mb-4 flex justify-end">
           <button
-            onClick={() => navigate("/products/create")}
+            onClick={() => navigate(CREATE_PRODUCT)}
             className="bg-accent text-contrast px-4 py-2 rounded"
           >
             Add New Product

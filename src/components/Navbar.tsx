@@ -1,5 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { CREATE_PRODUCT, PRODUCTS } from "../constants/routes";
 
 const Navbar: React.FC = () => {
   return (
@@ -17,13 +18,13 @@ const Navbar: React.FC = () => {
             Home
           </Link>
           <Link
-            to="/products"
+            to={PRODUCTS}
             className="hover:bg-surface hover:text-heading px-3 py-2 rounded transition"
           >
             Products
           </Link>
           <Link
-            to="/products/create"
+            to={CREATE_PRODUCT}
             className="hover:bg-surface hover:text-heading px-3 py-2 rounded transition"
           >
             Create Product

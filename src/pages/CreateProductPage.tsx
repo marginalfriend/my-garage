@@ -1,16 +1,21 @@
-import React, { useState, ChangeEvent, FormEvent } from 'react';
+import React, { useState, ChangeEvent, FormEvent } from "react";
+import { useAuth } from "../hooks/useAuth";
 
 const CreateProductPage: React.FC = () => {
+  const { token } = useAuth();
+
   const [formData, setFormData] = useState({
-    name: '',
-    price: '',
-    description: '',
-    stock: '',
-    categoryId: '',
+    name: "",
+    price: "",
+    description: "",
+    stock: "",
+    categoryId: "",
     images: [] as File[],
   });
 
-  const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleInputChange = (
+    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
@@ -30,30 +35,35 @@ const CreateProductPage: React.FC = () => {
     e.preventDefault();
 
     const data = new FormData();
-    data.append('name', formData.name);
-    data.append('price', formData.price);
-    data.append('description', formData.description);
-    data.append('stock', formData.stock);
-    data.append('categoryId', formData.categoryId);
+    data.append("name", formData.name);
+    data.append("price", formData.price);
+    data.append("description", formData.description);
+    data.append("stock", formData.stock);
+    data.append("categoryId", formData.categoryId);
     formData.images.forEach((image) => {
-      data.append('images', image);
+      data.append("images", image);
     });
 
     try {
-      const response = await fetch('/api/products', {
-        method: 'POST',
+      const header = new Headers();
+
+      header.append("Authorization", token);
+
+      const response = await fetch("/api/products", {
+        method: "POST",
+        headers: header,
         body: data,
       });
 
       if (response.ok) {
         // Handle success
-        console.log('Product created successfully');
+        console.log("Product created successfully");
       } else {
         // Handle error
-        console.error('Failed to create product');
+        console.error("Failed to create product");
       }
     } catch (error) {
-      console.error('Error:', error);
+      console.error("Error:", error);
     }
   };
 

@@ -4,6 +4,8 @@ import LoginPage from "./pages/LoginPage";
 import ProductsPage from "./pages/ProductsPage";
 import { useAuth } from "./hooks/useAuth"; // Custom hook for authentication
 import CreateProductPage from "./pages/CreateProductPage";
+import { CREATE_PRODUCT, LOGIN, NOT_FOUND, PRODUCTS } from "./constants/routes";
+import NotFoundPage from "./pages/NotFoundPage";
 
 const App: React.FC = () => {
   const { user } = useAuth();
@@ -11,24 +13,25 @@ const App: React.FC = () => {
 
   return (
     <Routes>
-      <Route path="/login" element={<LoginPage />} />
+      <Route path={LOGIN} element={<LoginPage />} />
+      <Route path={NOT_FOUND} element={<NotFoundPage />} />
       {/* Protected Admin Routes */}
       <Route
-        path="/admin/products"
-        element={isAuthenticated ? <ProductsPage /> : <Navigate to="/login" />}
+        path={PRODUCTS}
+        element={isAuthenticated ? <ProductsPage /> : <Navigate to={LOGIN} />}
       />
       <Route
-        path="/admin/products/create"
+        path={CREATE_PRODUCT}
         element={
-          isAuthenticated ? <CreateProductPage /> : <Navigate to="/login" />
+          isAuthenticated ? <CreateProductPage /> : <Navigate to={LOGIN} />
         }
       />
       {/* <Route
         path="/admin/reports"
-        element={isAuthenticated ? <ReportPage /> : <Navigate to="/login" />}
+        element={isAuthenticated ? <ReportPage /> : <Navigate to={LOGIN} />}
       /> */}
       {/* Redirect to login if no match */}
-      <Route path="*" element={<Navigate to="/login" />} />
+      <Route path="*" element={<Navigate to={NOT_FOUND} />} />
     </Routes>
   );
 };

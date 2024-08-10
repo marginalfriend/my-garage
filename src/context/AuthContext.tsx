@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 
 export interface AuthContextType {
   user: any;
+	token: string;
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
 }
@@ -17,6 +18,7 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [user, setUser] = useState<any>(null);
+	const [token, setToken] = useState<string>("")
   const navigate = useNavigate();
 
   const login = async (email: string, password: string) => {
@@ -26,6 +28,7 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
       // Save token to local storage
       localStorage.setItem("token", token);
+			setToken(token)
 
       // Decode token to get user info
       const decodedUser = JSON.parse(atob(token.split(".")[1]));
@@ -41,6 +44,7 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const logout = () => {
     localStorage.removeItem("token");
     setUser(null);
+		setToken("")
     navigate("/login");
   };
 
@@ -48,12 +52,13 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     const token = localStorage.getItem("token");
     if (token) {
       const decodedUser = JSON.parse(atob(token.split(".")[1]));
+			setToken(token)
       setUser(decodedUser);
     }
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, login, logout, token }}>
       {children}
     </AuthContext.Provider>
   );
