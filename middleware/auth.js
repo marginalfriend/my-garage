@@ -1,4 +1,7 @@
-import verify from 'jsonwebtoken';
+import jwt from 'jsonwebtoken';
+
+
+const { verify } = jwt
 
 function authenticateToken(req, res, next) {
 	const token = req.headers['authorization'];

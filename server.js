@@ -1,17 +1,19 @@
-// server.js
-
 import express, { json } from 'express';
-const app = express();
 import { category as _category, product as _product } from './prisma-client.js';
-
-app.use(json());
-
-// server.js
-
-import router from './routes/auth.js';
 import authenticateToken from './middleware/auth.js';
+import router from './routes/auth.js';
+import upload from './upload.js';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { prisma } from './prisma-client.js';
 
+const app = express();
+app.use(json());
 app.use('/auth', router);
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Protecting CRUD operations
 app.post('/categories', authenticateToken, async (req, res) => {
@@ -65,45 +67,223 @@ app.delete('/categories/:id', async (req, res) => {
 	res.sendStatus(204);
 });
 
-// Product CRUD Operations
-app.post('/products', async (req, res) => {
-	const { name, price, description, image, isActive, categoryId } = req.body;
-	const product = await _product.create({
-		data: { name, price, description, image, isActive, categoryId }
+// CRUD operations for Product
+
+// Create Product
+app.post('/products', authenticateToken, (req, res) => {
+	if (!req.user.roles.includes('ADMIN') && !req.user.roles.includes('SUPER_ADMIN')) {
+		return res.sendStatus(403);
+	}
+
+	upload(req, res, async (err) => {
+		if (err) {
+			return res.status(400).json({ message: err });
+		}
+
+		const { categoryId, name, price, description, stock } = req.body;
+
+		const imageUrls = req.files.map(file => `/uploads/${file.filename}`);
+
+		try {
+			// Create the product
+			const product = await prisma.product.create({
+				data: {
+					isActive: true,
+					categoryId,
+					name,
+					price: Number(price),
+					description,
+					stock: Number(stock)
+				},
+			});
+
+			// Create Image records for each uploaded file
+			const imageRecords = imageUrls.map(url => ({
+				url,
+				productId: product.id,
+			}));
+
+			await prisma.image.createMany({
+				data: imageRecords,
+			});
+
+			// Fetch the complete product with images after creation
+			const productWithImages = await prisma.product.findUnique({
+				where: { id: product.id },
+				include: {
+					images: true,
+				},
+			});
+
+			res.status(201).json(productWithImages);
+		} catch (error) {
+			console.log(error.message);
+			res.status(500).json({ message: 'Server error' });
+		}
 	});
-	res.json(product);
 });
 
+// Update Product
+app.put('/products/:id', authenticateToken, (req, res) => {
+	if (!req.user.roles.includes('ADMIN') && !req.user.roles.includes('SUPER_ADMIN')) {
+		return res.sendStatus(403);
+	}
+
+	upload(req, res, async (err) => {
+		if (err) {
+			return res.status(400).json({ message: err });
+		}
+
+		const { id } = req.params;
+		const { isActive, categoryId, name, price, description, keepImageIds = [], stock } = req.body;
+		const imageUrls = req.files.map(file => `/uploads/${file.filename}`);
+
+		try {
+			// Find the existing product with images
+			const existingProduct = await prisma.product.findUnique({
+				where: { id },
+				include: { images: true },
+			});
+
+			if (!existingProduct) {
+				return res.status(404).json({ message: 'Product not found' });
+			}
+
+			// Filter out images to be kept
+			const imagesToKeep = existingProduct.images.filter(image =>
+				keepImageIds.includes(image.id)
+			);
+
+			// Delete the old images that are not in keepImageIds
+			for (const image of existingProduct.images) {
+				if (!keepImageIds.includes(image.id)) {
+					const imagePath = path.join(__dirname, image.url);
+					if (fs.existsSync(imagePath)) {
+						fs.unlinkSync(imagePath);
+					}
+
+					await prisma.image.delete({
+						where: { id: image.id },
+					});
+				}
+			}
+
+			// Create new Image records for the uploaded images
+			const newImageRecords = imageUrls.map(url => ({
+				url,
+				productId: id,
+			}));
+
+			await prisma.image.createMany({
+				data: newImageRecords,
+			});
+
+			// Update the product details
+			const updatedProduct = await prisma.product.update({
+				where: { id },
+				data: { isActive, categoryId, name, price: Number(price), description, stock: Number(stock) },
+			});
+
+			// Fetch the updated product with all images (kept + new)
+			const productWithImages = await prisma.product.findUnique({
+				where: { id: updatedProduct.id },
+				include: {
+					images: true,
+				},
+			});
+
+			res.json(productWithImages);
+		} catch (error) {
+			console.log(error.message);
+			res.status(500).json({ message: 'Server error' });
+		}
+	});
+});
+
+
+
+// Delete Product and Associated Images
+app.delete('/products/:id', authenticateToken, async (req, res) => {
+	if (!req.user.roles.includes('ADMIN') && !req.user.roles.includes('SUPER_ADMIN')) {
+		return res.sendStatus(403);
+	}
+
+	const { id } = req.params;
+
+	try {
+		const product = await prisma.product.findUnique({
+			where: { id },
+			include: { images: true },
+		});
+
+		if (!product) {
+			return res.status(404).json({ message: 'Product not found' });
+		}
+
+		// Delete associated images from the filesystem
+		for (const image of product.images) {
+			const imagePath = path.join(__dirname, image.url);
+			if (fs.existsSync(imagePath)) {
+				fs.unlinkSync(imagePath);
+			}
+		}
+
+		// Delete the associated images from the database
+		await prisma.image.deleteMany({
+			where: { productId: id },
+		});
+
+		// Delete the product from the database
+		await prisma.product.delete({
+			where: { id },
+		});
+
+		res.sendStatus(204);
+	} catch (error) {
+		console.log(error.message);
+		res.status(500).json({ message: 'Server error' });
+	}
+});
+
+
+// Get All Products with Associated Images
 app.get('/products', async (req, res) => {
-	const products = await _product.findMany();
-	res.json(products);
+	try {
+		const products = await prisma.product.findMany({
+			include: {
+				images: true,
+			},
+		});
+		res.status(200).json(products);
+	} catch (error) {
+		console.log(error.message);
+		res.status(500).json({ message: 'Server error' });
+	}
 });
 
+// Get Product by ID with Associated Images
 app.get('/products/:id', async (req, res) => {
 	const { id } = req.params;
-	const product = await _product.findUnique({
-		where: { id }
-	});
-	res.json(product);
+
+	try {
+		const product = await prisma.product.findUnique({
+			where: { id },
+			include: {
+				images: true,
+			},
+		});
+
+		if (!product) {
+			return res.status(404).json({ message: 'Product not found' });
+		}
+
+		res.status(200).json(product);
+	} catch (error) {
+		console.log(error.message);
+		res.status(500).json({ message: 'Server error' });
+	}
 });
 
-app.put('/products/:id', async (req, res) => {
-	const { id } = req.params;
-	const { name, price, description, image, isActive, categoryId } = req.body;
-	const product = await _product.update({
-		where: { id },
-		data: { name, price, description, image, isActive, categoryId }
-	});
-	res.json(product);
-});
-
-app.delete('/products/:id', async (req, res) => {
-	const { id } = req.params;
-	await _product.delete({
-		where: { id }
-	});
-	res.sendStatus(204);
-});
 
 // Start server
 const PORT = process.env.PORT || 3000;
