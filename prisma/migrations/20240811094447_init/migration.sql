@@ -63,6 +63,7 @@ CREATE TABLE `Product` (
     `name` VARCHAR(191) NOT NULL,
     `price` INTEGER NOT NULL,
     `description` VARCHAR(191) NULL,
+    `stock` INTEGER NOT NULL,
 
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;

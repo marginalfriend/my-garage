@@ -18,7 +18,6 @@ const App: React.FC = () => {
       <Routes>
         <Route path={LOGIN} element={!isAuthenticated ? <LoginPage /> : <Navigate to={PRODUCTS} />} />
         <Route path={NOT_FOUND} element={<NotFoundPage />} />
-        {/* Protected Admin Routes */}
         <Route
           path={PRODUCTS}
           element={isAuthenticated ? <ProductsPage /> : <Navigate to={LOGIN} />}
@@ -29,11 +28,6 @@ const App: React.FC = () => {
             isAuthenticated ? <CreateProductPage /> : <Navigate to={LOGIN} />
           }
         />
-        {/* <Route
-        path="/admin/reports"
-        element={isAuthenticated ? <ReportPage /> : <Navigate to={LOGIN} />}
-      /> */}
-        {/* Redirect to login if no match */}
         <Route path="*" element={<Navigate to={NOT_FOUND} />} />
       </Routes>
     </>

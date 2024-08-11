@@ -3,6 +3,7 @@ import AsyncCreatableSelect from "react-select/async-creatable";
 import { useNavigate } from "react-router-dom";
 import { PRODUCTS } from "../constants/routes";
 import { useAuth } from "../hooks/useAuth";
+import Button from "../components/Button";
 
 const CreateProductPage: React.FC = () => {
   const [selectedImages, setSelectedImages] = useState<File[]>([]);
@@ -87,7 +88,7 @@ const CreateProductPage: React.FC = () => {
   };
 
   return (
-    <main className="flex justify-center align-middle px-">
+    <main className="flex justify-center align-middle">
       <div className="container w-[50%] p-4">
         <h1 className="text-2xl font-semibold text-heading mb-4">
           Create New Product
@@ -206,12 +207,7 @@ const CreateProductPage: React.FC = () => {
               ))}
             </div>
           </div>
-          <button
-            type="submit"
-            className="bg-accent text-white font-semibold py-2 px-4 rounded hover:bg-heading"
-          >
-            Create Product
-          </button>
+          <Button type="submit">Create Product</Button>
         </form>
       </div>
     </main>

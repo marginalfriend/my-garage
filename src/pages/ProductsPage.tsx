@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import ProductTable from "../components/ProductTable"; // Assuming ProductTable is in the same directory
-import { CREATE_PRODUCT } from "../constants/routes";
-import Button from "../components/Button";
 
 type Product = {
   id: string;
@@ -48,23 +46,16 @@ const ProductsPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background p-4">
-      <div className="max-w-7xl mx-auto">
+    <main className="min-h-screen bg-background p-4">
+      <div className="max-w-7xl mx-auto px-4">
         <h1 className="text-heading text-2xl font-semibold mb-4">Products</h1>
-        <div className="mb-4 flex justify-end">
-          <Button
-            onClick={() => navigate(CREATE_PRODUCT)}
-          >
-            Add New Product
-          </Button>
-        </div>
         <ProductTable
           products={products}
           onEdit={handleEdit}
           onDelete={handleDelete}
         />
       </div>
-    </div>
+    </main>
   );
 };
 

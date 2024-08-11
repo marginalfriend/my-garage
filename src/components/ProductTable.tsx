@@ -11,6 +11,8 @@ import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
 import Button from "./Button";
 import { PencilSquareIcon } from "@heroicons/react/16/solid";
 import { formatIDR } from "../utils/utils";
+import { CREATE_PRODUCT } from "../constants/routes";
+import { useNavigate } from "react-router-dom";
 
 type Product = {
   id: string;
@@ -43,7 +45,8 @@ const ProductTable: React.FC<ProductTableProps> = ({
       {
         accessorKey: "price",
         header: "Price",
-        cell: ({ getValue } : {getValue: () => any}) => `${formatIDR(getValue())}`,
+        cell: ({ getValue }: { getValue: () => any }) =>
+          `${formatIDR(getValue())}`,
       },
       {
         accessorKey: "stock",
@@ -59,9 +62,9 @@ const ProductTable: React.FC<ProductTableProps> = ({
         cell: ({ row }) => (
           <Menu as="div" className="relative inline-block text-left">
             <MenuButton>
-							<Button>
-								<PencilSquareIcon height={15} width={15}/>
-							</Button>
+              <Button>
+                <PencilSquareIcon height={15} width={15} />
+              </Button>
             </MenuButton>
             <MenuItems className="absolute right-0 w-56 mt-2 origin-top-right bg-surface divide-y divide-gray-100 rounded-md shadow-lg z-50">
               <div className="px-1 py-1">
@@ -100,6 +103,8 @@ const ProductTable: React.FC<ProductTableProps> = ({
     [onEdit, onDelete]
   );
 
+	const navigate = useNavigate()
+
   const table = useReactTable({
     data: products,
     columns,
@@ -109,7 +114,35 @@ const ProductTable: React.FC<ProductTableProps> = ({
   });
 
   return (
-    <div className="p-4 bg-background">
+    <div className="bg-background">
+      <div className="mb-4 flex justify-between">
+        <div>
+          <input
+            value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
+            onChange={(e) =>
+              table.getColumn("name")?.setFilterValue(e.target.value)
+            }
+            placeholder="Filter by name"
+            className="p-2 border rounded"
+          />
+          <input
+            value={
+              (table.getColumn("description")?.getFilterValue() as string) ?? ""
+            }
+            onChange={(e) =>
+              table.getColumn("description")?.setFilterValue(e.target.value)
+            }
+            placeholder="Filter by description"
+            className="p-2 border rounded ml-2"
+          />
+        </div>
+        <div>
+          <Button onClick={() => navigate(CREATE_PRODUCT)}>
+            Add New Product
+          </Button>
+        </div>
+      </div>
+
       <table className="min-w-full divide-y divide-gray-200">
         <thead className="bg-accent">
           {table.getHeaderGroups().map((headerGroup) => (
@@ -118,11 +151,16 @@ const ProductTable: React.FC<ProductTableProps> = ({
                 <th
                   key={header.id}
                   className="px-6 py-3 text-left text-xs font-medium text-contrast uppercase tracking-wider"
+                  onClick={header.column.getToggleSortingHandler()}
                 >
                   {flexRender(
                     header.column.columnDef.header,
                     header.getContext()
                   )}
+                  {{
+                    asc: " 🔼",
+                    desc: " 🔽",
+                  }[header.column.getIsSorted() as string] ?? null}
                 </th>
               ))}
             </tr>
