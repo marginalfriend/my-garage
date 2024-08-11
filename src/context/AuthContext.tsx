@@ -6,7 +6,8 @@ import { ADMIN_LOGIN, PRODUCTS } from "../constants/routes";
 
 export interface AuthContextType {
   user: any;
-	token: string;
+  token: string;
+	isAdmin: boolean;
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
 }
@@ -19,7 +20,8 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [user, setUser] = useState<any>(null);
-	const [token, setToken] = useState<string>("")
+  const [token, setToken] = useState<string>("");
+	const [isAdmin, setIsAdmin] = useState<boolean>(false)
   const navigate = useNavigate();
 
   const login = async (email: string, password: string) => {
@@ -29,24 +31,29 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
       // Save token to local storage
       localStorage.setItem("token", token);
-			setToken(token)
+      setToken(token);
 
       // Decode token to get user info
       const decodedUser = JSON.parse(atob(token.split(".")[1]));
+
+			if (decodedUser.roles.some((x:string) => x === "SUPER_ADMIN" || x === "ADMIN")) {
+				setIsAdmin(true)
+			}
+
       setUser(decodedUser);
 
       // Redirect to the admin dashboard or any other page
       navigate(PRODUCTS);
     } catch (error) {
       alert("Login failed: invalid credentials");
-			console.log(error)
+      console.log(error);
     }
   };
 
   const logout = () => {
     localStorage.removeItem("token");
     setUser(null);
-		setToken("")
+    setToken("");
     navigate(ADMIN_LOGIN);
   };
 
@@ -54,13 +61,13 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     const token = localStorage.getItem("token");
     if (token) {
       const decodedUser = JSON.parse(atob(token.split(".")[1]));
-			setToken(token)
+      setToken(token);
       setUser(decodedUser);
     }
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, token }}>
+    <AuthContext.Provider value={{ user, login, logout, token, isAdmin }}>
       {children}
     </AuthContext.Provider>
   );

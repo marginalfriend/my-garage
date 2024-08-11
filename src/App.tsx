@@ -1,43 +1,42 @@
 import React from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
-import LoginPage from "./pages/LoginPage";
-import ProductsPage from "./pages/ProductsPage";
+import AdminLoginPage from "./pages/admin/AdminLoginPage";
+import ProductsPage from "./pages/admin/ProductsPage";
 import { useAuth } from "./hooks/useAuth"; // Custom hook for authentication
-import CreateProductPage from "./pages/CreateProductPage";
+import CreateProductPage from "./pages/admin/CreateProductPage";
 import {
   CREATE_PRODUCT,
   ADMIN_LOGIN,
   NOT_FOUND,
   PRODUCTS,
 } from "./constants/routes";
-import NotFoundPage from "./pages/NotFoundPage";
+import NotFoundPage from "./pages/admin/NotFoundPage";
 import Navbar from "./components/Navbar";
 
 const App: React.FC = () => {
-  const { user } = useAuth();
-  const isAuthenticated = user !== null;
+  const { isAdmin } = useAuth();
 
   return (
     <>
-      {isAuthenticated && <Navbar />}
+      {isAdmin && <Navbar />}
       <Routes>
         <Route
           path={ADMIN_LOGIN}
           element={
-            !isAuthenticated ? <LoginPage /> : <Navigate to={PRODUCTS} />
+            !isAdmin ? <AdminLoginPage /> : <Navigate to={PRODUCTS} />
           }
         />
         <Route path={NOT_FOUND} element={<NotFoundPage />} />
         <Route
           path={PRODUCTS}
           element={
-            isAuthenticated ? <ProductsPage /> : <Navigate to={ADMIN_LOGIN} />
+            isAdmin ? <ProductsPage /> : <Navigate to={ADMIN_LOGIN} />
           }
         />
         <Route
           path={CREATE_PRODUCT}
           element={
-            isAuthenticated ? (
+            isAdmin ? (
               <CreateProductPage />
             ) : (
               <Navigate to={ADMIN_LOGIN} />
