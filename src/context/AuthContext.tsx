@@ -8,6 +8,7 @@ export interface AuthContextType {
   user: any;
   token: string;
 	isAdmin: boolean;
+	isUser: boolean;
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
 }
@@ -22,6 +23,7 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const [user, setUser] = useState<any>(null);
   const [token, setToken] = useState<string>("");
 	const [isAdmin, setIsAdmin] = useState<boolean>(false)
+	const [isUser, setIsUser] = useState<boolean>(false);
   const navigate = useNavigate();
 
   const login = async (email: string, password: string) => {
@@ -38,6 +40,8 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
 			if (decodedUser.roles.some((x:string) => x === "SUPER_ADMIN" || x === "ADMIN")) {
 				setIsAdmin(true)
+			} else if (decodedUser.roles.some((x:string) => x === "CUSTOMER")) {
+				setIsUser(true)
 			}
 
       setUser(decodedUser);
@@ -67,7 +71,7 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, token, isAdmin }}>
+    <AuthContext.Provider value={{ user, login, logout, token, isAdmin, isUser }}>
       {children}
     </AuthContext.Provider>
   );
