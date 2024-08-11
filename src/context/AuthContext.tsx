@@ -2,6 +2,7 @@
 import React, { createContext, useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { PRODUCTS } from "../constants/routes";
 
 export interface AuthContextType {
   user: any;
@@ -35,9 +36,10 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       setUser(decodedUser);
 
       // Redirect to the admin dashboard or any other page
-      navigate("/admin/products");
+      navigate(PRODUCTS);
     } catch (error) {
-      console.error("Login failed", error);
+      alert("Login failed: invalid credentials");
+			console.log(error)
     }
   };
 

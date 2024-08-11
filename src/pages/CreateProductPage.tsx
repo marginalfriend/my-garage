@@ -4,14 +4,15 @@ import { useAuth } from "../hooks/useAuth";
 const CreateProductPage: React.FC = () => {
   const { token } = useAuth();
 
-  const [formData, setFormData] = useState({
+	const initialFormState = {
     name: "",
     price: "",
     description: "",
     stock: "",
     categoryId: "",
     images: [] as File[],
-  });
+  };
+  const [formData, setFormData] = useState(initialFormState);
 
   const handleInputChange = (
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -57,10 +58,11 @@ const CreateProductPage: React.FC = () => {
 
       if (response.ok) {
         // Handle success
-        console.log("Product created successfully");
+        alert("Product created successfully");
+				setFormData(initialFormState)
       } else {
         // Handle error
-        console.error("Failed to create product");
+        alert("Failed to create product");
       }
     } catch (error) {
       console.error("Error:", error);
@@ -68,7 +70,7 @@ const CreateProductPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center">
+    <main className="min-h-screen bg-background flex items-center justify-center py-10">
       <form
         onSubmit={handleSubmit}
         className="bg-surface p-8 rounded-lg shadow-md w-full max-w-lg"
@@ -169,7 +171,7 @@ const CreateProductPage: React.FC = () => {
           Create Product
         </button>
       </form>
-    </div>
+    </main>
   );
 };
 
