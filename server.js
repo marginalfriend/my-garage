@@ -1,8 +1,8 @@
 import express, { json } from 'express';
 import { category as _category, product as _product } from './prisma-client.js';
-import authenticateToken from './middleware/auth.js';
-import router from './routes/auth.js';
-import upload from './upload.js';
+import authenticateToken from './server/middleware/auth.js';
+import router from './server/routes/auth.js';
+import upload from './server/upload.js';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';

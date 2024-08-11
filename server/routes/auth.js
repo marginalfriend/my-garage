@@ -1,9 +1,9 @@
 import { Router } from 'express';
-const router = Router();
 import { compare } from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import { account as _account, accountRole } from '../prisma-client.js';
+import { account as _account, accountRole } from '../../prisma-client.js';
 
+const router = Router();
 const { sign } = jwt;
 
 router.post('/login', async (req, res) => {
