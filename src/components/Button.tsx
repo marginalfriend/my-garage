@@ -1,10 +1,10 @@
 import React from "react";
 
-type ButtonVariant = "primary" | "secondary" | "danger";
+type ButtonVariant = "primary" | "secondary" | "danger" | "glass";
 
 interface ButtonProps {
   variant?: ButtonVariant;
-	className?: string;
+  className?: string;
   onClick?: () => void;
   type?: "button" | "submit" | "reset";
   disabled?: boolean;
@@ -17,15 +17,17 @@ const Button: React.FC<ButtonProps> = ({
   type = "button",
   disabled = false,
   children,
-	className
+  className,
 }) => {
   const baseClasses =
-    "px-4 py-2 rounded-md text-white text-sm focus:outline-none focus:ring-2 focus:ring-offset-2";
+    "px-4 py-2 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 transition duration-300 ease-in-out";
 
   const variantClasses = {
-    primary: "bg-accent hover:bg-heading",
-    secondary: "bg-default hover:bg-default-dark focus:ring-default",
-    danger: "bg-red-600 hover:bg-red-700 focus:ring-red-500",
+    primary: "bg-accent hover:bg-heading text-white",
+    secondary: "bg-default hover:bg-default-dark text-white focus:ring-default",
+    danger: "bg-red-600 hover:bg-red-700 text-white focus:ring-red-500",
+    glass:
+      "bg-white bg-opacity-20 backdrop-filter backdrop-blur-lg hover:bg-opacity-30 text-default hover:text-heading shadow-lg",
   };
 
   return (

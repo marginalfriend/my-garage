@@ -2,7 +2,7 @@
 import React, { createContext, useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { PRODUCTS } from "../constants/routes";
+import { ADMIN_LOGIN, PRODUCTS } from "../constants/routes";
 
 export interface AuthContextType {
   user: any;
@@ -47,7 +47,7 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     localStorage.removeItem("token");
     setUser(null);
 		setToken("")
-    navigate("/login");
+    navigate(ADMIN_LOGIN);
   };
 
   useEffect(() => {

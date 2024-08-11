@@ -12,9 +12,9 @@ const CreateProductPage: React.FC = () => {
     label: string;
   } | null>(null);
   const [name, setName] = useState<string>("");
-  const [price, setPrice] = useState<number>(0);
+  const [price, setPrice] = useState<string>("");
   const [description, setDescription] = useState<string>("");
-  const [stock, setStock] = useState<number>(0);
+  const [stock, setStock] = useState<string>("");
   const navigate = useNavigate();
   const { token } = useAuth();
 
@@ -53,14 +53,28 @@ const CreateProductPage: React.FC = () => {
     setSelectedCategory(newOption);
   };
 
+  const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    if (value === "" || /^\d+(\.\d{0,2})?$/.test(value)) {
+      setPrice(value);
+    }
+  };
+
+  const handleStockChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    if (value === "" || /^\d+$/.test(value)) {
+      setStock(value);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     const formData = new FormData();
     formData.append("name", name);
-    formData.append("price", price.toString());
+    formData.append("price", price);
     formData.append("description", description);
-    formData.append("stock", stock.toString());
+    formData.append("stock", stock);
     formData.append("categoryId", selectedCategory?.value || "");
 
     selectedImages.forEach((image) => {
@@ -68,7 +82,6 @@ const CreateProductPage: React.FC = () => {
     });
 
     try {
-      console.log();
       const response = await fetch("/api/products", {
         method: "POST",
         headers: {
@@ -99,7 +112,7 @@ const CreateProductPage: React.FC = () => {
               htmlFor="name"
               className="block text-sm font-medium text-gray-700"
             >
-              Name
+              Part Name
             </label>
             <input
               type="text"
@@ -107,6 +120,7 @@ const CreateProductPage: React.FC = () => {
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
+              placeholder="e.g., Brake Pad, Oil Filter"
               className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
             />
           </div>
@@ -115,15 +129,16 @@ const CreateProductPage: React.FC = () => {
               htmlFor="price"
               className="block text-sm font-medium text-gray-700"
             >
-              Price
+              Price (in IDR)
             </label>
             <input
-              type="number"
+              type="text"
               id="price"
               value={price}
-              onChange={(e) => setPrice(Number(e.target.value))}
+              onChange={handlePriceChange}
               required
-              className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
+              placeholder="e.g., 500000"
+              className="mt-1 block w-full p-2 border border-gray-300 rounded-md [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
             />
           </div>
           <div>
@@ -137,6 +152,7 @@ const CreateProductPage: React.FC = () => {
               id="description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
+              placeholder="Provide details about the spare part"
               className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
             />
           </div>
@@ -148,12 +164,13 @@ const CreateProductPage: React.FC = () => {
               Stock
             </label>
             <input
-              type="number"
+              type="text"
               id="stock"
               value={stock}
-              onChange={(e) => setStock(Number(e.target.value))}
+              onChange={handleStockChange}
               required
-              className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
+              placeholder="e.g., 100"
+              className="mt-1 block w-full p-2 border border-gray-300 rounded-md [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
             />
           </div>
           <div>
