@@ -11,6 +11,7 @@ import { prisma } from './prisma-client.js';
 const app = express();
 app.use(json());
 app.use('/auth', router);
+app.use(express.json());
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -37,8 +38,30 @@ app.post('/categories', async (req, res) => {
 });
 
 app.get('/categories', async (req, res) => {
-	const categories = await _category.findMany();
-	res.json(categories);
+	try {
+		const { query } = req.query;
+
+		// If a query string is provided, filter categories by name
+		let categories;
+		if (query) {
+			categories = await _category.findMany({
+				where: {
+					name: {
+						contains: query,
+						mode: 'insensitive', // case-insensitive search
+					},
+				},
+			});
+		} else {
+			// If no query string is provided, return all categories
+			categories = await _category.findMany();
+		}
+
+		res.json(categories);
+	} catch (error) {
+		console.error('Error fetching categories:', error);
+		res.status(500).json({ message: 'Server error' });
+	}
 });
 
 app.get('/categories/:id', async (req, res) => {

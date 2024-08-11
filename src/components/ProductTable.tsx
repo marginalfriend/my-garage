@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useMemo } from "react";
 import {
   useReactTable,
@@ -7,6 +8,9 @@ import {
   flexRender,
 } from "@tanstack/react-table";
 import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
+import Button from "./Button";
+import { PencilSquareIcon } from "@heroicons/react/16/solid";
+import { formatIDR } from "../utils/utils";
 
 type Product = {
   id: string;
@@ -39,7 +43,7 @@ const ProductTable: React.FC<ProductTableProps> = ({
       {
         accessorKey: "price",
         header: "Price",
-        cell: ({ getValue }) => `IDR ${getValue()}`,
+        cell: ({ getValue } : {getValue: () => any}) => `${formatIDR(getValue())}`,
       },
       {
         accessorKey: "stock",
@@ -54,15 +58,21 @@ const ProductTable: React.FC<ProductTableProps> = ({
         header: "Actions",
         cell: ({ row }) => (
           <Menu as="div" className="relative inline-block text-left">
-            <MenuButton className="text-contrast bg-accent py-1 px-2 rounded-md">Actions</MenuButton>
-            <MenuItems className="absolute right-0 w-56 mt-2 origin-top-right bg-surface divide-y divide-gray-100 rounded-md shadow-lg">
+            <MenuButton>
+							<Button>
+								<PencilSquareIcon height={15} width={15}/>
+							</Button>
+            </MenuButton>
+            <MenuItems className="absolute right-0 w-56 mt-2 origin-top-right bg-surface divide-y divide-gray-100 rounded-md shadow-lg z-50">
               <div className="px-1 py-1">
                 <MenuItem>
                   {(button) => (
                     <button
                       onClick={() => onEdit(row.original.id)}
                       className={`${
-                        button.focus ? "bg-accent text-contrast" : "text-default"
+                        button.focus
+                          ? "bg-accent text-contrast"
+                          : "text-default"
                       } group flex rounded-md items-center w-full px-2 py-2 text-sm`}
                     >
                       Edit
@@ -107,7 +117,7 @@ const ProductTable: React.FC<ProductTableProps> = ({
               {headerGroup.headers.map((header) => (
                 <th
                   key={header.id}
-                  className="px-6 py-3 text-left text-xs font-medium text-heading uppercase tracking-wider"
+                  className="px-6 py-3 text-left text-xs font-medium text-contrast uppercase tracking-wider"
                 >
                   {flexRender(
                     header.column.columnDef.header,
@@ -137,20 +147,20 @@ const ProductTable: React.FC<ProductTableProps> = ({
       {/* Pagination */}
       <div className="py-3 flex items-center justify-between">
         <div className="flex-1 flex justify-between">
-          <button
+          <Button
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
             className="px-4 py-2 bg-accent text-contrast rounded"
           >
             Previous
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
             className="px-4 py-2 bg-accent text-contrast rounded"
           >
             Next
-          </button>
+          </Button>
         </div>
         <div>
           <select
