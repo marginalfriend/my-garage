@@ -1,11 +1,15 @@
-// pages/ProductDetailPage.tsx
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate, Navigate } from "react-router-dom";
 import { formatIDR } from "../../utils/utils";
 import Button from "../../components/Button";
 import { ExtendedProduct } from "./ProductsPage";
+import { useAuth } from "../../hooks/useAuth";
+import { addToCart } from "../../apis/cart"; // Import your API call function
+import { USER_PRODUCTS } from "../../constants/routes";
 
 const ProductDetailPage: React.FC = () => {
+  const { account, token } = useAuth();
+  const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const [product, setProduct] = useState<ExtendedProduct | null>(null);
   const [loading, setLoading] = useState(true);
@@ -28,6 +32,28 @@ const ProductDetailPage: React.FC = () => {
 
     fetchProduct();
   }, [id]);
+
+  if (!id) return <Navigate to={USER_PRODUCTS} />;
+
+  const handleClick = async () => {
+    if (!account) {
+      navigate("/login");
+      return;
+    }
+
+    if (!account.roles.includes("CUSTOMER")) {
+      alert("Error: You are not authorized as a customer.");
+      return;
+    }
+
+    try {
+      await addToCart(id, 1, token, account.id);
+      alert("Product added to cart successfully!");
+    } catch (error) {
+      console.error("Error adding product to cart:", error);
+      alert("Failed to add product to cart.");
+    }
+  };
 
   if (loading) {
     return <div>Loading...</div>;
@@ -53,7 +79,9 @@ const ProductDetailPage: React.FC = () => {
             {formatIDR(product.price)}
           </p>
           <p className="mb-4">{product.description}</p>
-          <Button variant="primary">Add to Cart</Button>
+          <Button variant="primary" onClick={handleClick}>
+            Add to Cart
+          </Button>
         </div>
       </div>
     </main>

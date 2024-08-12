@@ -4,6 +4,7 @@ import path from 'path';
 import authRoutes from './server/routes/auth.js';
 import categoryRoutes from './server/routes/categories.js';
 import productRoutes from './server/routes/products.js';
+import cartRoutes from './server/routes/cart.js';
 import { errorHandler } from './server/middleware/errorHandler.js';
 
 const app = express();
@@ -17,6 +18,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/auth', authRoutes);
 app.use('/categories', categoryRoutes);
 app.use('/products', productRoutes);
+app.use('/cart', cartRoutes);
 
 // Error handling middleware
 app.use(errorHandler);

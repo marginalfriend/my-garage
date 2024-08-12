@@ -5,9 +5,9 @@ import { LOGIN, HOME, FAQ, ABOUT, USER_PRODUCTS } from "../constants/routes";
 import { useAuth } from "../hooks/useAuth";
 
 const UserNavbar: React.FC = () => {
-  const { user,logout } = useAuth();
+  const { account: user, logout } = useAuth();
 
-	console.log(user)
+  console.log(user);
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-default bg-opacity-50 backdrop-filter backdrop-blur-lg shadow-lg">

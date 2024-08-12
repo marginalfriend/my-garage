@@ -1,4 +1,4 @@
-import heroImage from "../../../public/images/bgcar.png";
+import heroImage from "/images/bgcar.png";
 
 function HomePage() {
   return (
