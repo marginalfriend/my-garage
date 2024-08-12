@@ -27,7 +27,7 @@ const UserRegistrationPage: React.FC = () => {
 
     if (!phoneNumber.trim()) {
       newErrors.phoneNumber = "Phone number is required";
-    } else if (!/^\d{10}$/.test(phoneNumber.replace(/\D/g, ""))) {
+    } else if (!/^\d{14}$/.test(phoneNumber.replace(/\D/g, ""))) {
       newErrors.phoneNumber = "Phone number is invalid";
     }
 
@@ -69,10 +69,10 @@ const UserRegistrationPage: React.FC = () => {
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-400 to-purple-500">
-      <div className="w-full max-w-md p-8 space-y-8 bg-white backdrop-filter backdrop-blur-lg rounded-xl shadow-2xl">
+      <div className="w-full max-w-md p-8 space-y-8 bg-white bg-opacity-90 backdrop-filter backdrop-blur-lg rounded-xl shadow-2xl">
         <div>
           <h2 className="mt-6 text-3xl font-extrabold text-center text-heading">
-            User Registration
+            Register
           </h2>
         </div>
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>

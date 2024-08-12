@@ -6,7 +6,7 @@ interface RegistrationData {
 }
 
 export const registerUser = async (userData: RegistrationData) => {
-	const response = await fetch('/register', {
+	const response = await fetch('/api/auth/register', {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/json',
@@ -16,6 +16,7 @@ export const registerUser = async (userData: RegistrationData) => {
 
 	if (!response.ok) {
 		const errorData = await response.json();
+		console.log(response)
 		throw new Error(errorData.error || 'Registration failed');
 	}
 
