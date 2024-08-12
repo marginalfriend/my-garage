@@ -1,14 +1,18 @@
 // components/ProductCard.tsx
 import React from "react";
-import { Product } from "@prisma/client";
 import { formatIDR } from "../utils/utils";
 import Button from "./Button";
+import { useNavigate } from "react-router-dom";
+import { USER_PRODUCTS } from "../constants/routes";
+import { ExtendedProduct } from "../pages/user/ProductsPage";
 
 interface ProductCardProps {
-  product: Product;
+  product: ExtendedProduct
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
+  const navigate = useNavigate();
+
   return (
     <div className="flex flex-col border w-full rounded-lg shadow-md">
       <div className="w-full h-60 border-b">
@@ -22,7 +26,12 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         <h2 className="font-semibold text-sm">{product.name}</h2>
         <h3 className="font-medium text-xs">{formatIDR(product.price)}</h3>
         <div className="mt-auto">
-          <Button variant="primary">See Details</Button>
+          <Button
+            variant="primary"
+            onClick={() => navigate(USER_PRODUCTS + "/" + product.id)}
+          >
+            See Details
+          </Button>
         </div>
       </div>
     </div>

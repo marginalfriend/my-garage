@@ -35,6 +35,7 @@ import {
   LOGIN,
 } from "./constants/routes";
 import ProtectedRoute from "./components/ProtectedRoute";
+import ProductDetailPage from "./pages/user/ProductDetailPage";
 
 const UserLayout = () => {
   return (
@@ -66,6 +67,7 @@ const App: React.FC = () => {
       <Route element={<UserLayout />}>
         <Route path={HOME} element={<HomePage />} />
         <Route path={USER_PRODUCTS} element={<UserProductsPage />} />
+        <Route path={USER_PRODUCTS + "/:id"} element={<ProductDetailPage />} />
         <Route path={CONTACT} element={<ContactPage />} />
         <Route path={ABOUT} element={<AboutPage />} />
         <Route path={FAQ} element={<FAQPage />} />

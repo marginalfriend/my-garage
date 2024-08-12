@@ -1,10 +1,14 @@
 // ProductsPage.tsx
 import { useEffect, useState } from "react";
-import { Product } from "@prisma/client";
+import { Image, Product } from "@prisma/client";
 import ProductCard from "../../components/ProductCard";
 
+export type ExtendedProduct = Product & {
+	images: Image[]
+}
+
 function ProductsPage() {
-  const [products, setProducts] = useState<Product[]>([]);
+  const [products, setProducts] = useState<ExtendedProduct[]>([]);
 
   const getProducts = async () => {
     return await fetch("/api/products");
@@ -26,7 +30,7 @@ function ProductsPage() {
       </h1>
       <div className="grid grid-cols-3 gap-5">
         {products &&
-          products.map((product) => (
+          products.map((product: ExtendedProduct) => (
             <ProductCard key={product.id} product={product} />
           ))}
       </div>
