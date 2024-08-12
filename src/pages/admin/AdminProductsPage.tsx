@@ -13,7 +13,7 @@ type Product = {
   images: { id: string; url: string; productId: string }[];
 };
 
-const ProductsPage: React.FC = () => {
+const AdminProductsPage: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const navigate = useNavigate();
 
@@ -59,4 +59,4 @@ const ProductsPage: React.FC = () => {
   );
 };
 
-export default ProductsPage;
+export default AdminProductsPage;

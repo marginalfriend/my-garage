@@ -2,13 +2,13 @@
 import React, { createContext, useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { ADMIN_LOGIN, PRODUCTS } from "../constants/routes";
+import { ADMIN_LOGIN, ADMIN_PRODUCTS } from "../constants/routes";
 
 export interface AuthContextType {
   user: any;
   token: string;
-	isAdmin: boolean;
-	isUser: boolean;
+  isAdmin: boolean;
+  isUser: boolean;
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
 }
@@ -22,8 +22,8 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 }) => {
   const [user, setUser] = useState<any>(null);
   const [token, setToken] = useState<string>("");
-	const [isAdmin, setIsAdmin] = useState<boolean>(false)
-	const [isUser, setIsUser] = useState<boolean>(false);
+  const [isAdmin, setIsAdmin] = useState<boolean>(false);
+  const [isUser, setIsUser] = useState<boolean>(false);
   const navigate = useNavigate();
 
   const login = async (email: string, password: string) => {
@@ -38,16 +38,20 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       // Decode token to get user info
       const decodedUser = JSON.parse(atob(token.split(".")[1]));
 
-			if (decodedUser.roles.some((x:string) => x === "SUPER_ADMIN" || x === "ADMIN")) {
-				setIsAdmin(true)
-			} else if (decodedUser.roles.some((x:string) => x === "CUSTOMER")) {
-				setIsUser(true)
-			}
+      if (
+        decodedUser.roles.some(
+          (x: string) => x === "SUPER_ADMIN" || x === "ADMIN"
+        )
+      ) {
+        setIsAdmin(true);
+      } else if (decodedUser.roles.some((x: string) => x === "CUSTOMER")) {
+        setIsUser(true);
+      }
 
       setUser(decodedUser);
 
       // Redirect to the admin dashboard or any other page
-      navigate(PRODUCTS);
+      navigate(ADMIN_PRODUCTS);
     } catch (error) {
       alert("Login failed: invalid credentials");
       console.log(error);
@@ -71,7 +75,9 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, token, isAdmin, isUser }}>
+    <AuthContext.Provider
+      value={{ user, login, logout, token, isAdmin, isUser }}
+    >
       {children}
     </AuthContext.Provider>
   );

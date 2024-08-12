@@ -1,13 +1,14 @@
 import React from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate, Outlet } from "react-router-dom";
 import { useAuth } from "./hooks/useAuth";
-import Navbar from "./components/Navbar";
+import AdminNavbar from "./components/AdminNavbar";
+import UserNavbar from "./components/UserNavbar";
 
 // Admin pages
 import AdminLoginPage from "./pages/admin/AdminLoginPage";
-import ProductsPage from "./pages/admin/ProductsPage";
+import AdminProductsPage from "./pages/admin/AdminProductsPage";
 import CreateProductPage from "./pages/admin/CreateProductPage";
-import NotFoundPage from "./pages/admin/NotFoundPage";
+import NotFoundPage from "./pages/NotFoundPage";
 
 // User pages
 import HomePage from "./pages/user/HomePage";
@@ -15,74 +16,83 @@ import UserProductsPage from "./pages/user/ProductsPage";
 import ContactPage from "./pages/user/ContactPage";
 import AboutPage from "./pages/user/AboutPage";
 import FAQPage from "./pages/user/FAQPage";
+import LoginPage from "./pages/user/UserLoginPage";
+import RegisterPage from "./pages/user/UserRegistrationPage";
 
 // Route constants
 import {
+  ADMIN_HOME_PAGE,
+  ADMIN_PRODUCTS,
   CREATE_PRODUCT,
   ADMIN_LOGIN,
   NOT_FOUND,
-  PRODUCTS,
   HOME,
   USER_PRODUCTS,
   CONTACT,
   ABOUT,
   FAQ,
+  REGISTER,
+  LOGIN,
 } from "./constants/routes";
+import ProtectedRoute from "./components/ProtectedRoute";
 
-// Define routes outside of the component
-const adminRoutes = [
-  { path: ADMIN_LOGIN, element: AdminLoginPage },
-  { path: PRODUCTS, element: ProductsPage },
-  { path: CREATE_PRODUCT, element: CreateProductPage },
-];
+const UserLayout = () => {
+  return (
+    <>
+      <UserNavbar />
+      <Outlet />
+    </>
+  );
+};
 
-const userRoutes = [
-  { path: HOME, element: HomePage },
-  { path: USER_PRODUCTS, element: UserProductsPage },
-  { path: CONTACT, element: ContactPage },
-  { path: ABOUT, element: AboutPage },
-  { path: FAQ, element: FAQPage },
-];
+const AdminLayout = () => {
+  return (
+    <>
+      <AdminNavbar />
+      <Outlet />
+    </>
+  );
+};
 
 const App: React.FC = () => {
   const { isAdmin, isUser } = useAuth();
 
   return (
-    <>
-      {isAdmin && <Navbar />}
-      {isUser && <UserNavbar />} {/* Assume you have a UserNavbar component */}
-      <Routes>
-        {/* Admin Routes */}
-        {adminRoutes.map((route) => (
-          <Route
-            key={route.path}
-            path={route.path}
-            element={
-              isAdmin ? (
-                <route.element />
-              ) : (
-                <Navigate to={ADMIN_LOGIN} replace />
-              )
-            }
-          />
-        ))}
+    <Routes>
+      {/* Public routes */}
+      <Route path={LOGIN} element={<LoginPage />} />
+      <Route path={REGISTER} element={<RegisterPage />} />
+      <Route path={ADMIN_LOGIN} element={<AdminLoginPage />} />
+      <Route element={<UserLayout />}>
+        <Route path={HOME} element={<HomePage />} />
+        <Route path={USER_PRODUCTS} element={<UserProductsPage />} />
+        <Route path={CONTACT} element={<ContactPage />} />
+        <Route path={ABOUT} element={<AboutPage />} />
+        <Route path={FAQ} element={<FAQPage />} />
+      </Route>
 
-        {/* User Routes */}
-        {userRoutes.map((route) => (
-          <Route
-            key={route.path}
-            path={route.path}
-            element={
-              isUser ? <route.element /> : <Navigate to={HOME} replace />
-            }
-          />
-        ))}
+      {/* User routes */}
+      <Route element={<ProtectedRoute isAllowed={isUser} />}>
+        <Route element={<UserLayout />}></Route>
+      </Route>
 
-        {/* Not Found and Catch-all Routes */}
-        <Route path={NOT_FOUND} element={<NotFoundPage />} />
-        <Route path="*" element={<Navigate to={NOT_FOUND} replace />} />
-      </Routes>
-    </>
+      {/* Admin routes */}
+      <Route
+        element={
+          <ProtectedRoute isAllowed={isAdmin} redirectPath={ADMIN_LOGIN} />
+        }
+      >
+        <Route path={ADMIN_HOME_PAGE} element={<AdminLayout />}>
+          <Route path={ADMIN_PRODUCTS} element={<AdminProductsPage />} />
+          <Route path={CREATE_PRODUCT} element={<CreateProductPage />} />
+          {/* Add more admin routes here as needed */}
+        </Route>
+      </Route>
+
+      {/* Not Found route */}
+      <Route path={NOT_FOUND} element={<NotFoundPage />} />
+      <Route path="*" element={<Navigate to={NOT_FOUND} replace />} />
+    </Routes>
   );
 };
 

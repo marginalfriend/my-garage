@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import AsyncCreatableSelect from "react-select/async-creatable";
 import { useNavigate } from "react-router-dom";
-import { PRODUCTS } from "../../constants/routes";
+import { ADMIN_PRODUCTS } from "../../constants/routes";
 import { useAuth } from "../../hooks/useAuth";
 import Button from "../../components/Button";
 
@@ -91,7 +91,7 @@ const CreateProductPage: React.FC = () => {
       });
 
       if (response.ok) {
-        navigate(PRODUCTS);
+        navigate(ADMIN_PRODUCTS);
       } else {
         console.error("Failed to create product");
       }

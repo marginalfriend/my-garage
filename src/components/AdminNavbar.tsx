@@ -1,10 +1,14 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
-import { ADMIN_HOME_PAGE, PRODUCTS, CREATE_PRODUCT } from "../constants/routes";
+import {
+  ADMIN_HOME_PAGE,
+  ADMIN_PRODUCTS,
+  CREATE_PRODUCT,
+} from "../constants/routes";
 import Button from "./Button";
 import { useAuth } from "../hooks/useAuth";
 
-const Navbar: React.FC = () => {
+const AdminNavbar: React.FC = () => {
   const { logout } = useAuth();
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-white bg-opacity-20 backdrop-filter backdrop-blur-lg shadow-lg">
@@ -17,7 +21,7 @@ const Navbar: React.FC = () => {
             <div className="hidden md:block">
               <div className="ml-10 flex items-baseline space-x-4">
                 <NavLink
-                  to={PRODUCTS}
+                  to={ADMIN_PRODUCTS}
                   end
                   className={({ isActive }) =>
                     isActive
@@ -50,15 +54,11 @@ const Navbar: React.FC = () => {
               </div>
             </div>
           </div>
-          <Button
-            onClick={logout}
-          >
-            Logout
-          </Button>
+          <Button onClick={logout}>Logout</Button>
         </div>
       </div>
     </nav>
   );
 };
 
-export default Navbar;
+export default AdminNavbar;

@@ -3,20 +3,21 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-	"scripts": {
-		"seed": "node prisma/seed.js",
-		"dev:frontend": "vite",
-		"dev:backend": "node server.js",
-		"dev": "concurrently -c \"blue.bold,green.bold\" -n \"FRONTEND,BACKEND\" \"npm run dev:frontend\" \"npm run dev:backend\"",
-		"build": "tsc -b && vite build",
-		"lint": "eslint .",
-		"preview": "vite preview"
-	},
+  "scripts": {
+    "seed": "node prisma/seed.js",
+    "dev:frontend": "vite",
+    "dev:backend": "node server.js",
+    "dev": "concurrently -c \"blue.bold,green.bold\" -n \"FRONTEND,BACKEND\" \"npm run dev:frontend\" \"npm run dev:backend\"",
+    "build": "tsc -b && vite build",
+    "lint": "eslint .",
+    "preview": "vite preview"
+  },
   "dependencies": {
     "@headlessui/react": "^2.1.2",
     "@heroicons/react": "^2.1.5",
     "@prisma/client": "^5.18.0",
     "@tanstack/react-table": "^8.20.1",
+    "@types/react-router-dom": "^5.3.3",
     "axios": "^1.7.3",
     "bcrypt": "^5.1.1",
     "bcryptjs": "^2.4.3",
