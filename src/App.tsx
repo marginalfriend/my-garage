@@ -38,10 +38,10 @@ import ProtectedRoute from "./components/ProtectedRoute";
 
 const UserLayout = () => {
   return (
-    <>
+    <div className="overflow-x-hidden">
       <UserNavbar />
       <Outlet />
-    </>
+    </div>
   );
 };
 

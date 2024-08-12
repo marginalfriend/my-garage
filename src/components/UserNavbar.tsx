@@ -10,12 +10,12 @@ const UserNavbar: React.FC = () => {
 	console.log(user)
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-white bg-opacity-20 backdrop-filter backdrop-blur-lg shadow-lg">
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-default bg-opacity-50 backdrop-filter backdrop-blur-lg shadow-lg">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center">
-            <div className="flex-shrink-0 text-heading text-2xl font-bold">
-              GK5 Public Portal
+            <div className="flex-shrink-0 text-contrast text-2xl font-bold">
+              <span className="text-accent">GK5</span>GARAGE
             </div>
             <div className="hidden md:block">
               <div className="ml-10 flex items-baseline space-x-4">
@@ -25,7 +25,7 @@ const UserNavbar: React.FC = () => {
                   className={({ isActive }) =>
                     isActive
                       ? "text-accent px-3 py-2 rounded-md text-sm font-medium transition duration-300 ease-in-out"
-                      : "text-default hover:text-heading px-3 py-2 rounded-md text-sm font-medium transition duration-300 ease-in-out hover:bg-white hover:bg-opacity-20"
+                      : "text-contrast hover:text-heading px-3 py-2 rounded-md text-sm font-medium transition duration-300 ease-in-out hover:bg-white hover:bg-opacity-20"
                   }
                 >
                   Home
@@ -35,7 +35,7 @@ const UserNavbar: React.FC = () => {
                   className={({ isActive }) =>
                     isActive
                       ? "text-accent px-3 py-2 rounded-md text-sm font-medium transition duration-300 ease-in-out"
-                      : "text-default hover:text-heading px-3 py-2 rounded-md text-sm font-medium transition duration-300 ease-in-out hover:bg-white hover:bg-opacity-20"
+                      : "text-contrast hover:text-heading px-3 py-2 rounded-md text-sm font-medium transition duration-300 ease-in-out hover:bg-white hover:bg-opacity-20"
                   }
                 >
                   Products
@@ -45,7 +45,7 @@ const UserNavbar: React.FC = () => {
                   className={({ isActive }) =>
                     isActive
                       ? "text-accent px-3 py-2 rounded-md text-sm font-medium transition duration-300 ease-in-out"
-                      : "text-default hover:text-heading px-3 py-2 rounded-md text-sm font-medium transition duration-300 ease-in-out hover:bg-white hover:bg-opacity-20"
+                      : "text-contrast hover:text-heading px-3 py-2 rounded-md text-sm font-medium transition duration-300 ease-in-out hover:bg-white hover:bg-opacity-20"
                   }
                 >
                   FAQ
@@ -55,7 +55,7 @@ const UserNavbar: React.FC = () => {
                   className={({ isActive }) =>
                     isActive
                       ? "text-accent px-3 py-2 rounded-md text-sm font-medium transition duration-300 ease-in-out"
-                      : "text-default hover:text-heading px-3 py-2 rounded-md text-sm font-medium transition duration-300 ease-in-out hover:bg-white hover:bg-opacity-20"
+                      : "text-contrast hover:text-heading px-3 py-2 rounded-md text-sm font-medium transition duration-300 ease-in-out hover:bg-white hover:bg-opacity-20"
                   }
                 >
                   About
@@ -68,9 +68,7 @@ const UserNavbar: React.FC = () => {
               <Button>Login</Button>
             </NavLink>
           ) : (
-            <Button onClick={logout}>
-							Logout
-						</Button>
+            <Button onClick={logout}>Logout</Button>
           )}
         </div>
       </div>
