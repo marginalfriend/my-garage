@@ -2,7 +2,7 @@
 import React, { createContext, useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { ADMIN_LOGIN, ADMIN_PRODUCTS } from "../constants/routes";
+import { ADMIN_PRODUCTS, HOME } from "../constants/routes";
 
 export interface AuthContextType {
   user: any;
@@ -44,14 +44,15 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         )
       ) {
         setIsAdmin(true);
+        setUser(decodedUser);
+        navigate(ADMIN_PRODUCTS);
       } else if (decodedUser.roles.some((x: string) => x === "CUSTOMER")) {
         setIsUser(true);
+        setUser(decodedUser);
+        navigate(HOME);
       }
 
-      setUser(decodedUser);
-
       // Redirect to the admin dashboard or any other page
-      navigate(ADMIN_PRODUCTS);
     } catch (error) {
       alert("Login failed: invalid credentials");
       console.log(error);
@@ -62,7 +63,7 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     localStorage.removeItem("token");
     setUser(null);
     setToken("");
-    navigate(ADMIN_LOGIN);
+    navigate(HOME);
   };
 
   useEffect(() => {

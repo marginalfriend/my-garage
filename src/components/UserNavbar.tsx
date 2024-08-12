@@ -2,8 +2,13 @@ import React from "react";
 import { NavLink } from "react-router-dom";
 import Button from "./Button"; // Assuming you have a Button component
 import { LOGIN, HOME, FAQ, ABOUT, USER_PRODUCTS } from "../constants/routes";
+import { useAuth } from "../hooks/useAuth";
 
 const UserNavbar: React.FC = () => {
+  const { user,logout } = useAuth();
+
+	console.log(user)
+
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-white bg-opacity-20 backdrop-filter backdrop-blur-lg shadow-lg">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -58,9 +63,15 @@ const UserNavbar: React.FC = () => {
               </div>
             </div>
           </div>
-          <NavLink to={LOGIN}>
-            <Button>Login</Button>
-          </NavLink>
+          {user === null ? (
+            <NavLink to={LOGIN}>
+              <Button>Login</Button>
+            </NavLink>
+          ) : (
+            <Button onClick={logout}>
+							Logout
+						</Button>
+          )}
         </div>
       </div>
     </nav>

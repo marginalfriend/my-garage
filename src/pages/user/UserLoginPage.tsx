@@ -17,7 +17,7 @@ const UserLoginPage: React.FC = () => {
       <div className="w-full max-w-md p-8 space-y-8 bg-white backdrop-filter backdrop-blur-lg rounded-xl shadow-2xl">
         <div>
           <h2 className="mt-6 text-3xl font-extrabold text-center text-heading">
-            GK5 Admin Login
+            Login
           </h2>
         </div>
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>

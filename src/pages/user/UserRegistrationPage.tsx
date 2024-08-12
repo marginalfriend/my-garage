@@ -2,6 +2,8 @@
 import React, { useState } from "react";
 import Button from "../../components/Button";
 import { registerUser } from "../../api";
+import { useNavigate } from "react-router-dom";
+import { HOME } from "../../constants/routes";
 
 const UserRegistrationPage: React.FC = () => {
   const [name, setName] = useState("");
@@ -11,6 +13,7 @@ const UserRegistrationPage: React.FC = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [isLoading, setIsLoading] = useState(false);
+	const navigate = useNavigate()
 
   const validateForm = () => {
     const newErrors: { [key: string]: string } = {};
@@ -57,7 +60,7 @@ const UserRegistrationPage: React.FC = () => {
           password,
         });
         console.log("Registration successful:", result);
-        // Here you can redirect the user or show a success message
+        navigate(HOME)
       } catch (error:any) {
         console.error("Registration failed:", error);
         setErrors({ form: error.message });
