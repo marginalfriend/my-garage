@@ -33,9 +33,11 @@ import {
   FAQ,
   REGISTER,
   LOGIN,
+	CART,
 } from "./constants/routes";
 import ProtectedRoute from "./components/ProtectedRoute";
 import ProductDetailPage from "./pages/user/ProductDetailPage";
+import CartPage from "./pages/user/CartPage";
 
 const UserLayout = () => {
   return (
@@ -71,6 +73,7 @@ const App: React.FC = () => {
         <Route path={CONTACT} element={<ContactPage />} />
         <Route path={ABOUT} element={<AboutPage />} />
         <Route path={FAQ} element={<FAQPage />} />
+        <Route path={CART} element={<CartPage />} />
       </Route>
 
       {/* User routes */}

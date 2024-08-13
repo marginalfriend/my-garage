@@ -60,7 +60,8 @@ export const addToCart = async (req, res) => {
 
 export const getUserCart = async (req, res) => {
 	try {
-		const { accountId } = req.body; // Changed from req.user.id to req.body.accountId
+		const authorization = req.get('Authorization');
+		const accountId = JSON.parse(atob(authorization.split(".")[1])).id;
 
 		// Find the user first
 		const user = await prisma.user.findUnique({
@@ -75,7 +76,11 @@ export const getUserCart = async (req, res) => {
 		const cartItems = await prisma.cart.findMany({
 			where: { userId: user.id },
 			include: {
-				product: true, // Include the related product details
+				product: {
+					include: {
+						images: true
+					}
+				}, // Include the related product details
 			},
 		});
 
@@ -153,7 +158,7 @@ export const updateCartItem = async (req, res) => {
 			return res.status(404).json({ message: 'Cart item not found' });
 		}
 
-		if (quantity === 0) {
+		if (quantity === 0 || quantity === null || quantity === undefined) {
 			// If the quantity is 0, delete the cart item
 			await prisma.cart.delete({
 				where: {

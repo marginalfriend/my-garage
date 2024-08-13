@@ -6,6 +6,7 @@ export const NOT_FOUND = "/page-not-found"
 
 export const HOME = "/"
 export const USER_PRODUCTS = "/products"
+export const CART = "/cart"
 export const CONTACT = "/contact"
 export const ABOUT = "/about"
 export const FAQ = "/faq"

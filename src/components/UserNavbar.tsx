@@ -1,12 +1,20 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
 import Button from "./Button"; // Assuming you have a Button component
-import { LOGIN, HOME, FAQ, ABOUT, USER_PRODUCTS } from "../constants/routes";
+import {
+  LOGIN,
+  HOME,
+  FAQ,
+  ABOUT,
+  USER_PRODUCTS,
+  CART,
+} from "../constants/routes";
 import { useAuth } from "../hooks/useAuth";
+import { ShoppingBagIcon } from "@heroicons/react/24/outline";
 
 const UserNavbar: React.FC = () => {
   const { account: user, logout } = useAuth();
-	
+
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-default bg-opacity-50 backdrop-filter backdrop-blur-lg shadow-lg">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -66,7 +74,21 @@ const UserNavbar: React.FC = () => {
               <Button>Login</Button>
             </NavLink>
           ) : (
-            <Button onClick={logout}>Logout</Button>
+            <div className="flex items-center gap-4">
+              <NavLink
+                to={CART}
+                className={({ isActive }) =>
+                  isActive
+                    ? "text-accent px-3 py-2 rounded-md text-sm font-medium transition duration-300 ease-in-out"
+                    : "text-contrast hover:text-heading px-3 py-2 rounded-md text-sm font-medium transition duration-300 ease-in-out hover:bg-white hover:bg-opacity-20"
+                }
+              >
+                <button>
+                  <ShoppingBagIcon width={22} height={22} className="" />
+                </button>
+              </NavLink>
+              <Button onClick={logout}>Logout</Button>
+            </div>
           )}
         </div>
       </div>
