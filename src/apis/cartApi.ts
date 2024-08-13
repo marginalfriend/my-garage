@@ -41,23 +41,32 @@ export const updateCartItem = async (accountId: string, productId: string, quant
 	});
 
 	if (!response.ok) {
+		console.log(response)
 		throw new Error("Failed to update cart item");
 	}
+
+	if (!response.body) return;
 
 	return await response.json();
 };
 
-export const deleteCartItem = async (cartItemId: string, token: string) => {
-	const response = await fetch(`/api/cart/${cartItemId}`, {
+export const deleteCartItem = async (productId: string, token: string, accountId: string) => {
+	const response = await fetch('/api/cart', {
 		method: "DELETE",
 		headers: {
 			"Authorization": token,
 		},
+		body: JSON.stringify({
+			productId,
+			accountId
+		})
 	});
 
 	if (!response.ok) {
 		throw new Error("Failed to delete cart item");
 	}
+
+	if (response.status === 204) return
 
 	return await response.json();
 };

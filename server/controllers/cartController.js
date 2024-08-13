@@ -184,7 +184,7 @@ export const deleteCartItem = async (req, res) => {
 		const { accountId, productId } = req.body;
 
 		// Find the user first
-		const user = await prisma.user.findUnique({
+		const user = await prisma.user.findFirst({
 			where: { accountId: accountId },
 		});
 

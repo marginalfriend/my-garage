@@ -7,6 +7,7 @@ import { ExtendedProduct } from "./ProductsPage";
 import { useAuth } from "../../hooks/useAuth";
 import {
   addToCart,
+  deleteCartItem,
   getUserCartItemByProductId,
   updateCartItem,
 } from "../../apis/cartApi"; // Import your API call functions
@@ -80,14 +81,15 @@ const ProductDetailPage: React.FC = () => {
   };
 
   const handleUpdateQuantity = async (newQuantity: number) => {
-    if (newQuantity < 0) return;
-
     try {
-      await updateCartItem(account.id, id, newQuantity, token);
+      if (newQuantity > 0) {
+        await updateCartItem(account.id, id, newQuantity, token);
+      } else {
+        await deleteCartItem(id, token, account.id);
+      }
       setQuantity(newQuantity);
     } catch (error) {
       console.error("Error updating cart quantity:", error);
-      alert("Failed to update cart quantity.");
     }
   };
 
