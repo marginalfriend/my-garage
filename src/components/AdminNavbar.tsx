@@ -1,9 +1,9 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
 import {
-  ADMIN_HOME_PAGE,
   ADMIN_PRODUCTS,
   CREATE_PRODUCT,
+  REPORT,
 } from "../constants/routes";
 import Button from "./Button";
 import { useAuth } from "../hooks/useAuth";
@@ -42,7 +42,7 @@ const AdminNavbar: React.FC = () => {
                   Create Product
                 </NavLink>
                 <NavLink
-                  to={ADMIN_HOME_PAGE + "/reports"}
+                  to={REPORT}
                   className={({ isActive }) =>
                     isActive
                       ? "text-accent px-3 py-2 rounded-md text-sm font-medium transition duration-300 ease-in-out"

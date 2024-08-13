@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { formatIDR } from "../../utils/utils";
 import { useAuth } from "../../hooks/useAuth";
 import { updateCartItem } from "../../apis/cartApi";
+import { ORDER } from "../../constants/routes";
 
 interface CartItem {
   id: string;
@@ -16,30 +18,29 @@ interface CartItem {
 }
 
 const CartPage: React.FC = () => {
-  const { token, account } = useAuth();
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [checkedItems, setCheckedItems] = useState<Set<string>>(new Set());
+  const [isLoading, setIsLoading] = useState(false);
+  const { account, token } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
-    // Fetch cart items from your API
-    const fetchCartItems = async () => {
-      try {
-        const response = await fetch("/api/cart", {
-          method: "GET",
-          headers: {
-            Authorization: token,
-          },
-        });
-        const data = await response.json();
-        console.log(data);
-        setCartItems(data);
-      } catch (error) {
-        console.error("Error fetching cart items:", error);
-      }
-    };
-
     fetchCartItems();
-  }, [token, cartItems]);
+  }, []);
+
+  const fetchCartItems = async () => {
+    try {
+      const response = await fetch("/api/cart", {
+        headers: {
+          Authorization: token,
+        },
+      });
+      const data = await response.json();
+      setCartItems(data);
+    } catch (error) {
+      console.error("Error fetching cart items:", error);
+    }
+  };
 
   const handleQuantityChange = async (id: string, newQuantity: number) => {
     // Update quantity in the backend and then update local state
@@ -74,8 +75,55 @@ const CartPage: React.FC = () => {
       .reduce((total, item) => total + item.product.price * item.quantity, 0);
   };
 
+  const handleCheckout = async () => {
+    if (!account) {
+      navigate("/login");
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      const orderItems = cartItems
+        .filter((item) => checkedItems.has(item.id))
+        .map((item) => ({
+          productId: item.product.id,
+          quantity: item.quantity,
+        }));
+
+      const response = await fetch("/api/orders", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token,
+        },
+        body: JSON.stringify({ items: orderItems }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to create order");
+      }
+
+      const order = await response.json();
+
+      // Clear checked items from the cart
+      setCartItems((prevItems) =>
+        prevItems.filter((item) => !checkedItems.has(item.id))
+      );
+      setCheckedItems(new Set());
+
+      // Navigate to order confirmation page
+      navigate(`${ORDER}/${order.id}`);
+    } catch (error) {
+      console.error("Error creating order:", error);
+      alert("Failed to create order. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
-    <main className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-6 text-heading">Your Cart</h1>
       <table className="w-full border-collapse">
         <thead>
@@ -105,10 +153,7 @@ const CartPage: React.FC = () => {
                   min="1"
                   value={item.quantity}
                   onChange={(e) =>
-                    handleQuantityChange(
-                      item.product.id,
-                      parseInt(e.target.value)
-                    )
+                    handleQuantityChange(item.id, parseInt(e.target.value))
                   }
                   className="w-16 text-center border border-gray-300 rounded"
                 />
@@ -139,15 +184,14 @@ const CartPage: React.FC = () => {
           </span>
         </p>
         <button
-          className="mt-4 bg-accent text-contrast py-2 px-4 rounded hover:bg-blue-600 transition-colors"
-          onClick={() => {
-            /* Implement checkout logic */
-          }}
+          className="mt-4 bg-accent text-contrast py-2 px-4 rounded hover:bg-blue-600 transition-colors disabled:opacity-50"
+          onClick={handleCheckout}
+          disabled={isLoading || checkedItems.size === 0}
         >
-          Proceed to Checkout
+          {isLoading ? "Processing..." : "Proceed to Checkout"}
         </button>
       </div>
-    </main>
+    </div>
   );
 };
 

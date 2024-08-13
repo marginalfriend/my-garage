@@ -8,6 +8,7 @@ import {
   ABOUT,
   USER_PRODUCTS,
   CART,
+	ORDER,
 } from "../constants/routes";
 import { useAuth } from "../hooks/useAuth";
 import { ShoppingBagIcon } from "@heroicons/react/24/outline";
@@ -65,6 +66,16 @@ const UserNavbar: React.FC = () => {
                   }
                 >
                   About
+                </NavLink>
+                <NavLink
+                  to={ORDER}
+                  className={({ isActive }) =>
+                    isActive
+                      ? "text-accent px-3 py-2 rounded-md text-sm font-medium transition duration-300 ease-in-out"
+                      : "text-contrast hover:text-heading px-3 py-2 rounded-md text-sm font-medium transition duration-300 ease-in-out hover:bg-white hover:bg-opacity-20"
+                  }
+                >
+                  Orders
                 </NavLink>
               </div>
             </div>

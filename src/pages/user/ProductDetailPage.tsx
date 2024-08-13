@@ -73,7 +73,6 @@ const ProductDetailPage: React.FC = () => {
     try {
       await addToCart(id, 1, token, account.id);
       setQuantity(1);
-      alert("Product added to cart successfully!");
     } catch (error) {
       console.error("Error adding product to cart:", error);
       alert("Failed to add product to cart.");

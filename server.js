@@ -1,10 +1,11 @@
 import express from 'express';
 import { fileURLToPath } from 'url';
 import path from 'path';
-import authRoutes from './server/routes/auth.js';
-import categoryRoutes from './server/routes/categories.js';
-import productRoutes from './server/routes/products.js';
-import cartRoutes from './server/routes/cart.js';
+import authRoutes from './server/routes/authRoutes.js';
+import categoryRoutes from './server/routes/categoriesRoutes.js';
+import productRoutes from './server/routes/productsRoutes.js';
+import cartRoutes from './server/routes/cartRoutes.js';
+import orderRoutes from './server/routes/orderRoutes.js';
 import { errorHandler } from './server/middleware/errorHandler.js';
 
 const app = express();
@@ -19,6 +20,7 @@ app.use('/auth', authRoutes);
 app.use('/categories', categoryRoutes);
 app.use('/products', productRoutes);
 app.use('/cart', cartRoutes);
+app.use('/orders', orderRoutes);
 
 // Error handling middleware
 app.use(errorHandler);

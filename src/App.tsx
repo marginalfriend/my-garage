@@ -33,11 +33,16 @@ import {
   FAQ,
   REGISTER,
   LOGIN,
-	CART,
+  CART,
+  ORDER,
+	REPORT,
 } from "./constants/routes";
 import ProtectedRoute from "./components/ProtectedRoute";
 import ProductDetailPage from "./pages/user/ProductDetailPage";
 import CartPage from "./pages/user/CartPage";
+import OrderConfirmationPage from "./pages/user/OrderConfirmationPage";
+import OrdersPage from "./pages/user/OrdersPage";
+import ReportPage from "./pages/admin/ReportPage";
 
 const UserLayout = () => {
   return (
@@ -73,12 +78,18 @@ const App: React.FC = () => {
         <Route path={CONTACT} element={<ContactPage />} />
         <Route path={ABOUT} element={<AboutPage />} />
         <Route path={FAQ} element={<FAQPage />} />
-        <Route path={CART} element={<CartPage />} />
       </Route>
 
       {/* User routes */}
       <Route element={<ProtectedRoute isAllowed={isUser} />}>
-        <Route element={<UserLayout />}></Route>
+        <Route element={<UserLayout />}>
+          <Route path={CART} element={<CartPage />} />
+          <Route
+            path={`${ORDER}/:orderId`}
+            element={<OrderConfirmationPage />}
+          />
+          <Route path={ORDER} element={<OrdersPage />} />
+        </Route>
       </Route>
 
       {/* Admin routes */}
@@ -90,7 +101,7 @@ const App: React.FC = () => {
         <Route path={ADMIN_HOME_PAGE} element={<AdminLayout />}>
           <Route path={ADMIN_PRODUCTS} element={<AdminProductsPage />} />
           <Route path={CREATE_PRODUCT} element={<CreateProductPage />} />
-          {/* Add more admin routes here as needed */}
+          <Route path={REPORT} element={<ReportPage />} />
         </Route>
       </Route>
 

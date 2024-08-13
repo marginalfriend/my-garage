@@ -94,8 +94,8 @@ export const getUserCart = async (req, res) => {
 export const getCartItemByProductId = async (req, res) => {
 	try {
 		const authorization = req.get('Authorization');
-		const { productId } = req.params;
 		const accountId = JSON.parse(atob(authorization.split(".")[1])).id
+		const { productId } = req.params;
 
 		// Find the user first
 		const user = await prisma.user.findUnique({
@@ -118,11 +118,6 @@ export const getCartItemByProductId = async (req, res) => {
 		});
 
 		res.status(200).json(cartItem)
-		if (!cartItem) {
-			console.log("Cart item not found.")
-			return res.status(404).json({ message: 'Cart item not found' });
-		}
-
 	} catch (error) {
 		console.error('Error updating cart item:', error);
 		res.status(500).json({ message: 'Server error' });
