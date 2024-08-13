@@ -3,6 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 import { formatIDR } from "../../utils/utils";
 import { ORDER } from "../../constants/routes";
+import { PaymentStatus } from "@prisma/client";
 
 interface OrderDetail {
   id: string;
@@ -19,6 +20,7 @@ interface Order {
   orderDate: string;
   totalPrice: number;
   orderDetails: OrderDetail[];
+	paymentStatus: PaymentStatus;
 }
 
 const OrderConfirmationPage: React.FC = () => {
@@ -96,9 +98,13 @@ const OrderConfirmationPage: React.FC = () => {
         <p className="mb-2 p-1 bg-slate-200 rounded-sm">
           <span className="font-semibold">Order ID:</span> {order.id}
         </p>
-        <p className="mb-4 p-1 bg-slate-200 rounded-sm">
+        <p className="mb-2 p-1 bg-slate-200 rounded-sm">
           <span className="font-semibold">Order Date:</span>{" "}
           {new Date(order.orderDate).toLocaleString()}
+        </p>
+        <p className="mb-4 p-1 bg-slate-200 rounded-sm">
+          <span className="font-semibold">Payment Status:</span>{" "}
+          {order.paymentStatus}
         </p>
         <table className="w-full border-collapse mb-4">
           <thead>

@@ -81,7 +81,8 @@ export const createOrder = async (req, res) => {
 export const getUserOrders = async (req, res) => {
 	try {
 		const authorization = req.get('Authorization');
-		const accountId = JSON.parse(atob(authorization.split(".")[1])).id;
+		const account = JSON.parse(atob(authorization.split(".")[1]));
+		const accountId = account.id;
 
 		const user = await prisma.user.findUnique({
 			where: { accountId: accountId },
@@ -91,22 +92,33 @@ export const getUserOrders = async (req, res) => {
 			return res.status(404).json({ error: 'User not found' });
 		}
 
-		const orders = await prisma.order.findMany({
-			where: { customerId: user.id },
-			include: {
-				orderDetails: {
-					include: {
-						product: true,
+		if (account.roles.some(
+			(x) => x === "SUPER_ADMIN" || x === "ADMIN"
+		)) {
+
+			const orders = await prisma.order.findMany()
+			res.json(orders)
+		} else {
+
+			const orders = await prisma.order.findMany({
+				where: { customerId: user.id },
+				include: {
+					orderDetails: {
+						include: {
+							product: true,
+						},
 					},
 				},
-			},
-			orderBy: { orderDate: 'desc' },
-		});
+				orderBy: { orderDate: 'desc' },
+			});
+			res.json(orders);
 
-		res.json(orders);
+		}
 	} catch (error) {
+
 		console.error('Error fetching user orders:', error);
 		res.status(500).json({ error: 'An error occurred while fetching orders' });
+
 	}
 };
 
@@ -149,3 +161,14 @@ export const getOrderDetails = async (req, res) => {
 		res.status(500).json({ error: 'An error occurred while fetching order details' });
 	}
 };
+
+export const getAllOrders = async (req, res) => {
+	try {
+		const orders = await prisma.order.findMany()
+
+		res.json(orders)
+	} catch (error) {
+		console.log(error)
+		res.status(500).json({ error: 'An error occurred while fetching order details' });
+	}
+}

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useAuth } from "../../hooks/useAuth";
 import { formatIDR } from "../../utils/utils";
+import { PaymentStatus } from "@prisma/client";
 
 interface OrderReport {
   id: string;
@@ -8,6 +9,7 @@ interface OrderReport {
   userEmail: string;
   totalPrice: number;
   itemCount: number;
+  paymentStatus: PaymentStatus;
 }
 
 const ReportPage: React.FC = () => {
@@ -20,19 +22,19 @@ const ReportPage: React.FC = () => {
   const [endDate, setEndDate] = useState("");
   const { token } = useAuth();
 
-  const ORDERS_PER_PAGE = 10;
+  // const ORDERS_PER_PAGE = 10;
 
   const fetchOrders = async () => {
     setIsLoading(true);
     try {
-      const queryParams = new URLSearchParams({
-        page: currentPage.toString(),
-        limit: ORDERS_PER_PAGE.toString(),
-        startDate,
-        endDate,
-      });
+      // const queryParams = new URLSearchParams({
+      //   page: currentPage.toString(),
+      //   limit: ORDERS_PER_PAGE.toString(),
+      //   startDate,
+      //   endDate,
+      // });
 
-      const response = await fetch(`/api/admin/orders-	report?${queryParams}`, {
+      const response = await fetch("/api/orders", {
         headers: {
           Authorization: token,
         },
@@ -43,7 +45,8 @@ const ReportPage: React.FC = () => {
       }
 
       const data = await response.json();
-      setOrders(data.orders);
+      console.log(data);
+      setOrders(data);
       setTotalPages(data.totalPages);
     } catch (error) {
       console.error("Error fetching order report:", error);
@@ -82,7 +85,7 @@ const ReportPage: React.FC = () => {
   }
 
   return (
-    <main>
+    <main className="p-6">
       <h1 className="text-3xl font-bold mb-6 text-heading">
         Admin Order Report
       </h1>
@@ -115,7 +118,7 @@ const ReportPage: React.FC = () => {
             id="endDate"
             value={endDate}
             onChange={(e) => setEndDate(e.target.value)}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-accent focus:ring focus:ring-accent focus:ring-opacity-50"
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-accent focus:ring focus:ring-accent focus:ring-opacity-50 placeholder:text-gray-500"
           />
         </div>
         <button
@@ -132,26 +135,30 @@ const ReportPage: React.FC = () => {
             <tr className="bg-accent text-contrast">
               <th className="p-2 text-left">Order ID</th>
               <th className="p-2 text-left">Date</th>
-              <th className="p-2 text-left">User Email</th>
               <th className="p-2 text-right">Total Price</th>
-              <th className="p-2 text-center">Item Count</th>
+              <th className="p-2 text-center">Payment Status</th>
             </tr>
           </thead>
           <tbody>
             {orders.map((order) => (
               <tr
                 key={order.id}
-                className="border-b border-gray-200 hover:bg-gray-50"
+                className="text-sm border-b border-gray-200 hover:bg-gray-50"
               >
-                <td className="p-2">{order.id}</td>
-                <td className="p-2">
-                  {new Date(order.orderDate).toLocaleDateString()}
+                <td className="text-sm p-2">{order.id}</td>
+                <td className="text-sm p-2">
+                  {new Date(order.orderDate).toLocaleTimeString("id-ID", {
+                    year: "numeric",
+                    month: "short",
+                    day: "numeric",
+                  })}
                 </td>
-                <td className="p-2">{order.userEmail}</td>
-                <td className="p-2 text-right">
+                <td className="text-sm p-2 text-right">
                   {formatIDR(order.totalPrice)}
                 </td>
-                <td className="p-2 text-center">{order.itemCount}</td>
+                <td className="text-sm text-center p-2">
+                  {order.paymentStatus}
+                </td>
               </tr>
             ))}
           </tbody>
