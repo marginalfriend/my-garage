@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState } from "react";
 import Button from "../../components/Button";
-import { registerUser } from "../../apis/auth";
+import { registerUser } from "../../apis/authApi";
 import { useNavigate } from "react-router-dom";
 import { HOME } from "../../constants/routes";
 

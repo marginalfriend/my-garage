@@ -60,11 +60,20 @@ export const addToCart = async (req, res) => {
 
 export const getUserCart = async (req, res) => {
 	try {
-		const userId = req.user.id; // Assuming req.user is populated by the authenticateToken middleware
+		const { accountId } = req.body; // Changed from req.user.id to req.body.accountId
+
+		// Find the user first
+		const user = await prisma.user.findUnique({
+			where: { accountId: accountId },
+		});
+
+		if (!user) {
+			return res.status(404).json({ error: 'User not found' });
+		}
 
 		// Fetch the user's cart items along with the associated product details
 		const cartItems = await prisma.cart.findMany({
-			where: { userId },
+			where: { userId: user.id },
 			include: {
 				product: true, // Include the related product details
 			},
@@ -77,20 +86,70 @@ export const getUserCart = async (req, res) => {
 	}
 };
 
-export const updateCartItem = async (req, res) => {
+export const getCartItemByProductId = async (req, res) => {
 	try {
-		const { productId, quantity } = req.body;
-		const userId = req.user.id;
+		const authorization = req.get('Authorization');
+		const { productId } = req.params;
+		const accountId = JSON.parse(atob(authorization.split(".")[1])).id
+
+		// Find the user first
+		const user = await prisma.user.findUnique({
+			where: { accountId: accountId },
+		});
+
+		if (!user) {
+			console.log("User not found.")
+			return res.status(404).json({ error: 'User not found' });
+		}
 
 		// Find the cart item
-		const cartItem = await prisma.cart.findUnique({
+		const cartItem = await prisma.cart.findFirst({
 			where: {
-				userId: userId,
-				productId: productId,
+				userId: user.id,
+				AND: {
+					productId: productId,
+				},
+			},
+		});
+
+		res.status(200).json(cartItem)
+		if (!cartItem) {
+			console.log("Cart item not found.")
+			return res.status(404).json({ message: 'Cart item not found' });
+		}
+
+	} catch (error) {
+		console.error('Error updating cart item:', error);
+		res.status(500).json({ message: 'Server error' });
+	}
+};
+
+export const updateCartItem = async (req, res) => {
+	try {
+		const { accountId, productId, quantity } = req.body;
+
+		// Find the user first
+		const user = await prisma.user.findUnique({
+			where: { accountId: accountId },
+		});
+
+		if (!user) {
+			console.log("User not found.")
+			return res.status(404).json({ error: 'User not found' });
+		}
+
+		// Find the cart item
+		const cartItem = await prisma.cart.findFirst({
+			where: {
+				userId: user.id,
+				AND: {
+					productId: productId,
+				},
 			},
 		});
 
 		if (!cartItem) {
+			console.log("Cart item not found.")
 			return res.status(404).json({ message: 'Cart item not found' });
 		}
 
@@ -122,13 +181,21 @@ export const updateCartItem = async (req, res) => {
 
 export const deleteCartItem = async (req, res) => {
 	try {
-		const { productId } = req.body;
-		const userId = req.user.id;
+		const { accountId, productId } = req.body;
+
+		// Find the user first
+		const user = await prisma.user.findUnique({
+			where: { accountId: accountId },
+		});
+
+		if (!user) {
+			return res.status(404).json({ error: 'User not found' });
+		}
 
 		// Find the cart item
-		const cartItem = await prisma.cart.findUnique({
+		const cartItem = await prisma.cart.findFirst({
 			where: {
-				userId: userId,
+				userId: user.id,
 				productId: productId
 			},
 		});

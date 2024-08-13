@@ -1,10 +1,15 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate, Navigate } from "react-router-dom";
 import { formatIDR } from "../../utils/utils";
 import Button from "../../components/Button";
 import { ExtendedProduct } from "./ProductsPage";
 import { useAuth } from "../../hooks/useAuth";
-import { addToCart } from "../../apis/cart"; // Import your API call function
+import {
+  addToCart,
+  getUserCartItemByProductId,
+  updateCartItem,
+} from "../../apis/cartApi"; // Import your API call functions
 import { USER_PRODUCTS } from "../../constants/routes";
 
 const ProductDetailPage: React.FC = () => {
@@ -13,6 +18,7 @@ const ProductDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [product, setProduct] = useState<ExtendedProduct | null>(null);
   const [loading, setLoading] = useState(true);
+  const [quantity, setQuantity] = useState(0);
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -33,9 +39,27 @@ const ProductDetailPage: React.FC = () => {
     fetchProduct();
   }, [id]);
 
+  useEffect(() => {
+    // Fetch the current quantity in cart for this product
+    const fetchCartQuantity = async () => {
+      if (account && id) {
+        try {
+          const cartItem = await getUserCartItemByProductId(token, id);
+          if (cartItem) {
+            setQuantity(cartItem.quantity);
+          }
+        } catch (error) {
+          console.error("Error fetching cart quantity:", error);
+        }
+      }
+    };
+
+    fetchCartQuantity();
+  }, [account, id, token]);
+
   if (!id) return <Navigate to={USER_PRODUCTS} />;
 
-  const handleClick = async () => {
+  const handleAddToCart = async () => {
     if (!account) {
       navigate("/login");
       return;
@@ -48,10 +72,23 @@ const ProductDetailPage: React.FC = () => {
 
     try {
       await addToCart(id, 1, token, account.id);
+      setQuantity(1);
       alert("Product added to cart successfully!");
     } catch (error) {
       console.error("Error adding product to cart:", error);
       alert("Failed to add product to cart.");
+    }
+  };
+
+  const handleUpdateQuantity = async (newQuantity: number) => {
+    if (newQuantity < 0) return;
+
+    try {
+      await updateCartItem(account.id, id, newQuantity, token);
+      setQuantity(newQuantity);
+    } catch (error) {
+      console.error("Error updating cart quantity:", error);
+      alert("Failed to update cart quantity.");
     }
   };
 
@@ -79,9 +116,27 @@ const ProductDetailPage: React.FC = () => {
             {formatIDR(product.price)}
           </p>
           <p className="mb-4">{product.description}</p>
-          <Button variant="primary" onClick={handleClick}>
-            Add to Cart
-          </Button>
+          {quantity === 0 ? (
+            <Button variant="primary" onClick={handleAddToCart}>
+              Add to Cart
+            </Button>
+          ) : (
+            <div className="flex items-center">
+              <Button
+                variant="secondary"
+                onClick={() => handleUpdateQuantity(quantity - 1)}
+              >
+                -
+              </Button>
+              <span className="mx-4">{quantity}</span>
+              <Button
+                variant="secondary"
+                onClick={() => handleUpdateQuantity(quantity + 1)}
+              >
+                +
+              </Button>
+            </div>
+          )}
         </div>
       </div>
     </main>

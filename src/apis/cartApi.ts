@@ -30,14 +30,14 @@ export const getCartItems = async (token: string) => {
 	return await response.json();
 };
 
-export const updateCartItem = async (cartItemId: string, quantity: number, token: string) => {
-	const response = await fetch(`/api/cart/${cartItemId}`, {
+export const updateCartItem = async (accountId: string, productId: string, quantity: number, token: string) => {
+	const response = await fetch(`/api/cart`, {
 		method: "PUT",
 		headers: {
 			"Content-Type": "application/json",
 			"Authorization": token,
 		},
-		body: JSON.stringify({ quantity }),
+		body: JSON.stringify({ accountId, productId, quantity }),
 	});
 
 	if (!response.ok) {
@@ -61,3 +61,18 @@ export const deleteCartItem = async (cartItemId: string, token: string) => {
 
 	return await response.json();
 };
+
+export const getUserCartItemByProductId = async (token: string, productId: string) => {
+	const response = await fetch(`/api/cart/${productId}`, {
+		method: "GET",
+		headers: {
+			"Authorization": token,
+		}
+	});
+
+	if (!response.ok) {
+		throw new Error("Failed to get cart item.");
+	}
+
+	return await response.json();
+}
