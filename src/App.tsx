@@ -43,12 +43,14 @@ import CartPage from "./pages/user/CartPage";
 import OrderConfirmationPage from "./pages/user/OrderConfirmationPage";
 import OrdersPage from "./pages/user/OrdersPage";
 import ReportPage from "./pages/admin/ReportPage";
+import Footer from "./components/Footer";
 
 const UserLayout = () => {
   return (
     <div className="overflow-x-hidden">
       <UserNavbar />
       <Outlet />
+			<Footer />
     </div>
   );
 };

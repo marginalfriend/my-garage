@@ -64,7 +64,7 @@ const OrdersPage: React.FC = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <main className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-6 text-heading">Your Orders</h1>
       {orders.length === 0 ? (
         <p className="text-center text-lg">
@@ -76,31 +76,19 @@ const OrdersPage: React.FC = () => {
             <Link
               key={order.id}
               to={`/order/${order.id}`}
-              className="bg-surface shadow-md rounded-lg p-6 hover:shadow-lg transition-shadow"
+              className="bg-surface shadow-md rounded-lg p-6 hover:shadow-lg hover:bg-cyan-50 transition-shadow"
             >
-              <p className="font-semibold mb-2">Order ID: {order.id}</p>
-              <p className="mb-2">
-                Date: {new Date(order.orderDate).toLocaleDateString()}
+              <p className="font-semibold text-[11px] text-default mb-2">Order ID: {order.id}</p>
+              <p className="mb-2 text-sm">
+                Date: {new Date(order.orderDate).toLocaleTimeString("id-ID", {year: "numeric", month: "short", day: "numeric"})}
               </p>
-              <p className="mb-2">Total: {formatIDR(order.totalPrice)}</p>
-              <p className="mb-2">Items:</p>
-              <ul className="list-disc list-inside">
-                {order.orderDetails.slice(0, 3).map((item) => (
-                  <li key={item.id} className="text-sm">
-                    {item.product.name} (x{item.quantity})
-                  </li>
-                ))}
-                {order.orderDetails.length > 3 && (
-                  <li className="text-sm">
-                    and {order.orderDetails.length - 3} more...
-                  </li>
-                )}
-              </ul>
+              <p className="mb-2 text-sm">Total: {formatIDR(order.totalPrice)}</p>
+              <p className="mb-2 text-xs">Click to see the details</p>
             </Link>
           ))}
         </div>
       )}
-    </div>
+    </main>
   );
 };
 

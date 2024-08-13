@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 import { formatIDR } from "../../utils/utils";
+import { ORDER } from "../../constants/routes";
 
 interface OrderDetail {
   id: string;
@@ -54,22 +55,22 @@ const OrderConfirmationPage: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-4 py-8">
         <p className="text-center text-lg">Loading order details...</p>
-      </div>
+      </main>
     );
   }
 
   if (error) {
     return (
-      <div className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-4 py-8">
         <p className="text-center text-lg text-red-500">{error}</p>
         <div className="text-center mt-4">
           <Link to="/orders" className="text-accent hover:underline">
             View all orders
           </Link>
         </div>
-      </div>
+      </main>
     );
   }
 
@@ -87,15 +88,15 @@ const OrderConfirmationPage: React.FC = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <main className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-6 text-heading">
         Order Confirmation
       </h1>
       <div className="bg-surface shadow-md rounded-lg p-6 mb-8">
-        <p className="mb-2">
+        <p className="mb-2 p-1 bg-slate-200 rounded-sm">
           <span className="font-semibold">Order ID:</span> {order.id}
         </p>
-        <p className="mb-4">
+        <p className="mb-4 p-1 bg-slate-200 rounded-sm">
           <span className="font-semibold">Order Date:</span>{" "}
           {new Date(order.orderDate).toLocaleString()}
         </p>
@@ -132,13 +133,13 @@ const OrderConfirmationPage: React.FC = () => {
       </div>
       <div className="text-center">
         <Link
-          to="/orders"
+          to={ORDER}
           className="bg-accent text-contrast py-2 px-4 rounded hover:bg-blue-600 transition-colors"
         >
           View All Orders
         </Link>
       </div>
-    </div>
+    </main>
   );
 };
 

@@ -65,18 +65,24 @@ const ReportPage: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="container mx-auto px-4 py-8">Loading order report...</div>
+      <main>
+        <div className="container mx-auto px-4 py-8">
+          Loading order report...
+        </div>
+      </main>
     );
   }
 
   if (error) {
     return (
-      <div className="container mx-auto px-4 py-8 text-red-500">{error}</div>
+      <main>
+        <div className="container mx-auto px-4 py-8 text-red-500">{error}</div>
+      </main>
     );
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <main>
       <h1 className="text-3xl font-bold mb-6 text-heading">
         Admin Order Report
       </h1>
@@ -175,7 +181,7 @@ const ReportPage: React.FC = () => {
           </button>
         </div>
       </div>
-    </div>
+    </main>
   );
 };
 
