@@ -124,14 +124,14 @@ const ProductDetailPage: React.FC = () => {
           ) : (
             <div className="flex items-center">
               <Button
-                variant="secondary"
+                variant="primary"
                 onClick={() => handleUpdateQuantity(quantity - 1)}
               >
                 -
               </Button>
               <span className="mx-4">{quantity}</span>
               <Button
-                variant="secondary"
+                variant="primary"
                 onClick={() => handleUpdateQuantity(quantity + 1)}
               >
                 +

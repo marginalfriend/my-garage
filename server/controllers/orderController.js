@@ -54,6 +54,7 @@ export const createOrder = async (req, res) => {
 				data: {
 					customerId: user.id,
 					totalPrice,
+					paymentStatus: "PENDING",
 					orderDetails: {
 						create: orderDetails,
 					},

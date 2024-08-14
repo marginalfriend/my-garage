@@ -144,18 +144,19 @@ const OrderConfirmationPage: React.FC = () => {
             </tr>
           </thead>
           <tbody>
-            {order.orderDetails.map((item) => (
-              <tr key={item.id} className="border-b border-gray-200">
-                <td className="p-2 text-default">{item.product.name}</td>
-                <td className="p-2 text-center">{item.quantity}</td>
-                <td className="p-2 text-right">
-                  {formatIDR(item.product.price)}
-                </td>
-                <td className="p-2 text-right">
-                  {formatIDR(item.countedPrice)}
-                </td>
-              </tr>
-            ))}
+            {order.orderDetails &&
+              order.orderDetails.map((item) => (
+                <tr key={item.id} className="border-b border-gray-200">
+                  <td className="p-2 text-default">{item.product.name}</td>
+                  <td className="p-2 text-center">{item.quantity}</td>
+                  <td className="p-2 text-right">
+                    {formatIDR(item.product.price)}
+                  </td>
+                  <td className="p-2 text-right">
+                    {formatIDR(item.countedPrice)}
+                  </td>
+                </tr>
+              ))}
           </tbody>
         </table>
         <div className="flex justify-between items-center">
