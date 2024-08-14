@@ -162,13 +162,103 @@ export const getOrderDetails = async (req, res) => {
 	}
 };
 
-export const getAllOrders = async (req, res) => {
+export const getPaginatedOrders = async (req, res) => {
 	try {
-		const orders = await prisma.order.findMany()
 
-		res.json(orders)
+		const authorization = req.get('Authorization');
+		const account = JSON.parse(atob(authorization.split(".")[1]));
+		const accountId = account.id;
+
+		// Find the user by accountId
+		const user = await prisma.user.findUnique({
+			where: { accountId: accountId },
+		});
+
+		if (!user) {
+			return res.status(404).json({ error: 'User not found' });
+		}
+
+		// Check if the user has ADMIN or SUPER_ADMIN role
+		if (!account.roles.includes("ADMIN") && !account.roles.includes("SUPER_ADMIN")) {
+			return res.status(403).json({ error: 'You are not authorized to access this information' });
+		}
+
+		const { page = 1, limit = 10, sort = 'desc', paymentStatus } = req.query;
+		const skip = (page - 1) * limit;
+
+		const whereClause = paymentStatus
+			? { paymentStatus: paymentStatus }
+			: {};
+
+		const [orders, totalOrders] = await prisma.$transaction([
+			prisma.order.findMany({
+				where: whereClause,
+				skip: skip,
+				take: parseInt(limit),
+				orderBy: { orderDate: sort === 'asc' ? 'asc' : 'desc' },
+			}),
+			prisma.order.count({
+				where: whereClause,
+			}),
+		]);
+
+		res.json({
+			orders,
+			totalOrders,
+			totalPages: Math.ceil(totalOrders / limit),
+			currentPage: parseInt(page),
+		});
 	} catch (error) {
-		console.log(error)
-		res.status(500).json({ error: 'An error occurred while fetching order details' });
+		console.error('Error fetching orders:', error);
+		res.status(500).json({ error: 'An error occurred while fetching orders' });
 	}
-}
+};
+
+
+export const updateOrder = async (req, res) => {
+	try {
+		const { orderId } = req.params;
+		const { paymentStatus } = req.body;
+
+		// Extract account information from the Authorization header
+		const authorization = req.get('Authorization');
+		const account = JSON.parse(atob(authorization.split(".")[1]));
+		const accountId = account.id;
+
+		// Find the user by accountId
+		const user = await prisma.user.findUnique({
+			where: { accountId: accountId },
+		});
+
+		if (!user) {
+			return res.status(404).json({ error: 'User not found' });
+		}
+
+		// Check if the user has ADMIN or SUPER_ADMIN role
+		if (!account.roles.includes("ADMIN") && !account.roles.includes("SUPER_ADMIN")) {
+			return res.status(403).json({ error: 'You are not authorized to update this order' });
+		}
+
+		// Find the order by orderId
+		const order = await prisma.order.findUnique({
+			where: { id: orderId },
+		});
+
+		if (!order) {
+			return res.status(404).json({ error: 'Order not found' });
+		}
+
+		// Update the order's payment status
+		const updatedOrder = await prisma.order.update({
+			where: { id: orderId },
+			data: {
+				paymentStatus: paymentStatus,
+			},
+		});
+
+		res.json(updatedOrder);
+	} catch (error) {
+		console.error('Error updating order:', error);
+		res.status(500).json({ error: 'An error occurred while updating the order' });
+	}
+};

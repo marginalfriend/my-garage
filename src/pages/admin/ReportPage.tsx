@@ -2,11 +2,16 @@ import React, { useEffect, useState } from "react";
 import { useAuth } from "../../hooks/useAuth";
 import { formatIDR } from "../../utils/utils";
 import { PaymentStatus } from "@prisma/client";
+import {
+  useReactTable as useTable,
+  ColumnDef,
+  getCoreRowModel,
+  flexRender,
+} from "@tanstack/react-table";
 
 interface OrderReport {
   id: string;
   orderDate: string;
-  userEmail: string;
   totalPrice: number;
   itemCount: number;
   paymentStatus: PaymentStatus;
@@ -18,35 +23,28 @@ const ReportPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
+  const [sort, setSort] = useState<"asc" | "desc">("desc");
+  const [filterStatus, setFilterStatus] = useState<PaymentStatus | "">("");
   const { token } = useAuth();
-
-  // const ORDERS_PER_PAGE = 10;
 
   const fetchOrders = async () => {
     setIsLoading(true);
     try {
-      // const queryParams = new URLSearchParams({
-      //   page: currentPage.toString(),
-      //   limit: ORDERS_PER_PAGE.toString(),
-      //   startDate,
-      //   endDate,
-      // });
-
-      const response = await fetch("/api/orders", {
-        headers: {
-          Authorization: token,
-        },
-      });
+      const response = await fetch(
+        `/api/orders/admin?page=${currentPage}&sort=${sort}&paymentStatus=${filterStatus}`,
+        {
+          headers: {
+            Authorization: token,
+          },
+        }
+      );
 
       if (!response.ok) {
         throw new Error("Failed to fetch order report");
       }
 
       const data = await response.json();
-      console.log(data);
-      setOrders(data);
+      setOrders(data.orders);
       setTotalPages(data.totalPages);
     } catch (error) {
       console.error("Error fetching order report:", error);
@@ -58,135 +56,186 @@ const ReportPage: React.FC = () => {
 
   useEffect(() => {
     fetchOrders();
-  }, [token, currentPage, startDate, endDate]);
+  }, [token, currentPage, sort, filterStatus]);
 
-  const handleDateFilterChange = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setCurrentPage(1);
-    fetchOrders();
+  const columns: ColumnDef<OrderReport>[] = [
+    {
+      accessorKey: "id",
+      header: "Order ID",
+    },
+    {
+      accessorKey: "orderDate",
+      header: "Date",
+      cell: (info) =>
+        new Date(info.getValue() as string).toLocaleTimeString("id-ID", {
+          year: "numeric",
+          month: "short",
+          day: "numeric",
+        }),
+    },
+    {
+      accessorKey: "totalPrice",
+      header: "Total Price",
+      cell: (info) => formatIDR(info.getValue() as number),
+    },
+    {
+      accessorKey: "paymentStatus",
+      header: "Payment Status",
+      cell: (info) => (
+        <select
+          value={info.getValue() as PaymentStatus}
+          onChange={(e) =>
+            handleStatusChange(
+              info.row.original.id,
+              e.target.value as PaymentStatus
+            )
+          }
+          className="border border-gray-300 rounded-md p-1"
+        >
+          <option value="PENDING">PENDING</option>
+          <option value="PAID">PAID</option>
+          <option value="CANCELLED">CANCELLED</option>
+        </select>
+      ),
+    },
+  ];
+
+  const table = useTable({
+    data: orders || [], // Provide a fallback empty array if orders is undefined
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+  });
+
+  const handleStatusChange = async (
+    orderId: string,
+    newStatus: PaymentStatus
+  ) => {
+    try {
+      const response = await fetch(`/api/orders/${orderId}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token,
+        },
+        body: JSON.stringify({ paymentStatus: newStatus }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to update payment status");
+      }
+
+      setOrders((prevOrders) =>
+        prevOrders.map((order) =>
+          order.id === orderId ? { ...order, paymentStatus: newStatus } : order
+        )
+      );
+    } catch (error) {
+      console.error("Error updating payment status:", error);
+      setError("Failed to update payment status. Please try again later.");
+    }
+  };
+
+  const handlePageChange = (newPage: number) => {
+    setCurrentPage(newPage);
+  };
+
+  const handleSortChange = () => {
+    setSort((prevSort) => (prevSort === "asc" ? "desc" : "asc"));
+  };
+
+  const handleFilterStatusChange = (
+    event: React.ChangeEvent<HTMLSelectElement>
+  ) => {
+    setFilterStatus(event.target.value as PaymentStatus | "");
+    setCurrentPage(1); // Reset to the first page on filter change
   };
 
   if (isLoading) {
-    return (
-      <main>
-        <div className="container mx-auto px-4 py-8">
-          Loading order report...
-        </div>
-      </main>
-    );
+    return <div>Loading...</div>;
   }
 
   if (error) {
-    return (
-      <main>
-        <div className="container mx-auto px-4 py-8 text-red-500">{error}</div>
-      </main>
-    );
+    return <div className="text-red-500">{error}</div>;
+  }
+
+  if (!orders || orders.length === 0) {
+    return <div>No orders found.</div>;
   }
 
   return (
-    <main className="p-6">
-      <h1 className="text-3xl font-bold mb-6 text-heading">
-        Admin Order Report
+    <main className="px-6">
+      <h1 className="text-heading text-2xl font-semibold mb-4 py-5">
+        Products
       </h1>
-
-      <form onSubmit={handleDateFilterChange} className="mb-6 flex gap-4">
-        <div>
-          <label
-            htmlFor="startDate"
-            className="block text-sm font-medium text-gray-700"
-          >
-            Start Date
-          </label>
-          <input
-            type="date"
-            id="startDate"
-            value={startDate}
-            onChange={(e) => setStartDate(e.target.value)}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-accent focus:ring focus:ring-accent focus:ring-opacity-50"
-          />
-        </div>
-        <div>
-          <label
-            htmlFor="endDate"
-            className="block text-sm font-medium text-gray-700"
-          >
-            End Date
-          </label>
-          <input
-            type="date"
-            id="endDate"
-            value={endDate}
-            onChange={(e) => setEndDate(e.target.value)}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-accent focus:ring focus:ring-accent focus:ring-opacity-50 placeholder:text-gray-500"
-          />
-        </div>
+      <div className="mb-4 flex justify-between">
         <button
-          type="submit"
-          className="mt-auto bg-accent text-contrast py-2 px-4 rounded hover:bg-blue-600 transition-colors"
+          onClick={handleSortChange}
+          className="px-4 py-2 bg-blue-500 text-white rounded"
         >
-          Apply Filter
+          Sort by Date ({sort === "asc" ? "Ascending" : "Descending"})
         </button>
-      </form>
-
-      <div className="overflow-x-auto">
-        <table className="w-full border-collapse">
-          <thead>
-            <tr className="bg-accent text-contrast">
-              <th className="p-2 text-left">Order ID</th>
-              <th className="p-2 text-left">Date</th>
-              <th className="p-2 text-right">Total Price</th>
-              <th className="p-2 text-center">Payment Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {orders.map((order) => (
-              <tr
-                key={order.id}
-                className="text-sm border-b border-gray-200 hover:bg-gray-50"
-              >
-                <td className="text-sm p-2">{order.id}</td>
-                <td className="text-sm p-2">
-                  {new Date(order.orderDate).toLocaleTimeString("id-ID", {
-                    year: "numeric",
-                    month: "short",
-                    day: "numeric",
-                  })}
-                </td>
-                <td className="text-sm p-2 text-right">
-                  {formatIDR(order.totalPrice)}
-                </td>
-                <td className="text-sm text-center p-2">
-                  {order.paymentStatus}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <select
+          value={filterStatus}
+          onChange={handleFilterStatusChange}
+          className="p-2 border border-gray-300 rounded"
+        >
+          <option value="">All</option>
+          <option value="PENDING">PENDING</option>
+          <option value="PAID">PAID</option>
+          <option value="CANCELLED">CANCELLED</option>
+        </select>
       </div>
-
-      <div className="mt-6 flex justify-between items-center">
-        <div>
+      <table className="min-w-full bg-white">
+        <thead>
+          {table.getHeaderGroups().map((headerGroup) => (
+            <tr key={headerGroup.id}>
+              {headerGroup.headers.map((header) => (
+                <th
+                  key={header.id}
+                  className="px-6 py-3 border-b-2 border-gray-300 text-left leading-4"
+                >
+                  {flexRender(
+                    header.column.columnDef.header,
+                    header.getContext()
+                  )}
+                </th>
+              ))}
+            </tr>
+          ))}
+        </thead>
+        <tbody>
+          {table.getRowModel().rows.map((row) => (
+            <tr key={row.id}>
+              {row.getVisibleCells().map((cell) => (
+                <td
+                  key={cell.id}
+                  className="px-6 py-4 whitespace-no-wrap border-b border-gray-300"
+                >
+                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      <div className="flex justify-between items-center mt-4">
+        <button
+          onClick={() => handlePageChange(currentPage - 1)}
+          disabled={currentPage === 1}
+          className="px-4 py-2 bg-gray-300 rounded disabled:opacity-50"
+        >
+          Previous
+        </button>
+        <span>
           Page {currentPage} of {totalPages}
-        </div>
-        <div>
-          <button
-            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-            disabled={currentPage === 1}
-            className="bg-accent text-contrast py-2 px-4 rounded mr-2 disabled:opacity-50"
-          >
-            Previous
-          </button>
-          <button
-            onClick={() =>
-              setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-            }
-            disabled={currentPage === totalPages}
-            className="bg-accent text-contrast py-2 px-4 rounded disabled:opacity-50"
-          >
-            Next
-          </button>
-        </div>
+        </span>
+        <button
+          onClick={() => handlePageChange(currentPage + 1)}
+          disabled={currentPage === totalPages}
+          className="px-4 py-2 bg-gray-300 rounded disabled:opacity-50"
+        >
+          Next
+        </button>
       </div>
     </main>
   );

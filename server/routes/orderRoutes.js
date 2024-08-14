@@ -7,6 +7,8 @@ const router = express.Router();
 router.use(authenticateToken);
 router.post('/', orderController.createOrder);
 router.get('/', orderController.getUserOrders);
+router.get('/admin', orderController.getPaginatedOrders);
 router.get('/:orderId', orderController.getOrderDetails);
+router.patch('/:orderId', orderController.updateOrder);
 
 export default router;

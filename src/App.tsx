@@ -35,7 +35,7 @@ import {
   LOGIN,
   CART,
   ORDER,
-	REPORT,
+  REPORT,
 } from "./constants/routes";
 import ProtectedRoute from "./components/ProtectedRoute";
 import ProductDetailPage from "./pages/user/ProductDetailPage";
@@ -50,7 +50,7 @@ const UserLayout = () => {
     <div className="overflow-x-hidden">
       <UserNavbar />
       <Outlet />
-			<Footer />
+      <Footer />
     </div>
   );
 };
