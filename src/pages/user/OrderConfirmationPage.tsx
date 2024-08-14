@@ -4,6 +4,7 @@ import { useAuth } from "../../hooks/useAuth";
 import { formatIDR } from "../../utils/utils";
 import { ORDER } from "../../constants/routes";
 import { PaymentStatus } from "@prisma/client";
+import Button from "../../components/Button";
 
 interface OrderDetail {
   id: string;
@@ -20,7 +21,7 @@ interface Order {
   orderDate: string;
   totalPrice: number;
   orderDetails: OrderDetail[];
-	paymentStatus: PaymentStatus;
+  paymentStatus: PaymentStatus;
 }
 
 const OrderConfirmationPage: React.FC = () => {
@@ -29,6 +30,23 @@ const OrderConfirmationPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { token } = useAuth();
+
+  const cancelOrder = async () => {
+    const res = await fetch("/api/orders", {
+      method: "PATCH",
+      headers: {
+        Authorization: token,
+      },
+      body: JSON.stringify({ orderId }),
+    });
+
+    if (res.status !== 200) {
+      console.log(res);
+    } else {
+      const cancelledOrder = await res.json();
+      setOrder(cancelledOrder);
+    }
+  };
 
   useEffect(() => {
     const fetchOrder = async () => {
@@ -104,7 +122,17 @@ const OrderConfirmationPage: React.FC = () => {
         </p>
         <p className="text-xs mb-4 p-1 bg-slate-200 rounded-sm">
           <span className="font-semibold">Payment Status:</span>{" "}
-          {order.paymentStatus}
+          <span
+            className={`${
+              order.paymentStatus === "PAID"
+                ? "bg-lime-500"
+                : order.paymentStatus === "CANCELLED"
+                ? "bg-rose-500"
+                : "bg-yellow-500"
+            } bg-opacity-80 p-1 rounded-sm`}
+          >
+            {order.paymentStatus}
+          </span>
         </p>
         <table className="w-full border-collapse mb-4">
           <thead>
@@ -130,17 +158,24 @@ const OrderConfirmationPage: React.FC = () => {
             ))}
           </tbody>
         </table>
-        <div className="text-right">
+        <div className="flex justify-between items-center">
+          {order.paymentStatus === "PENDING" ? (
+            <Button variant="danger" onClick={cancelOrder}>
+              Cancel Order
+            </Button>
+          ) : (
+            <div></div>
+          )}
           <p className="text-xl font-semibold text-heading">
             Total:{" "}
             <span className="text-accent">{formatIDR(order.totalPrice)}</span>
           </p>
         </div>
       </div>
-      <div className="text-center">
+      <div className="text-right">
         <Link
           to={ORDER}
-          className="bg-accent text-contrast py-2 px-4 rounded hover:bg-blue-600 transition-colors"
+          className="bg-accent text-contrast py-2 px-4 rounded hover:bg-heading transition-colors"
         >
           View All Orders
         </Link>

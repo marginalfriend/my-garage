@@ -49,17 +49,17 @@ const OrdersPage: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-4 py-8">
         <p className="text-center text-lg">Loading orders...</p>
-      </div>
+      </main>
     );
   }
 
   if (error) {
     return (
-      <div className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-4 py-8">
         <p className="text-center text-lg text-red-500">{error}</p>
-      </div>
+      </main>
     );
   }
 
@@ -76,7 +76,7 @@ const OrdersPage: React.FC = () => {
             <Link
               key={order.id}
               to={`/order/${order.id}`}
-              className="bg-surface shadow-md rounded-lg p-6 hover:shadow-lg hover:bg-cyan-50 transition-shadow"
+              className="bg-surface shadow-md rounded-lg p-6 hover:shadow-lg hover:bg-slate-50 transition-shadow"
             >
               <p className="font-semibold text-[11px] text-default mb-2">Order ID: {order.id}</p>
               <p className="mb-2 text-sm">

@@ -4,6 +4,7 @@ import {
   DisclosureButton,
   DisclosurePanel,
 } from "@headlessui/react";
+import { ChevronDownIcon } from "@heroicons/react/24/outline";
 
 const DisclosurePanelFAQ = ({ children }: { children: ReactNode }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -27,6 +28,51 @@ const DisclosurePanelFAQ = ({ children }: { children: ReactNode }) => {
         </div>
       )}
     </DisclosurePanel>
+  );
+};
+
+const FAQList = ({
+  faqItems,
+  openIndex,
+  setOpenIndex,
+}: {
+  faqItems: { q: string; a: string }[];
+  openIndex: number | null;
+  setOpenIndex: React.Dispatch<React.SetStateAction<number | null>>;
+}) => {
+  return (
+    <ul className="flex flex-col w-[50%]">
+      {faqItems.map((item, index) => (
+        <li key={item.q} className="py-3">
+          <Disclosure as="div" className="w-full">
+            {({ open }) => (
+              <>
+                <DisclosureButton
+                  onClick={() =>
+                    setOpenIndex(index === openIndex ? null : index)
+                  }
+                  as="button"
+                  className="flex items-center justify-between z-10 bg-default bg-opacity-10 hover:bg-opacity-40 p-2 text-left text-black w-full rounded data-[open]:rounded-b-none"
+                >
+                  <span>{item.q}</span>
+                  <ChevronDownIcon
+                    height={16}
+                    width={16}
+                    strokeWidth={2}
+                    className={`transition-transform duration-200 ${
+                      open ? "transform rotate-180" : ""
+                    }`}
+                  />
+                </DisclosureButton>
+                <DisclosurePanelFAQ>
+                  <p>{item.a}</p>
+                </DisclosurePanelFAQ>
+              </>
+            )}
+          </Disclosure>
+        </li>
+      ))}
+    </ul>
   );
 };
 
@@ -70,27 +116,11 @@ function FAQPage() {
       <h1 className="text-heading text-3xl font-semibold py-8">
         Pertanyaan yang Sering Diajukan (FAQ)
       </h1>
-      <ul className="flex flex-col w-[50%]">
-        {faqItems.map((item, index) => (
-          <li key={item.q} className="py-3">
-            <Disclosure
-              as="div"
-              className="w-full"
-            >
-              <DisclosureButton
-                onClick={() => setOpenIndex(index === openIndex ? null : index)}
-                as="button"
-                className="z-10 bg-default bg-opacity-10 hover:bg-opacity-40 p-2 text-left text-black w-full rounded data-[open]:rounded-b-none"
-              >
-                <span>{item.q}</span>
-              </DisclosureButton>
-              <DisclosurePanelFAQ>
-                <p>{item.a}</p>
-              </DisclosurePanelFAQ>
-            </Disclosure>
-          </li>
-        ))}
-      </ul>
+      <FAQList
+        faqItems={faqItems}
+        openIndex={openIndex}
+        setOpenIndex={setOpenIndex}
+      />
     </main>
   );
 }

@@ -122,6 +122,63 @@ export const getUserOrders = async (req, res) => {
 	}
 };
 
+export const cancelOrder = async (req, res) => {
+	try {
+		const { orderId } = req.body
+		const authorization = req.get('Authorization');
+		const account = JSON.parse(atob(authorization.split(".")[1]));
+		const accountId = account.id;
+
+		const client = await prisma.user.findFirst({
+			where: {
+				accountId: accountId
+			}
+		})
+		const toBeCancelled = await prisma.order.findFirst({
+			where: {
+				id: orderId
+			},
+			include: {
+				customer: true,
+				orderDetails: true
+			}
+		})
+
+		if (toBeCancelled.customer.id !== client.id) {
+			return res.status(403).json({ error: 'You are not authorized to cancel this order' });
+		}
+
+		const updatedOrder = await prisma.order.update({
+			where: {
+				id: toBeCancelled.id
+			},
+			data: {
+				paymentStatus: "CANCELLED"
+			}
+		})
+
+		toBeCancelled.orderDetails.forEach(async (detail) => {
+			const product = await prisma.product.findFirst({ where: { id: detail.productId } })
+			await prisma.product.update({
+				where: {
+					id: product.id
+				},
+				data: {
+					stock: product.stock + detail.quantity
+				}
+			})
+		})
+
+		res.status(200).json(updatedOrder)
+
+	} catch (error) {
+
+		console.error('Error fetching user orders:', error);
+		res.status(500).json({ error: 'An error occurred while fetching orders' });
+
+	}
+}
+
 export const getOrderDetails = async (req, res) => {
 	try {
 		const { orderId } = req.params;

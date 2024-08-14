@@ -6,7 +6,7 @@ function HomePage() {
           <h1 className="animate-slide-in-1 text-5xl font-black text-contrast text-wrap">
             Eksplorasi Kreativitas di Jalanan
           </h1>
-          <h1 className="animate-slide-in-1 text-xl font-bold text-contrast">
+          <h1 className="animate-slide-in-1 text-xl font-medium text-contrast">
             Temukan Spare Part Modifikasi Mobil Impian Anda.
           </h1>
         </div>

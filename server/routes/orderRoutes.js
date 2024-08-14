@@ -10,5 +10,6 @@ router.get('/', orderController.getUserOrders);
 router.get('/admin', orderController.getPaginatedOrders);
 router.get('/:orderId', orderController.getOrderDetails);
 router.patch('/:orderId', orderController.updateOrder);
+router.patch('/', orderController.cancelOrder)
 
 export default router;
