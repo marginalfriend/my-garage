@@ -25,6 +25,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
       <div className="flex flex-col p-4 gap-2 bg-default bg-opacity-20 rounded-b-lg flex-grow">
         <h2 className="font-semibold text-sm">{product.name}</h2>
         <h3 className="font-medium text-xs">{formatIDR(product.price)}</h3>
+        <h3 className="font-medium text-xs">Available stock: {product.stock}</h3>
         <div className="mt-auto">
           <Button
             variant="primary"

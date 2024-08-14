@@ -12,6 +12,7 @@ import {
   updateCartItem,
 } from "../../apis/cartApi"; // Import your API call functions
 import { USER_PRODUCTS } from "../../constants/routes";
+import { MinusIcon, PlusIcon } from "@heroicons/react/24/outline";
 
 const ProductDetailPage: React.FC = () => {
   const { account, token } = useAuth();
@@ -113,9 +114,8 @@ const ProductDetailPage: React.FC = () => {
         </div>
         <div className="md:w-1/2">
           <h1 className="text-3xl font-bold mb-4">{product.name}</h1>
-          <p className="text-xl font-semibold mb-4">
-            {formatIDR(product.price)}
-          </p>
+          <p className="font-semibold">{formatIDR(product.price)}</p>
+          <p className="font-semibold mb-4">Stock: {product.stock}</p>
           <p className="mb-4">{product.description}</p>
           {quantity === 0 ? (
             <Button variant="primary" onClick={handleAddToCart}>
@@ -127,15 +127,18 @@ const ProductDetailPage: React.FC = () => {
                 variant="primary"
                 onClick={() => handleUpdateQuantity(quantity - 1)}
               >
-                -
+                <MinusIcon width={15} height={15} strokeWidth={2.5} />
               </Button>
               <span className="mx-4">{quantity}</span>
-              <Button
-                variant="primary"
-                onClick={() => handleUpdateQuantity(quantity + 1)}
-              >
-                +
-              </Button>
+              {quantity < product.stock && (
+                <Button
+                  variant="primary"
+                  className="p-0"
+                  onClick={() => handleUpdateQuantity(quantity + 1)}
+                >	
+                  <PlusIcon width={15} height={15} strokeWidth={2.5} />
+                </Button>
+              )}
             </div>
           )}
         </div>

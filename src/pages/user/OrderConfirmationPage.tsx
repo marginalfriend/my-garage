@@ -5,6 +5,7 @@ import { formatIDR } from "../../utils/utils";
 import { ORDER } from "../../constants/routes";
 import { PaymentStatus } from "@prisma/client";
 import Button from "../../components/Button";
+import { cancelOrder } from "../../apis/orderApi";
 
 interface OrderDetail {
   id: string;
@@ -31,23 +32,6 @@ const OrderConfirmationPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const { token } = useAuth();
 
-  const cancelOrder = async () => {
-    const res = await fetch("/api/orders", {
-      method: "PATCH",
-      headers: {
-        Authorization: token,
-      },
-      body: JSON.stringify({ orderId }),
-    });
-
-    if (res.status !== 200) {
-      console.log(res);
-    } else {
-      const cancelledOrder = await res.json();
-      setOrder(cancelledOrder);
-    }
-  };
-
   useEffect(() => {
     const fetchOrder = async () => {
       setIsLoading(true);
@@ -72,6 +56,16 @@ const OrderConfirmationPage: React.FC = () => {
 
     fetchOrder();
   }, [orderId, token]);
+
+  const handleCancelOrder = async () => {
+    try {
+      if (!orderId) throw new Error("Order ID is undefined");
+      const updatedOrder = await cancelOrder(token, orderId);
+      setOrder(updatedOrder);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -161,7 +155,7 @@ const OrderConfirmationPage: React.FC = () => {
         </table>
         <div className="flex justify-between items-center">
           {order.paymentStatus === "PENDING" ? (
-            <Button variant="danger" onClick={cancelOrder}>
+            <Button variant="danger" onClick={handleCancelOrder}>
               Cancel Order
             </Button>
           ) : (

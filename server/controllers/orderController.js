@@ -3,6 +3,7 @@ import { prisma } from '../../prisma-client.js';
 export const createOrder = async (req, res) => {
 	try {
 		const { items } = req.body;
+
 		const authorization = req.get('Authorization');
 		const accountId = JSON.parse(atob(authorization.split(".")[1])).id;
 
@@ -125,7 +126,8 @@ export const getUserOrders = async (req, res) => {
 
 export const cancelOrder = async (req, res) => {
 	try {
-		const { orderId } = req.body
+		console.log(req.body)
+		const { orderId } = req.body;
 		const authorization = req.get('Authorization');
 		const account = JSON.parse(atob(authorization.split(".")[1]));
 		const accountId = account.id;
@@ -134,51 +136,77 @@ export const cancelOrder = async (req, res) => {
 			where: {
 				accountId: accountId
 			}
-		})
-		const toBeCancelled = await prisma.order.findFirst({
+		});
+
+		console.log(orderId)
+
+		const toBeCancelled = await prisma.order.findUnique({
 			where: {
 				id: orderId
 			},
 			include: {
 				customer: true,
-				orderDetails: true
+				orderDetails: {
+					include: {
+						product: true
+					}
+				}
 			}
-		})
+		});
+
+		console.log(toBeCancelled)
+
+		if (!toBeCancelled) {
+			return res.status(404).json({ error: 'Order not found' });
+		}
 
 		if (toBeCancelled.customer.id !== client.id) {
 			return res.status(403).json({ error: 'You are not authorized to cancel this order' });
 		}
 
-		const updatedOrder = await prisma.order.update({
-			where: {
-				id: toBeCancelled.id
-			},
-			data: {
-				paymentStatus: "CANCELLED"
-			}
-		})
-
-		toBeCancelled.orderDetails.forEach(async (detail) => {
-			const product = await prisma.product.findFirst({ where: { id: detail.productId } })
-			await prisma.product.update({
+		// Use a transaction to ensure all operations are atomic
+		const updatedOrder = await prisma.$transaction(async (prisma) => {
+			// Update the order status
+			const cancelledOrder = await prisma.order.update({
 				where: {
-					id: product.id
+					id: toBeCancelled.id
 				},
 				data: {
-					stock: product.stock + detail.quantity
+					paymentStatus: "CANCELLED"
 				}
-			})
-		})
+			});
 
-		res.status(200).json(updatedOrder)
+			// Update product stock for each order detail
+			for (const detail of toBeCancelled.orderDetails) {
+				console.log(`Updating product ${detail.product.id}:`);
+				console.log(`  Current stock: ${detail.product.stock}`);
+				console.log(`  Quantity to add back: ${detail.quantity}`);
+				console.log(`  Expected new stock: ${detail.product.stock + detail.quantity}`);
+
+				const updatedProduct = await prisma.product.update({
+					where: {
+						id: detail.product.id
+					},
+					data: {
+						stock: {
+							increment: detail.quantity
+						}
+					}
+				});
+
+				console.log(`Actual new stock: ${updatedProduct.stock}`);
+			}
+
+			return cancelledOrder;
+		});
+
+		res.status(200).json(updatedOrder);
 
 	} catch (error) {
-
-		console.error('Error fetching user orders:', error);
-		res.status(500).json({ error: 'An error occurred while fetching orders' });
-
+		console.error('Error cancelling order:', error);
+		res.status(500).json({ error: 'An error occurred while cancelling the order' });
 	}
-}
+};
 
 export const getOrderDetails = async (req, res) => {
 	try {
