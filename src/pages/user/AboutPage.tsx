@@ -1,5 +1,7 @@
 import { CheckCircleIcon } from "@heroicons/react/16/solid";
 import Button from "../../components/Button";
+import { NavLink } from "react-router-dom";
+import { FAQ, USER_PRODUCTS } from "../../constants/routes";
 
 function AboutPage() {
   return (
@@ -21,26 +23,31 @@ function AboutPage() {
             </p>
             <ul className="list-none mb-8 animate-slide-in-1">
               <li className="flex items-center gap-2">
-                <CheckCircleIcon width={15} height={15}/> Kualitas terbaik
+                <CheckCircleIcon width={15} height={15} /> Kualitas terbaik
               </li>
               <li className="flex items-center gap-2">
-                <CheckCircleIcon width={15} height={15}/> Pilihan suku cadang yang
-                lengkap
+                <CheckCircleIcon width={15} height={15} /> Pilihan suku cadang
+                yang lengkap
               </li>
               <li className="flex items-center gap-2">
-                <CheckCircleIcon width={15} height={15}/> Pelayanan pelanggan terbaik
+                <CheckCircleIcon width={15} height={15} /> Pelayanan pelanggan
+                terbaik
               </li>
             </ul>
             <div className="flex justify-center">
-              <Button className="inline-flex text-white bg-indigo-500 border-0 py-2 px-6 focus:outline-none hover:bg-indigo-600 rounded text-lg">
-                Our Products
-              </Button>
-              <Button
-                variant="secondary"
-                className="ml-4 inline-flex text-black bg-gray-100 border-0 py-2 px-6 focus:outline-none hover:bg-gray-200 rounded text-lg"
-              >
-                FAQ
-              </Button>
+              <NavLink to={USER_PRODUCTS}>
+                <Button className="inline-flex text-white bg-indigo-500 border-0 py-2 px-6 focus:outline-none hover:bg-indigo-600 rounded text-lg">
+                  Our Products
+                </Button>
+              </NavLink>
+              <NavLink to={FAQ}>
+                <Button
+                  variant="secondary"
+                  className="ml-4 inline-flex text-black bg-gray-100 border-0 py-2 px-6 focus:outline-none hover:bg-gray-200 rounded text-lg"
+                >
+                  FAQ
+                </Button>
+              </NavLink>
             </div>
           </div>
           <div className="lg:max-w-lg lg:w-full md:w-1/2 w-5/6">

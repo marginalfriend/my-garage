@@ -94,15 +94,15 @@ const OrderConfirmationPage: React.FC = () => {
       <h1 className="text-3xl font-bold mb-6 text-heading">
         Order Confirmation
       </h1>
-      <div className="bg-surface shadow-md rounded-lg p-6 mb-8">
-        <p className="mb-2 p-1 bg-slate-200 rounded-sm">
+      <div className="bg-surface shadow-md rounded-lg p-6 mb-8 border">
+        <p className="text-xs mb-2 p-1 bg-slate-200 rounded-sm">
           <span className="font-semibold">Order ID:</span> {order.id}
         </p>
-        <p className="mb-2 p-1 bg-slate-200 rounded-sm">
+        <p className="text-xs mb-2 p-1 bg-slate-200 rounded-sm">
           <span className="font-semibold">Order Date:</span>{" "}
           {new Date(order.orderDate).toLocaleString()}
         </p>
-        <p className="mb-4 p-1 bg-slate-200 rounded-sm">
+        <p className="text-xs mb-4 p-1 bg-slate-200 rounded-sm">
           <span className="font-semibold">Payment Status:</span>{" "}
           {order.paymentStatus}
         </p>

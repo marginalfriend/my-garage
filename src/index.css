@@ -12,7 +12,14 @@
 		min-height: 100vh;
 	}
 
-		.transition-height {
-			transition: height 0.7s ease;
-		}
+	.disclosure-content {
+		transition: max-height 0.3s ease-out;
+		max-height: 0;
+		overflow: hidden;
+	}
+
+	.disclosure-content.open {
+		max-height: 1000px;
+		transition: max-height 0.7s ease-in;
+	}
 }
