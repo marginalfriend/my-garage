@@ -9,7 +9,8 @@ router.post('/', orderController.createOrder);
 router.get('/', orderController.getUserOrders);
 router.get('/admin', orderController.getPaginatedOrders);
 router.get('/:orderId', orderController.getOrderDetails);
+router.get('/checkstok/:orderId', orderController.checkStock)
 router.patch('/:orderId', orderController.updateOrder);
-router.put('/', orderController.cancelOrder)
+router.patch('/', orderController.cancelOrder)
 
 export default router;

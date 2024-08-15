@@ -348,3 +348,38 @@ export const updateOrder = async (req, res) => {
 		res.status(500).json({ error: 'An error occurred while updating the order' });
 	}
 };
+
+export const checkStock = async (req, res) => {
+	try {
+		const { orderId } = req.params;
+		let productNames = [];
+
+		const order = await prisma.order.findUnique({
+			where: {
+				id: orderId
+			},
+			include: {
+				orderDetails: true
+			}
+		});
+
+		const orderDetails = order.orderDetails;
+
+		for (const detail of orderDetails) {
+			const product = await prisma.product.findUnique({
+				where: {
+					id: detail.itemId
+				}
+			})
+
+			if (product.stock <= 1) {
+				productNames.push(product.name)
+			}
+		}
+
+		res.status(200).json(productNames)
+	} catch (error) {
+		console.log(error)
+		res.status(500).json({ error: 'An error occurred while fetching orders' });
+	}
+}

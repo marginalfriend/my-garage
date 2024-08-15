@@ -6,6 +6,8 @@ import { updateCartItem } from "../../apis/cartApi";
 import { ORDER, USER_PRODUCTS } from "../../constants/routes";
 import Button from "../../components/Button";
 import { NavLink } from "react-router-dom";
+import { checkStock } from "../../apis/orderApi";
+import emailjs from "@emailjs/browser";
 
 interface CartItem {
   id: string;
@@ -28,6 +30,7 @@ const CartPage: React.FC = () => {
 
   useEffect(() => {
     fetchCartItems();
+    console.log(import.meta.env.VITE_EMAILJS_PUBLIC_KEY);
   }, []);
 
   const fetchCartItems = async () => {
@@ -107,6 +110,20 @@ const CartPage: React.FC = () => {
       }
 
       const order = await response.json();
+
+      const productNames = await checkStock(token, order.id);
+      console.log("Product names: " + JSON.stringify(productNames));
+
+      if (productNames[0]) {
+        for (const product_name of productNames) {
+          emailjs.send(
+            import.meta.env.VITE_EMAILJS_SERVICE_ID,
+            import.meta.env.VITE_TEMPLATE_ID,
+            { product_name },
+            { publicKey: import.meta.env.VITE_EMAILJS_PUBLIC_KEY }
+          );
+        }
+      }
 
       // Clear checked items from the cart
       setCartItems((prevItems) =>
@@ -198,7 +215,10 @@ const CartPage: React.FC = () => {
         </>
       ) : (
         <div className="flex flex-col gap-4 justify-center items-center">
-					<img src="https://img.freepik.com/free-vector/empty-shopping-basket-concept-illustration_114360-17072.jpg?t=st=1723555699~exp=1723559299~hmac=e191bab40b4d93b4e2740c84578158af2959cbd6ebc885d9b4a53659a90b7cf8&w=740" width={250}/>
+          <img
+            src="https://img.freepik.com/free-vector/empty-shopping-basket-concept-illustration_114360-17072.jpg?t=st=1723555699~exp=1723559299~hmac=e191bab40b4d93b4e2740c84578158af2959cbd6ebc885d9b4a53659a90b7cf8&w=740"
+            width={250}
+          />
           <p>Your cart is empty...</p>
           <NavLink to={USER_PRODUCTS}>
             <Button>Go check our products!</Button>
