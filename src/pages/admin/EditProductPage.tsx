@@ -17,7 +17,7 @@ type Category = {
   name: string;
 };
 
-const EditProductPage: React.FC = () => {
+const 	EditProductPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [product, setProduct] = useState<Product | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);

@@ -36,6 +36,7 @@ import {
   CART,
   ORDER,
   REPORT,
+	EDIT_PRODUCT,
 } from "./constants/routes";
 import ProtectedRoute from "./components/ProtectedRoute";
 import ProductDetailPage from "./pages/user/ProductDetailPage";
@@ -44,6 +45,7 @@ import OrderConfirmationPage from "./pages/user/OrderConfirmationPage";
 import OrdersPage from "./pages/user/OrdersPage";
 import ReportPage from "./pages/admin/ReportPage";
 import Footer from "./components/Footer";
+import EditProductPage from "./pages/admin/EditProductPage";
 
 const UserLayout = () => {
   return (
@@ -103,6 +105,7 @@ const App: React.FC = () => {
         <Route path={ADMIN_HOME_PAGE} element={<AdminLayout />}>
           <Route path={ADMIN_PRODUCTS} element={<AdminProductsPage />} />
           <Route path={CREATE_PRODUCT} element={<CreateProductPage />} />
+          <Route path={EDIT_PRODUCT + "/:id"} element={<EditProductPage />} />
           <Route path={REPORT} element={<ReportPage />} />
         </Route>
       </Route>

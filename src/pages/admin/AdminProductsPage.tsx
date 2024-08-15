@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import ProductTable from "../../components/ProductTable"; // Assuming ProductTable is in the same directory
+import { EDIT_PRODUCT } from "../../constants/routes";
 
 type Product = {
   id: string;
@@ -33,7 +34,7 @@ const AdminProductsPage: React.FC = () => {
   }, []);
 
   const handleEdit = (id: string) => {
-    navigate(`/products/edit/${id}`);
+    navigate(`${EDIT_PRODUCT}/${id}`);
   };
 
   const handleDelete = async (id: string) => {

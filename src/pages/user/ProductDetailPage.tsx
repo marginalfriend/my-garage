@@ -1,6 +1,7 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate, Navigate } from "react-router-dom";
+import { Carousel } from "react-responsive-carousel";
+import "react-responsive-carousel/lib/styles/carousel.min.css";
 import { formatIDR } from "../../utils/utils";
 import Button from "../../components/Button";
 import { ExtendedProduct } from "./ProductsPage";
@@ -10,7 +11,7 @@ import {
   deleteCartItem,
   getUserCartItemByProductId,
   updateCartItem,
-} from "../../apis/cartApi"; // Import your API call functions
+} from "../../apis/cartApi";
 import { USER_PRODUCTS } from "../../constants/routes";
 import { MinusIcon, PlusIcon } from "@heroicons/react/24/outline";
 
@@ -21,6 +22,7 @@ const ProductDetailPage: React.FC = () => {
   const [product, setProduct] = useState<ExtendedProduct | null>(null);
   const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(0);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -106,11 +108,23 @@ const ProductDetailPage: React.FC = () => {
     <main className="container mx-auto px-4 py-8">
       <div className="flex flex-col md:flex-row gap-8">
         <div className="md:w-1/2">
-          <img
-            src={product.images[0].url}
-            alt={product.name}
-            className="w-full h-auto object-cover rounded-lg shadow-md"
-          />
+          <Carousel
+            selectedItem={currentImageIndex}
+            onChange={setCurrentImageIndex}
+            showArrows={true}
+            showStatus={false}
+            showThumbs={true}
+          >
+            {product.images.map((image, index) => (
+              <div key={index}>
+                <img
+                  src={image.url}
+                  alt={`${product.name} - Image ${index + 1}`}
+                  className="w-full h-auto object-cover rounded-lg shadow-md"
+                />
+              </div>
+            ))}
+          </Carousel>
         </div>
         <div className="md:w-1/2">
           <h1 className="text-3xl font-bold mb-4">{product.name}</h1>
@@ -135,7 +149,7 @@ const ProductDetailPage: React.FC = () => {
                   variant="primary"
                   className="p-0"
                   onClick={() => handleUpdateQuantity(quantity + 1)}
-                >	
+                >
                   <PlusIcon width={15} height={15} strokeWidth={2.5} />
                 </Button>
               )}
