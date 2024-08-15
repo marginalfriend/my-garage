@@ -11,7 +11,7 @@ import {
   ORDER,
 } from "../constants/routes";
 import { useAuth } from "../hooks/useAuth";
-import { ShoppingBagIcon, ShoppingCartIcon } from "@heroicons/react/24/outline";
+import { ShoppingBagIcon } from "@heroicons/react/24/outline";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline"; // Icons for mobile menu
 
 const UserNavbar: React.FC = () => {

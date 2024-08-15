@@ -4,6 +4,8 @@ import {
   useReactTable,
   getCoreRowModel,
   getPaginationRowModel,
+  getFilteredRowModel,
+  getSortedRowModel,
   ColumnDef,
   flexRender,
 } from "@tanstack/react-table";
@@ -42,21 +44,25 @@ const ProductTable: React.FC<ProductTableProps> = ({
         id: "name",
         accessorKey: "name",
         header: "Name",
+        enableSorting: true,
       },
       {
         accessorKey: "price",
         header: "Price",
         cell: ({ getValue }: { getValue: () => any }) =>
           `${formatIDR(getValue())}`,
+        enableSorting: true,
       },
       {
         accessorKey: "stock",
         header: "Stock",
+        enableSorting: true,
       },
       {
         id: "category",
         accessorKey: "category.name",
         header: "Category",
+        enableSorting: true,
       },
       {
         id: "actions",
@@ -112,6 +118,8 @@ const ProductTable: React.FC<ProductTableProps> = ({
     columns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    getSortedRowModel: getSortedRowModel(),
     initialState: { pagination: { pageSize: 10 } },
   });
 
@@ -129,8 +137,7 @@ const ProductTable: React.FC<ProductTableProps> = ({
           />
           <input
             value={
-              (table.getColumn("category")?.getFilterValue() as string) ??
-              ""
+              (table.getColumn("category")?.getFilterValue() as string) ?? ""
             }
             onChange={(e) =>
               table.getColumn("category")?.setFilterValue(e.target.value)
@@ -153,7 +160,7 @@ const ProductTable: React.FC<ProductTableProps> = ({
               {headerGroup.headers.map((header) => (
                 <th
                   key={header.id}
-                  className="px-6 py-3 text-left text-xs font-medium text-contrast uppercase tracking-wider"
+                  className="px-6 py-3 text-left text-xs font-medium text-contrast uppercase tracking-wider cursor-pointer"
                   onClick={header.column.getToggleSortingHandler()}
                 >
                   {flexRender(

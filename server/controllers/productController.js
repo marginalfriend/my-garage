@@ -94,7 +94,7 @@ export const updateProduct = async (req, res, next) => {
 		// Update the product details
 		const updatedProduct = await prisma.product.update({
 			where: { id },
-			data: { isActive, categoryId, name, price: Number(price), description, stock: Number(stock) },
+			data: { isActive: isActive === "true", categoryId, name, price: Number(price), description, stock: Number(stock) },
 		});
 
 		const productWithImages = await prisma.product.findUnique({

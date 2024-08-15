@@ -1,6 +1,10 @@
 import { Image } from "@prisma/client";
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import Button from "../../components/Button";
+import { NavLink } from "react-router-dom";
+import { ADMIN_PRODUCTS } from "../../constants/routes";
+import { useAuth } from "../../hooks/useAuth";
 
 type Product = {
   id: string;
@@ -20,6 +24,7 @@ type Category = {
 
 const EditProductPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
+  const { token } = useAuth();
   const [product, setProduct] = useState<Product | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
   const [name, setName] = useState("");
@@ -85,6 +90,9 @@ const EditProductPage: React.FC = () => {
     try {
       const response = await fetch(`/api/products/${id}`, {
         method: "PUT",
+        headers: {
+          Authorization: token,
+        },
         body: formData,
       });
 
@@ -210,13 +218,11 @@ const EditProductPage: React.FC = () => {
               className="w-full p-2 border border-gray-300 rounded"
             />
           </div>
-          <div className="flex justify-end">
-            <button
-              type="submit"
-              className="bg-accent text-contrast px-4 py-2 rounded"
-            >
-              Update Product
-            </button>
+          <div className="flex justify-end gap-2">
+            <NavLink to={ADMIN_PRODUCTS}>
+              <Button variant="danger">Cancel</Button>
+            </NavLink>
+            <Button type="submit">Update Product</Button>
           </div>
         </form>
       </div>

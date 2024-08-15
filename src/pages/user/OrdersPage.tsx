@@ -95,9 +95,22 @@ const OrdersPage: React.FC = () => {
                 Total: {formatIDR(order.totalPrice)}
               </p>
               <p className="mb-2 text-sm">
-                Payment Status: {order.paymentStatus}
+                Payment Status:{" "}
+                <span
+                  className={`${
+                    order.paymentStatus === "PAID"
+                      ? "bg-lime-500"
+                      : order.paymentStatus === "CANCELLED"
+                      ? "bg-rose-500"
+                      : "bg-yellow-500"
+                  } bg-opacity-80 p-1 rounded`}
+                >
+                  {order.paymentStatus}
+                </span>
               </p>
-              <p className="mb-2 text-xs font-semibold">Click to see the details</p>
+              <p className="mb-2 text-xs font-semibold">
+                Click to see the details
+              </p>
             </Link>
           ))}
         </div>
