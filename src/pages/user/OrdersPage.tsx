@@ -97,7 +97,7 @@ const OrdersPage: React.FC = () => {
               <p className="mb-2 text-sm">
                 Payment Status: {order.paymentStatus}
               </p>
-              <p className="mb-2 text-xs">Click to see the details</p>
+              <p className="mb-2 text-xs font-semibold">Click to see the details</p>
             </Link>
           ))}
         </div>

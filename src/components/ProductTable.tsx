@@ -39,6 +39,7 @@ const ProductTable: React.FC<ProductTableProps> = ({
   const columns = useMemo<ColumnDef<Product>[]>(
     () => [
       {
+        id: "name",
         accessorKey: "name",
         header: "Name",
       },
@@ -53,8 +54,9 @@ const ProductTable: React.FC<ProductTableProps> = ({
         header: "Stock",
       },
       {
-        accessorKey: "description",
-        header: "Description",
+        id: "category",
+        accessorKey: "category.name",
+        header: "Category",
       },
       {
         id: "actions",
@@ -103,7 +105,7 @@ const ProductTable: React.FC<ProductTableProps> = ({
     [onEdit, onDelete]
   );
 
-	const navigate = useNavigate()
+  const navigate = useNavigate();
 
   const table = useReactTable({
     data: products,
@@ -127,12 +129,13 @@ const ProductTable: React.FC<ProductTableProps> = ({
           />
           <input
             value={
-              (table.getColumn("description")?.getFilterValue() as string) ?? ""
+              (table.getColumn("category")?.getFilterValue() as string) ??
+              ""
             }
             onChange={(e) =>
-              table.getColumn("description")?.setFilterValue(e.target.value)
+              table.getColumn("category")?.setFilterValue(e.target.value)
             }
-            placeholder="Filter by description"
+            placeholder="Filter by category"
             className="p-2 border rounded ml-2"
           />
         </div>

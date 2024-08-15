@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import ProductTable from "../../components/ProductTable"; // Assuming ProductTable is in the same directory
 import { EDIT_PRODUCT } from "../../constants/routes";
+import { useAuth } from "../../hooks/useAuth";
 
 type Product = {
   id: string;
@@ -17,6 +18,7 @@ type Product = {
 const AdminProductsPage: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const navigate = useNavigate();
+  const { token } = useAuth();
 
   useEffect(() => {
     // Fetch products from the backend API
@@ -24,6 +26,7 @@ const AdminProductsPage: React.FC = () => {
       try {
         const response = await fetch("/api/products");
         const data = await response.json();
+        console.log(data);
         setProducts(data);
       } catch (error) {
         console.error("Failed to fetch products:", error);
@@ -39,7 +42,12 @@ const AdminProductsPage: React.FC = () => {
 
   const handleDelete = async (id: string) => {
     try {
-      await fetch(`/api/products/${id}`, { method: "DELETE" });
+      await fetch(`/api/products/${id}`, {
+        headers: {
+          Authorization: token,
+        },
+        method: "DELETE",
+      });
       setProducts(products.filter((product) => product.id !== id));
     } catch (error) {
       console.error("Failed to delete product:", error);

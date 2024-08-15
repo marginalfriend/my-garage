@@ -1,3 +1,4 @@
+import { Image } from "@prisma/client";
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 
@@ -17,7 +18,7 @@ type Category = {
   name: string;
 };
 
-const 	EditProductPage: React.FC = () => {
+const EditProductPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [product, setProduct] = useState<Product | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -28,10 +29,10 @@ const 	EditProductPage: React.FC = () => {
   const [categoryId, setCategoryId] = useState("");
   const [isActive, setIsActive] = useState(true);
   const [images, setImages] = useState<FileList | null>(null);
+  const [keepImageIds, setKeepImageIds] = useState<string[]>([]);
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Fetch the product details
     const fetchProduct = async () => {
       try {
         const response = await fetch(`/api/products/${id}`);
@@ -43,12 +44,12 @@ const 	EditProductPage: React.FC = () => {
         setStock(data.stock);
         setCategoryId(data.categoryId);
         setIsActive(data.isActive);
+        setKeepImageIds(data.images.map((image: Image) => image.id));
       } catch (error) {
         console.error("Failed to fetch product:", error);
       }
     };
 
-    // Fetch categories
     const fetchCategories = async () => {
       try {
         const response = await fetch("/api/categories");
@@ -73,6 +74,7 @@ const 	EditProductPage: React.FC = () => {
     formData.append("stock", stock.toString());
     formData.append("categoryId", categoryId);
     formData.append("isActive", isActive.toString());
+    formData.append("keepImageIds", JSON.stringify(keepImageIds));
 
     if (images) {
       for (let i = 0; i < images.length; i++) {
@@ -96,12 +98,20 @@ const 	EditProductPage: React.FC = () => {
     }
   };
 
+  const toggleKeepImage = (imageId: string) => {
+    setKeepImageIds((prevIds) =>
+      prevIds.includes(imageId)
+        ? prevIds.filter((id) => id !== imageId)
+        : [...prevIds, imageId]
+    );
+  };
+
   if (!product) {
     return <div>Loading...</div>;
   }
 
   return (
-    <div className="min-h-screen bg-background p-4">
+    <main className="min-h-screen bg-background p-4">
       <div className="max-w-2xl mx-auto">
         <h1 className="text-heading text-2xl font-semibold mb-4">
           Edit Product
@@ -170,7 +180,29 @@ const 	EditProductPage: React.FC = () => {
             />
           </div>
           <div>
-            <label className="block text-default font-medium">Images</label>
+            <label className="block text-default font-medium">
+              Existing Images
+            </label>
+            <div className="grid grid-cols-3 gap-4">
+              {product.images.map((image) => (
+                <div key={image.id} className="relative">
+                  <img
+                    src={image.url}
+                    alt="Product"
+                    className="w-full h-auto object-cover rounded-lg shadow-md"
+                  />
+                  <input
+                    type="checkbox"
+                    checked={keepImageIds.includes(image.id)}
+                    onChange={() => toggleKeepImage(image.id)}
+                    className="absolute top-0 right-0 mt-2 mr-2"
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+          <div>
+            <label className="block text-default font-medium">Add Images</label>
             <input
               type="file"
               multiple
@@ -188,7 +220,7 @@ const 	EditProductPage: React.FC = () => {
           </div>
         </form>
       </div>
-    </div>
+    </main>
   );
 };
 

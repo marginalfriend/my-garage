@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { useAuth } from "../../hooks/useAuth";
 import Button from "../../components/Button";
+import { NavLink } from "react-router-dom";
+import { REGISTER } from "../../constants/routes";
 
 const UserLoginPage: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -56,10 +58,18 @@ const UserLoginPage: React.FC = () => {
             </div>
           </div>
 
-          <div>
+          <div className="flex flex-col">
             <Button variant="primary" type="submit" className="w-full">
               Sign in
             </Button>
+            <p className="text-sm text-center mt-4">
+              Don't have an account?{" "}
+              <NavLink to={REGISTER}>
+                <strong className="text-accent hover:underline hover:cursor-pointer">
+                  Register here.
+                </strong>
+              </NavLink>
+            </p>
           </div>
         </form>
       </div>

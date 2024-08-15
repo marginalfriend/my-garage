@@ -89,7 +89,27 @@ const UserNavbar: React.FC = () => {
             >
               <ShoppingCartIcon className="w-6 h-6" />
             </NavLink>
-            <Button onClick={logout}>Logout</Button>
+            {user === null ? (
+              <NavLink to={LOGIN}>
+                <Button>Login</Button>
+              </NavLink>
+            ) : (
+              <div className="flex items-center gap-4">
+                <NavLink
+                  to={CART}
+                  className={({ isActive }) =>
+                    isActive
+                      ? "text-accent px-3 py-2 rounded-md text-sm font-medium transition duration-300 ease-in-out"
+                      : "text-contrast hover:text-heading px-3 py-2 rounded-md text-sm font-medium transition duration-300 ease-in-out hover:bg-white hover:bg-opacity-20"
+                  }
+                >
+                  <button>
+                    <ShoppingBagIcon width={22} height={22} className="" />
+                  </button>
+                </NavLink>
+                <Button onClick={logout}>Logout</Button>
+              </div>
+            )}
           </div>
 
           {/* Mobile menu button */}

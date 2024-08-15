@@ -2,8 +2,8 @@
 import React, { useState } from "react";
 import Button from "../../components/Button";
 import { registerUser } from "../../apis/authApi";
-import { useNavigate } from "react-router-dom";
-import { HOME } from "../../constants/routes";
+import { NavLink, useNavigate } from "react-router-dom";
+import { HOME, LOGIN } from "../../constants/routes";
 
 const UserRegistrationPage: React.FC = () => {
   const [name, setName] = useState("");
@@ -190,6 +190,14 @@ const UserRegistrationPage: React.FC = () => {
             >
               {isLoading ? "Registering..." : "Register"}
             </Button>
+            <p className="text-sm text-center mt-4">
+              Already have an account?{" "}
+              <NavLink to={LOGIN}>
+                <strong className="text-accent hover:underline hover:cursor-pointer">
+                  Login here.
+                </strong>
+              </NavLink>
+            </p>
           </div>
         </form>
       </div>

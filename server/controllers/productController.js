@@ -124,25 +124,33 @@ export const deleteProduct = async (req, res, next) => {
 		});
 
 		if (!product) {
-			return res.status(404).json({ message: 'Product not found' });
+			return res.sendStatus(204);
 		}
 
-		// Delete associated images from the filesystem
-		for (const image of product.images) {
-			const imagePath = path.join(__dirname, '..', '..', image.url);
-			if (fs.existsSync(imagePath)) {
-				fs.unlinkSync(imagePath);
+		// Start a transaction
+		await prisma.$transaction(async (prisma) => {
+			// Delete associated cart items
+			await prisma.cart.deleteMany({
+				where: { productId: id },
+			});
+
+			// Delete associated images from the filesystem
+			for (const image of product.images) {
+				const imagePath = path.join(__dirname, '..', '..', image.url);
+				if (fs.existsSync(imagePath)) {
+					fs.unlinkSync(imagePath);
+				}
 			}
-		}
 
-		// Delete the associated images from the database
-		await prisma.image.deleteMany({
-			where: { productId: id },
-		});
+			// Delete the associated images from the database
+			await prisma.image.deleteMany({
+				where: { productId: id },
+			});
 
-		// Delete the product from the database
-		await prisma.product.delete({
-			where: { id },
+			// Delete the product from the database
+			await prisma.product.delete({
+				where: { id },
+			});
 		});
 
 		res.sendStatus(204);
@@ -156,6 +164,7 @@ export const getAllProducts = async (req, res, next) => {
 		const products = await prisma.product.findMany({
 			include: {
 				images: true,
+				category: true,
 			},
 		});
 		res.status(200).json(products);
