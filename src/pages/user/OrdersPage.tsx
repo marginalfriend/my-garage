@@ -2,11 +2,13 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 import { formatIDR } from "../../utils/utils";
+import { PaymentStatus } from "@prisma/client";
 
 interface Order {
   id: string;
   orderDate: string;
   totalPrice: number;
+  paymentStatus: PaymentStatus;
   orderDetails: {
     id: string;
     product: {
@@ -78,11 +80,23 @@ const OrdersPage: React.FC = () => {
               to={`/order/${order.id}`}
               className="bg-surface shadow-md rounded-lg p-6 hover:shadow-lg hover:bg-slate-50 transition-shadow"
             >
-              <p className="font-semibold text-[11px] text-default mb-2">Order ID: {order.id}</p>
-              <p className="mb-2 text-sm">
-                Date: {new Date(order.orderDate).toLocaleTimeString("id-ID", {year: "numeric", month: "short", day: "numeric"})}
+              <p className="font-semibold text-[11px] text-default mb-2">
+                Order ID: {order.id}
               </p>
-              <p className="mb-2 text-sm">Total: {formatIDR(order.totalPrice)}</p>
+              <p className="mb-2 text-sm">
+                Date:{" "}
+                {new Date(order.orderDate).toLocaleTimeString("id-ID", {
+                  year: "numeric",
+                  month: "short",
+                  day: "numeric",
+                })}
+              </p>
+              <p className="mb-2 text-sm">
+                Total: {formatIDR(order.totalPrice)}
+              </p>
+              <p className="mb-2 text-sm">
+                Payment Status: {order.paymentStatus}
+              </p>
               <p className="mb-2 text-xs">Click to see the details</p>
             </Link>
           ))}
