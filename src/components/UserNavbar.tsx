@@ -11,7 +11,7 @@ import {
   ORDER,
 } from "../constants/routes";
 import { useAuth } from "../hooks/useAuth";
-import { ShoppingBagIcon } from "@heroicons/react/24/outline";
+import { ShoppingBagIcon, ShoppingCartIcon } from "@heroicons/react/24/outline";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline"; // Icons for mobile menu
 
 const UserNavbar: React.FC = () => {
@@ -79,6 +79,17 @@ const UserNavbar: React.FC = () => {
             >
               Orders
             </NavLink>
+            <NavLink
+              to={CART}
+              className={({ isActive }) =>
+                isActive
+                  ? "text-accent px-3 py-2 rounded-md text-sm font-medium transition duration-300 ease-in-out"
+                  : "text-contrast hover:text-heading px-3 py-2 rounded-md text-sm font-medium transition duration-300 ease-in-out hover:bg-white hover:bg-opacity-20"
+              }
+            >
+              <ShoppingCartIcon className="w-6 h-6" />
+            </NavLink>
+            <Button onClick={logout}>Logout</Button>
           </div>
 
           {/* Mobile menu button */}
