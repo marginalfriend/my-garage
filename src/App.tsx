@@ -59,11 +59,11 @@ const UserLayout = () => {
 
 const AdminLayout = () => {
   return (
-    <>
+    <div className="overflow-x-hidden">
       <AdminNavbar />
       <Outlet />
-			<Footer />
-    </>
+      <Footer />
+    </div>
   );
 };
 
