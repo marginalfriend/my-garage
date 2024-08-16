@@ -13,7 +13,7 @@ const UserRegistrationPage: React.FC = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [isLoading, setIsLoading] = useState(false);
-	const navigate = useNavigate()
+  const navigate = useNavigate();
 
   const validateForm = () => {
     const newErrors: { [key: string]: string } = {};
@@ -30,7 +30,11 @@ const UserRegistrationPage: React.FC = () => {
 
     if (!phoneNumber.trim()) {
       newErrors.phoneNumber = "Phone number is required";
-    } else if (!/^\d{14}$/.test(phoneNumber.replace(/\D/g, ""))) {
+    } else if (
+      !/^(\+?\d{1,3}[- ]?)?\(?\d{1,4}\)?[- ]?\d{1,4}[- ]?\d{1,9}$/.test(
+        phoneNumber.replace(/\D/g, "")
+      )
+    ) {
       newErrors.phoneNumber = "Phone number is invalid";
     }
 
@@ -60,8 +64,8 @@ const UserRegistrationPage: React.FC = () => {
           password,
         });
         console.log("Registration successful:", result);
-        navigate(HOME)
-      } catch (error:any) {
+        navigate(HOME);
+      } catch (error: any) {
         console.error("Registration failed:", error);
         setErrors({ form: error.message });
       } finally {
