@@ -269,12 +269,13 @@ export const getPaginatedOrders = async (req, res) => {
 			return res.status(403).json({ error: 'You are not authorized to access this information' });
 		}
 
-		const { page = 1, limit = 10, sort = 'desc', paymentStatus } = req.query;
+		const { page = 1, limit = 10, sort = 'desc', paymentStatus, id } = req.query;
 		const skip = (page - 1) * limit;
 
-		const whereClause = paymentStatus
-			? { paymentStatus: paymentStatus }
-			: {};
+		const whereClause = {}
+		if (paymentStatus) whereClause.paymentStatus = paymentStatus;
+		if (id) whereClause.id = id;
+
 
 		const [orders, totalOrders] = await prisma.$transaction([
 			prisma.order.findMany({

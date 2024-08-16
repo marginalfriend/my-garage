@@ -8,6 +8,8 @@ import {
   getCoreRowModel,
   flexRender,
 } from "@tanstack/react-table";
+import { ArrowLeftIcon, ArrowRightIcon } from "@heroicons/react/24/outline";
+import Button from "../../components/Button";
 
 interface OrderReport {
   id: string;
@@ -25,13 +27,14 @@ const ReportPage: React.FC = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [sort, setSort] = useState<"asc" | "desc">("desc");
   const [filterStatus, setFilterStatus] = useState<PaymentStatus | "">("");
+  const [filterID, setFilterID] = useState<string>("");
   const { token } = useAuth();
 
   const fetchOrders = async () => {
     setIsLoading(true);
     try {
       const response = await fetch(
-        `/api/orders/admin?page=${currentPage}&sort=${sort}&paymentStatus=${filterStatus}`,
+        `/api/orders/admin?page=${currentPage}&sort=${sort}&paymentStatus=${filterStatus}&id=${filterID}`,
         {
           headers: {
             Authorization: token,
@@ -56,7 +59,7 @@ const ReportPage: React.FC = () => {
 
   useEffect(() => {
     fetchOrders();
-  }, [token, currentPage, sort, filterStatus]);
+  }, [token, currentPage, sort, filterStatus, filterID]);
 
   const columns: ColumnDef<OrderReport>[] = [
     {
@@ -105,6 +108,11 @@ const ReportPage: React.FC = () => {
     columns,
     getCoreRowModel: getCoreRowModel(),
   });
+
+  const handleFilterIDChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setFilterID(event.target.value);
+    setCurrentPage(1); // Reset to the first page on filter change
+  };
 
   const handleStatusChange = async (
     orderId: string,
@@ -159,27 +167,36 @@ const ReportPage: React.FC = () => {
   }
 
   return (
-    <main className="px-6">
+    <main className="px-6 mb-20">
       <h1 className="text-heading text-2xl font-semibold mb-4 py-5">
         Products
       </h1>
-      <div className="mb-4 flex justify-between">
+      <div className="mb-4 flex justify-between items-center">
         <button
           onClick={handleSortChange}
           className="px-4 py-2 bg-blue-500 text-white rounded"
         >
           Sort by Date ({sort === "asc" ? "Ascending" : "Descending"})
         </button>
-        <select
-          value={filterStatus}
-          onChange={handleFilterStatusChange}
-          className="p-2 border border-gray-300 rounded"
-        >
-          <option value="">All</option>
-          <option value="PENDING">PENDING</option>
-          <option value="PAID">PAID</option>
-          <option value="CANCELLED">CANCELLED</option>
-        </select>
+        <div className="flex items-center gap-2">
+          <input
+            type="text"
+            value={filterID}
+            onChange={handleFilterIDChange}
+            placeholder="Filter by ID"
+            className="p-2 border border-gray-300 rounded"
+          />
+          <select
+            value={filterStatus}
+            onChange={handleFilterStatusChange}
+            className="p-2 border border-gray-300 rounded"
+          >
+            <option value="">All</option>
+            <option value="PENDING">PENDING</option>
+            <option value="PAID">PAID</option>
+            <option value="CANCELLED">CANCELLED</option>
+          </select>
+        </div>
       </div>
       {!orders || orders.length === 0 ? (
         <div className="flex flex-col gap-4 justify-center items-center">
@@ -227,24 +244,24 @@ const ReportPage: React.FC = () => {
               ))}
             </tbody>
           </table>
-          <div className="flex justify-between items-center mt-4">
-            <button
+          <div className="flex justify-center gap-4 items-center mt-4">
+            <Button
               onClick={() => handlePageChange(currentPage - 1)}
               disabled={currentPage === 1}
-              className="px-4 py-2 bg-gray-300 rounded disabled:opacity-50"
+              className="disabled:opacity-50"
             >
-              Previous
-            </button>
+              <ArrowLeftIcon className="w-4 h-4" />
+            </Button>
             <span>
               Page {currentPage} of {totalPages}
             </span>
-            <button
+            <Button
               onClick={() => handlePageChange(currentPage + 1)}
               disabled={currentPage === totalPages}
-              className="px-4 py-2 bg-gray-300 rounded disabled:opacity-50"
+              className="disabled:opacity-50"
             >
-              Next
-            </button>
+              <ArrowRightIcon className="w-4 h-4" />
+            </Button>
           </div>
         </>
       )}
