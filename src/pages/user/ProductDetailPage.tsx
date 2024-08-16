@@ -131,7 +131,7 @@ const ProductDetailPage: React.FC = () => {
             showThumbs={true}
           >
             {product.images.map((image, index) => (
-              <div key={index}>
+              <div key={index} className="w-[75%]">
                 <img
                   src={image.url}
                   alt={`${product.name} - Image ${index + 1}`}

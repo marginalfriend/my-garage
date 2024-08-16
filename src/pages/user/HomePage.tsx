@@ -10,10 +10,6 @@ function HomePage() {
             Temukan Spare Part Modifikasi Mobil Impian Anda.
           </h1>
         </div>
-        {/* <img
-          src={heroImage}
-          className="h-full w-full object-cover fixed -z-50 self-start m-0 p-0"
-        /> */}
       </div>
     </div>
   );
