@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 import Button from "./Button"; // Assuming you have a Button component
 import {
   LOGIN,
@@ -17,6 +17,8 @@ import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline"; // Icons for
 const UserNavbar: React.FC = () => {
   const { account: user, logout } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false); // State to manage menu visibility
+	const { pathname } = useLocation()
+	const isActive = (path: string) => path === pathname
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-default bg-opacity-80 backdrop-filter backdrop-blur-lg shadow-lg">
@@ -28,56 +30,20 @@ const UserNavbar: React.FC = () => {
             </div>
           </div>
           <div className="hidden md:flex ml-10 space-x-4">
-            <NavLink
-              to={HOME}
-              end
-              className={({ isActive }) =>
-                isActive
-                  ? "text-accent px-3 py-2 rounded-md text-sm font-medium transition duration-300 ease-in-out"
-                  : "text-contrast hover:text-heading px-3 py-2 rounded-md text-sm font-medium transition duration-300 ease-in-out hover:bg-white hover:bg-opacity-20"
-              }
-            >
-              Home
+            <NavLink to={HOME} end>
+              <Button variant="glass" className={isActive(HOME) ? "text-accent" : ""}>Home</Button>
             </NavLink>
-            <NavLink
-              to={USER_PRODUCTS}
-              className={({ isActive }) =>
-                isActive
-                  ? "text-accent px-3 py-2 rounded-md text-sm font-medium transition duration-300 ease-in-out"
-                  : "text-contrast hover:text-heading px-3 py-2 rounded-md text-sm font-medium transition duration-300 ease-in-out hover:bg-white hover:bg-opacity-20"
-              }
-            >
-              Products
+            <NavLink to={USER_PRODUCTS}>
+              <Button variant="glass" className={isActive(USER_PRODUCTS) ? "text-accent" : ""}>Products</Button>
             </NavLink>
-            <NavLink
-              to={FAQ}
-              className={({ isActive }) =>
-                isActive
-                  ? "text-accent px-3 py-2 rounded-md text-sm font-medium transition duration-300 ease-in-out"
-                  : "text-contrast hover:text-heading px-3 py-2 rounded-md text-sm font-medium transition duration-300 ease-in-out hover:bg-white hover:bg-opacity-20"
-              }
-            >
-              FAQ
+            <NavLink to={FAQ}>
+              <Button variant="glass" className={isActive(FAQ) ? "text-accent" : ""}>FAQ</Button>
             </NavLink>
-            <NavLink
-              to={ABOUT}
-              className={({ isActive }) =>
-                isActive
-                  ? "text-accent px-3 py-2 rounded-md text-sm font-medium transition duration-300 ease-in-out"
-                  : "text-contrast hover:text-heading px-3 py-2 rounded-md text-sm font-medium transition duration-300 ease-in-out hover:bg-white hover:bg-opacity-20"
-              }
-            >
-              About
+            <NavLink to={ABOUT}>
+              <Button variant="glass" className={isActive(ABOUT) ? "text-accent" : ""}>About</Button>
             </NavLink>
-            <NavLink
-              to={ORDER}
-              className={({ isActive }) =>
-                isActive
-                  ? "text-accent px-3 py-2 rounded-md text-sm font-medium transition duration-300 ease-in-out"
-                  : "text-contrast hover:text-heading px-3 py-2 rounded-md text-sm font-medium transition duration-300 ease-in-out hover:bg-white hover:bg-opacity-20"
-              }
-            >
-              Orders
+            <NavLink to={ORDER}>
+              <Button variant="glass" className={isActive(ORDER) ? "text-accent" : ""}>Orders</Button>
             </NavLink>
             {user === null ? (
               <NavLink to={LOGIN}>
