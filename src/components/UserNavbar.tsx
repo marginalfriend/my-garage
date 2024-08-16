@@ -11,14 +11,17 @@ import {
   ORDER,
 } from "../constants/routes";
 import { useAuth } from "../hooks/useAuth";
-import { ShoppingBagIcon } from "@heroicons/react/24/outline";
+import {
+  ArrowRightStartOnRectangleIcon,
+  ShoppingBagIcon,
+} from "@heroicons/react/24/outline";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline"; // Icons for mobile menu
 
 const UserNavbar: React.FC = () => {
   const { account: user, logout } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false); // State to manage menu visibility
-	const { pathname } = useLocation()
-	const isActive = (path: string) => path === pathname
+  const { pathname } = useLocation();
+  const isActive = (path: string) => path === pathname;
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-default bg-opacity-80 backdrop-filter backdrop-blur-lg shadow-lg">
@@ -31,19 +34,44 @@ const UserNavbar: React.FC = () => {
           </div>
           <div className="hidden md:flex ml-10 space-x-4 items-center">
             <NavLink to={HOME} end>
-              <Button variant="glass" className={isActive(HOME) ? "text-accent" : ""}>Home</Button>
+              <Button
+                variant="glass"
+                className={isActive(HOME) ? "text-accent" : ""}
+              >
+                Home
+              </Button>
             </NavLink>
             <NavLink to={USER_PRODUCTS}>
-              <Button variant="glass" className={isActive(USER_PRODUCTS) ? "text-accent" : ""}>Products</Button>
+              <Button
+                variant="glass"
+                className={isActive(USER_PRODUCTS) ? "text-accent" : ""}
+              >
+                Products
+              </Button>
             </NavLink>
             <NavLink to={FAQ}>
-              <Button variant="glass" className={isActive(FAQ) ? "text-accent" : ""}>FAQ</Button>
+              <Button
+                variant="glass"
+                className={isActive(FAQ) ? "text-accent" : ""}
+              >
+                FAQ
+              </Button>
             </NavLink>
             <NavLink to={ABOUT}>
-              <Button variant="glass" className={isActive(ABOUT) ? "text-accent" : ""}>About</Button>
+              <Button
+                variant="glass"
+                className={isActive(ABOUT) ? "text-accent" : ""}
+              >
+                About
+              </Button>
             </NavLink>
             <NavLink to={ORDER}>
-              <Button variant="glass" className={isActive(ORDER) ? "text-accent" : ""}>Orders</Button>
+              <Button
+                variant="glass"
+                className={isActive(ORDER) ? "text-accent" : ""}
+              >
+                Orders
+              </Button>
             </NavLink>
             {user === null ? (
               <NavLink to={LOGIN}>
@@ -63,7 +91,15 @@ const UserNavbar: React.FC = () => {
                     <ShoppingBagIcon width={22} height={22} className="" />
                   </button>
                 </NavLink>
-                <Button onClick={logout}>Logout</Button>
+                <p className="text-sm text-white bg-black bg-opacity-20 py-1 px-2 rounded-md">
+                  {user.name}
+                </p>
+                <Button onClick={logout} variant="danger">
+                  <ArrowRightStartOnRectangleIcon
+                    strokeWidth={2}
+                    className="w-4 h-4"
+                  />
+                </Button>
               </div>
             )}
           </div>

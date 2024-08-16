@@ -7,7 +7,7 @@ const { sign } = jwt;
 
 export const login = async (req, res) => {
 	const { email, password } = req.body;
-	const account = await prisma.account.findUnique({ where: { email } });
+	const account = await prisma.account.findUnique({ where: { email }, include: { user: true } });
 
 	if (!account || !(await compare(password, account.password))) {
 		return res.status(403).send('Invalid credentials');
@@ -20,7 +20,7 @@ export const login = async (req, res) => {
 
 	const roleNames = roles.map(r => r.role.name);
 
-	const user = { id: account.id, roles: roleNames };
+	const user = { id: account.id, roles: roleNames, name: account.user.name };
 	const accessToken = sign(user, process.env.ACCESS_TOKEN_SECRET);
 
 	res.json({ accessToken });
