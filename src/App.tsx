@@ -62,6 +62,7 @@ const AdminLayout = () => {
     <>
       <AdminNavbar />
       <Outlet />
+			<Footer />
     </>
   );
 };
