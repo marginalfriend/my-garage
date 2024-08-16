@@ -29,7 +29,7 @@ const UserNavbar: React.FC = () => {
               <span className="text-accent">GK5</span>GARAGE
             </div>
           </div>
-          <div className="hidden md:flex ml-10 space-x-4">
+          <div className="hidden md:flex ml-10 space-x-4 items-center">
             <NavLink to={HOME} end>
               <Button variant="glass" className={isActive(HOME) ? "text-accent" : ""}>Home</Button>
             </NavLink>
