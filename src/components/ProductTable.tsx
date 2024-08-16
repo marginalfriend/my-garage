@@ -9,7 +9,6 @@ import {
   ColumnDef,
   flexRender,
 } from "@tanstack/react-table";
-import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
 import Button from "./Button";
 import { PencilSquareIcon } from "@heroicons/react/16/solid";
 import { formatIDR } from "../utils/utils";
@@ -30,13 +29,11 @@ type Product = {
 type ProductTableProps = {
   products: Product[];
   onEdit: (id: string) => void;
-  onDelete: (id: string) => void;
 };
 
 const ProductTable: React.FC<ProductTableProps> = ({
   products,
   onEdit,
-  onDelete,
 }) => {
   const columns = useMemo<ColumnDef<Product>[]>(
     () => [
@@ -68,47 +65,13 @@ const ProductTable: React.FC<ProductTableProps> = ({
         id: "actions",
         header: "Actions",
         cell: ({ row }) => (
-          <Menu as="div" className="relative inline-block text-left">
-            <MenuButton>
-              <Button>
-                <PencilSquareIcon height={15} width={15} />
-              </Button>
-            </MenuButton>
-            <MenuItems className="absolute right-0 w-56 mt-2 origin-top-right bg-surface divide-y divide-gray-100 rounded-md shadow-lg z-50">
-              <div className="px-1 py-1">
-                <MenuItem>
-                  {(button) => (
-                    <button
-                      onClick={() => onEdit(row.original.id)}
-                      className={`${
-                        button.focus
-                          ? "bg-accent text-contrast"
-                          : "text-default"
-                      } group flex rounded-md items-center w-full px-2 py-2 text-sm`}
-                    >
-                      Edit
-                    </button>
-                  )}
-                </MenuItem>
-                <MenuItem>
-                  {({ active }) => (
-                    <button
-                      onClick={() => onDelete(row.original.id)}
-                      className={`${
-                        active ? "bg-accent text-contrast" : "text-default"
-                      } group flex rounded-md items-center w-full px-2 py-2 text-sm`}
-                    >
-                      Delete
-                    </button>
-                  )}
-                </MenuItem>
-              </div>
-            </MenuItems>
-          </Menu>
+          <Button onClick={() => onEdit(row.original.id)}>
+            <PencilSquareIcon height={15} width={15} />
+          </Button>
         ),
       },
     ],
-    [onEdit, onDelete]
+    [onEdit]
   );
 
   const navigate = useNavigate();
