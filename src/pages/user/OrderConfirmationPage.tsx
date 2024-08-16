@@ -32,6 +32,18 @@ const OrderConfirmationPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const { token } = useAuth();
 
+  const handleConfirmCheckout = () => {
+    const message = encodeURIComponent(
+      `Halo, saya ingin konfirmasi pembayaran untuk pemesanan: \n ID: ${orderId} \n Total Harga: ${order?.totalPrice}`
+    );
+
+    // Replace "08123456789" with the actual phone number
+    const phoneNumber = "6281211859385";
+
+    // Redirect to WhatsApp with the composed message
+    window.location.href = `https://api.whatsapp.com/send?phone=${phoneNumber}&text=${message}`;
+  };
+
   useEffect(() => {
     const fetchOrder = async () => {
       setIsLoading(true);
@@ -106,6 +118,16 @@ const OrderConfirmationPage: React.FC = () => {
       <h1 className="text-3xl font-bold mb-6 text-heading">
         Order Confirmation
       </h1>
+      <div className="text-sm p-4 border rounded-lg mb-4 bg-yellow-50">
+        <p>
+          <strong>
+            Untuk konfirmasi pembayaran lakukan langkah - langkah berikut:
+          </strong>
+          <br /> 1. Klik Confirm Payment dan anda akan diarahkan ke WhatsApp
+          <br /> 2. Lampirkan bukti pembayaran
+          <br /> 3. Tim kami akan memproses pemesanan anda
+        </p>
+      </div>
       <div className="bg-surface shadow-md rounded-lg p-6 mb-8 border">
         <p className="text-xs mb-2 p-1 bg-slate-200 rounded-sm">
           <span className="font-semibold">Order ID:</span> {order.id}
@@ -155,9 +177,14 @@ const OrderConfirmationPage: React.FC = () => {
         </table>
         <div className="flex justify-between items-center">
           {order.paymentStatus === "PENDING" ? (
-            <Button variant="danger" onClick={handleCancelOrder}>
-              Cancel Order
-            </Button>
+            <div className="flex justify-start gap-2 items-center">
+              <Button variant="primary" onClick={handleConfirmCheckout}>
+                Confirm Payment
+              </Button>
+              <Button variant="danger" onClick={handleCancelOrder}>
+                Cancel Order
+              </Button>
+            </div>
           ) : (
             <div></div>
           )}
