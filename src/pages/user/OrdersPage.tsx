@@ -108,7 +108,8 @@ const OrdersPage: React.FC = () => {
                   {order.paymentStatus}
                 </span>
               </p>
-              <p className="mb-2 text-xs font-semibold">
+							<hr className="my-5"/>
+              <p className="mb-2 text-sm font-semibold text-center">
                 Click to see the details
               </p>
             </Link>
