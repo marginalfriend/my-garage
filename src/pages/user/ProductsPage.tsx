@@ -1,10 +1,11 @@
 // ProductsPage.tsx
 import { useEffect, useState } from "react";
-import { Image, Product } from "@prisma/client";
+import { Category, Image, Product } from "@prisma/client";
 import ProductCard from "../../components/ProductCard";
 
 export type ExtendedProduct = Product & {
 	images: Image[]
+	category: Category
 }
 
 function ProductsPage() {
