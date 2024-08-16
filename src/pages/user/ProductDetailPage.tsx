@@ -12,8 +12,8 @@ import {
   getUserCartItemByProductId,
   updateCartItem,
 } from "../../apis/cartApi";
-import { USER_PRODUCTS } from "../../constants/routes";
-import { MinusIcon, PlusIcon } from "@heroicons/react/24/outline";
+import { NOT_FOUND, USER_PRODUCTS } from "../../constants/routes";
+import { Cart } from "@prisma/client";
 
 const ProductDetailPage: React.FC = () => {
   const { account, token } = useAuth();
@@ -23,6 +23,7 @@ const ProductDetailPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(0);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [cartItem, setCartItem] = useState<Cart | undefined>();
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -50,6 +51,7 @@ const ProductDetailPage: React.FC = () => {
         try {
           const cartItem = await getUserCartItemByProductId(token, id);
           if (cartItem) {
+            setCartItem(cartItem);
             setQuantity(cartItem.quantity);
           }
         } catch (error) {
@@ -75,8 +77,11 @@ const ProductDetailPage: React.FC = () => {
     }
 
     try {
-      await addToCart(id, 1, token, account.id);
-      setQuantity(1);
+      if (cartItem) {
+        handleUpdateQuantity(quantity);
+      } else {
+        await addToCart(id, quantity, token, account.id);
+      }
     } catch (error) {
       console.error("Error adding product to cart:", error);
       alert("Failed to add product to cart.");
@@ -89,10 +94,20 @@ const ProductDetailPage: React.FC = () => {
         await updateCartItem(account.id, id, newQuantity, token);
       } else {
         await deleteCartItem(id, token, account.id);
+        setCartItem(undefined);
       }
       setQuantity(newQuantity);
     } catch (error) {
       console.error("Error updating cart quantity:", error);
+    }
+  };
+
+  const handleChange = (e: number) => {
+    if (!product) return navigate(NOT_FOUND);
+    if (e > product.stock) {
+      alert("Insufficient stock.");
+    } else {
+      setQuantity(e);
     }
   };
 
@@ -131,30 +146,22 @@ const ProductDetailPage: React.FC = () => {
           <p className="font-semibold">{formatIDR(product.price)}</p>
           <p className="font-semibold mb-4">Stock: {product.stock}</p>
           <p className="mb-4">{product.description}</p>
-          {quantity === 0 ? (
-            <Button variant="primary" onClick={handleAddToCart}>
+          <div className="flex flex-col align-middle justify-center gap-2">
+            <label>Quantity: </label>
+            <input
+              type="number"
+              value={quantity}
+              onChange={(e) => handleChange(parseInt(e.target.value))}
+              className="border p-1 rounded w-12 appearance-none"
+            />
+            <Button
+              variant="primary"
+              onClick={() => handleAddToCart()}
+              className="w-fit"
+            >
               Add to Cart
             </Button>
-          ) : (
-            <div className="flex items-center">
-              <Button
-                variant="primary"
-                onClick={() => handleUpdateQuantity(quantity - 1)}
-              >
-                <MinusIcon width={15} height={15} strokeWidth={2.5} />
-              </Button>
-              <span className="mx-4">{quantity}</span>
-              {quantity < product.stock && (
-                <Button
-                  variant="primary"
-                  className="p-0"
-                  onClick={() => handleUpdateQuantity(quantity + 1)}
-                >
-                  <PlusIcon width={15} height={15} strokeWidth={2.5} />
-                </Button>
-              )}
-            </div>
-          )}
+          </div>
         </div>
       </div>
     </main>
