@@ -82,6 +82,10 @@ const ProductDetailPage: React.FC = () => {
       } else {
         await addToCart(id, quantity, token, account.id);
       }
+
+      alert(
+        "Pesanan Berhasil Ditambahkan! Produk pilihan Anda telah berhasil ditambahkan ke keranjang. Lanjutkan berbelanja atau menuju ke keranjang untuk menyelesaikan pesanan Anda."
+      );
     } catch (error) {
       console.error("Error adding product to cart:", error);
       alert("Failed to add product to cart.");
