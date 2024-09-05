@@ -103,7 +103,10 @@ const App: React.FC = () => {
           <ProtectedRoute isAllowed={isAdmin} redirectPath={ADMIN_LOGIN} />
         }
       >
-        <Route path={ADMIN_HOME_PAGE} element={<AdminLayout />}>
+        {/* Redirect /admin to /admin/products */}
+        <Route path={ADMIN_HOME_PAGE} element={<Navigate to={ADMIN_PRODUCTS} replace />} />
+        
+        <Route element={<AdminLayout />}>
           <Route path={ADMIN_PRODUCTS} element={<AdminProductsPage />} />
           <Route path={CREATE_PRODUCT} element={<CreateProductPage />} />
           <Route path={EDIT_PRODUCT + "/:id"} element={<EditProductPage />} />
