@@ -191,7 +191,7 @@ const ProductTable: React.FC<ProductTableProps> = ({
             }}
             className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none sm:text-sm rounded-md"
           >
-            {[10, 20, 30, 40, 50].map((pageSize) => (
+            {[5, 10, 15, 20, 25].map((pageSize) => (
               <option key={pageSize} value={pageSize}>
                 Show {pageSize}
               </option>
