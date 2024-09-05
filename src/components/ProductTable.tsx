@@ -29,11 +29,19 @@ type Product = {
 type ProductTableProps = {
   products: Product[];
   onEdit: (id: string) => void;
+  currentPage: number;
+  totalPages: number;
+  onPageChange: (page: number) => void;
+  onPageSizeChange: (pageSize: number) => void;
 };
 
 const ProductTable: React.FC<ProductTableProps> = ({
   products,
   onEdit,
+  currentPage,
+  totalPages,
+  onPageChange,
+  onPageSizeChange,
 }) => {
   const columns = useMemo<ColumnDef<Product>[]>(
     () => [
@@ -80,10 +88,10 @@ const ProductTable: React.FC<ProductTableProps> = ({
     data: products,
     columns,
     getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getSortedRowModel: getSortedRowModel(),
-    initialState: { pagination: { pageSize: 10 } },
+    manualPagination: true,
+    pageCount: totalPages,
   });
 
   return (
@@ -159,15 +167,15 @@ const ProductTable: React.FC<ProductTableProps> = ({
       <div className="py-3 flex items-center justify-between">
         <div className="flex-1 flex justify-between">
           <Button
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
+            onClick={() => onPageChange(currentPage - 1)}
+            disabled={currentPage === 1}
             className="px-4 py-2 bg-accent text-contrast rounded"
           >
             Previous
           </Button>
           <Button
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
+            onClick={() => onPageChange(currentPage + 1)}
+            disabled={currentPage === totalPages}
             className="px-4 py-2 bg-accent text-contrast rounded"
           >
             Next
@@ -176,7 +184,11 @@ const ProductTable: React.FC<ProductTableProps> = ({
         <div>
           <select
             value={table.getState().pagination.pageSize}
-            onChange={(e) => table.setPageSize(Number(e.target.value))}
+            onChange={(e) => {
+              const newPageSize = Number(e.target.value);
+              onPageSizeChange(newPageSize);
+              table.setPageSize(newPageSize);
+            }}
             className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none sm:text-sm rounded-md"
           >
             {[10, 20, 30, 40, 50].map((pageSize) => (

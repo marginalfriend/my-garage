@@ -16,33 +16,51 @@ type Product = {
 
 const AdminProductsPage: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Fetch products from the backend API
     const fetchProducts = async () => {
       try {
-        const response = await fetch("/api/products");
+        const response = await fetch(`/api/products?page=${currentPage}&pageSize=${pageSize}`);
         const data = await response.json();
-        console.log(data);
-        setProducts(data);
+        setProducts(data.products);
+        setTotalPages(data.totalPages);
       } catch (error) {
         console.error("Failed to fetch products:", error);
       }
     };
 
     fetchProducts();
-  }, []);
+  }, [currentPage, pageSize]);
 
   const handleEdit = (id: string) => {
     navigate(`${EDIT_PRODUCT}/${id}`);
+  };
+
+  const handlePageChange = (newPage: number) => {
+    setCurrentPage(newPage);
+  };
+
+  const handlePageSizeChange = (newPageSize: number) => {
+    setPageSize(newPageSize);
+    setCurrentPage(1); // Reset to first page when changing page size
   };
 
   return (
     <main className="min-h-screen bg-background p-4">
       <div className="max-w-7xl mx-auto px-4">
         <h1 className="text-heading text-2xl font-semibold mb-4">Products</h1>
-        <ProductTable products={products} onEdit={handleEdit} />
+        <ProductTable 
+          products={products}
+          onEdit={handleEdit}
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={handlePageChange}
+          onPageSizeChange={handlePageSizeChange}
+        />
       </div>
     </main>
   );
