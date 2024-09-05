@@ -3,7 +3,6 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { formatIDR } from "../../utils/utils";
 import { useAuth } from "../../hooks/useAuth";
-import { updateCartItem } from "../../apis/cartApi";
 import { ORDER, USER_PRODUCTS } from "../../constants/routes";
 import Button from "../../components/Button";
 import { NavLink } from "react-router-dom";
@@ -45,21 +44,6 @@ const CartPage: React.FC = () => {
       setCartItems(data);
     } catch (error) {
       console.error("Error fetching cart items:", error);
-    }
-  };
-
-  const handleQuantityChange = async (id: string, newQuantity: number) => {
-    // Update quantity in the backend and then update local state
-    try {
-      await updateCartItem(account.id, id, newQuantity, token);
-      setCartItems((prevItems) =>
-        prevItems.map((item) =>
-          item.id === id ? { ...item, quantity: newQuantity } : item
-        )
-      );
-    } catch (error) {
-      console.error("Error updating cart quantity:", error);
-      alert("Failed to update cart quantity.");
     }
   };
 
