@@ -179,7 +179,7 @@ const OrderConfirmationPage: React.FC = () => {
           {order.paymentStatus === "PENDING" ? (
             <div className="flex justify-start gap-2 items-center">
               <Button variant="primary" onClick={handleConfirmCheckout}>
-                Confirm Payment
+                Buy Now
               </Button>
               <Button variant="danger" onClick={handleCancelOrder}>
                 Cancel Order
