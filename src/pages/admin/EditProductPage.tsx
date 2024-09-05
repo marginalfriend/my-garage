@@ -84,8 +84,9 @@ const EditProductPage: React.FC = () => {
     formData.append("isActive", isActive.toString());
     formData.append("keepImageIds", JSON.stringify(keepImageIds));
 
+    // Append new images
     images.forEach((image) => {
-      formData.append("images", image);
+      formData.append(`newImages`, image);
     });
 
     try {
@@ -100,10 +101,13 @@ const EditProductPage: React.FC = () => {
       if (response.ok) {
         navigate(ADMIN_PRODUCTS);
       } else {
-        console.error("Failed to update product");
+        const errorData = await response.json();
+        console.error("Failed to update product:", errorData);
+        // You might want to show an error message to the user here
       }
     } catch (error) {
       console.error("Error updating product:", error);
+      // You might want to show an error message to the user here
     } finally {
       setIsLoading(false);
     }
