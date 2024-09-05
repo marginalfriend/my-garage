@@ -97,7 +97,7 @@ const EditProductPage: React.FC = () => {
       });
 
       if (response.ok) {
-        navigate("/products");
+        navigate(ADMIN_PRODUCTS);
       } else {
         console.error("Failed to update product");
       }

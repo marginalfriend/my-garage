@@ -58,55 +58,72 @@ export const updateProduct = async (req, res, next) => {
 		const { isActive, categoryId, name, price, description, keepImageIds = [], stock } = req.body;
 		const imageUrls = req.files.map(file => `/uploads/${file.filename}`);
 
-		const existingProduct = await prisma.product.findUnique({
-			where: { id },
-			include: { images: true },
-		});
-
-		if (!existingProduct) {
-			return res.status(404).json({ message: 'Product not found' });
+		// Input validation
+		if (!id || !name || price === undefined || stock === undefined) {
+			return res.status(400).json({ message: 'Missing required fields' });
 		}
 
-		// Delete old images
-		for (const image of existingProduct.images) {
-			if (!keepImageIds.includes(image.id)) {
-				const imagePath = path.join(__dirname, '..', '..', image.url);
-				if (fs.existsSync(imagePath)) {
-					fs.unlinkSync(imagePath);
-				}
+		// Parse isActive to boolean
+		const isActiveBoolean = isActive === "true" || isActive === true;
 
-				await prisma.image.delete({
-					where: { id: image.id },
-				});
+		// Use a transaction for all database operations
+		const updatedProduct = await prisma.$transaction(async (prisma) => {
+			const existingProduct = await prisma.product.findUnique({
+				where: { id },
+				include: { images: true },
+			});
+
+			if (!existingProduct) {
+				throw new Error('Product not found');
 			}
-		}
 
-		// Create new Image records
-		const newImageRecords = imageUrls.map(url => ({
-			url,
-			productId: id,
-		}));
+			// Delete old images
+			for (const image of existingProduct.images) {
+				if (!keepImageIds.includes(image.id)) {
+					const imagePath = path.join(__dirname, '..', '..', image.url);
+					if (fs.existsSync(imagePath)) {
+						fs.unlinkSync(imagePath);
+					}
 
-		await prisma.image.createMany({
-			data: newImageRecords,
+					await prisma.image.delete({
+						where: { id: image.id },
+					});
+				}
+			}
+
+			// Create new Image records
+			await prisma.image.createMany({
+				data: imageUrls.map(url => ({
+					url,
+					productId: id,
+				})),
+			});
+
+			// Update the product details
+			return prisma.product.update({
+				where: { id },
+				data: { 
+					isActive: isActiveBoolean, 
+					categoryId, 
+					name, 
+					price: Number(price), 
+					description, 
+					stock: Number(stock) 
+				},
+				include: {
+					images: true,
+				},
+			});
 		});
 
-		// Update the product details
-		const updatedProduct = await prisma.product.update({
-			where: { id },
-			data: { isActive: isActive === "true", categoryId, name, price: Number(price), description, stock: Number(stock) },
-		});
-
-		const productWithImages = await prisma.product.findUnique({
-			where: { id: updatedProduct.id },
-			include: {
-				images: true,
-			},
-		});
-
-		res.json(productWithImages);
+		res.json(updatedProduct);
 	} catch (error) {
-		next(error);
+		if (error.message === 'Product not found') {
+			res.status(404).json({ message: 'Product not found' });
+		} else {
+			console.error('Error updating product:', error);
+			res.status(500).json({ message: 'An error occurred while updating the product' });
+		}
 	}
 };
 
