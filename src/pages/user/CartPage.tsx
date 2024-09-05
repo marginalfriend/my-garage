@@ -169,17 +169,7 @@ const CartPage: React.FC = () => {
                     />
                   </td>
                   <td className="p-2 text-default">{item.product.name}</td>
-                  <td className="p-2 text-center">
-                    <input
-                      type="number"
-                      min="1"
-                      value={item.quantity}
-                      onChange={(e) =>
-                        handleQuantityChange(item.id, parseInt(e.target.value))
-                      }
-                      className="w-16 text-center border border-gray-300 rounded"
-                    />
-                  </td>
+                  <td className="p-2 text-center">{item.quantity}</td>
                   <td className="p-2 text-right text-default">
                     {formatIDR(item.product.price)}
                   </td>

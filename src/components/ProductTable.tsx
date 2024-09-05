@@ -3,7 +3,6 @@ import React, { useMemo } from "react";
 import {
   useReactTable,
   getCoreRowModel,
-  getPaginationRowModel,
   getFilteredRowModel,
   getSortedRowModel,
   ColumnDef,
