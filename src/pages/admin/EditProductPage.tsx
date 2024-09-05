@@ -23,7 +23,7 @@ type Category = {
 };
 
 const EditProductPage: React.FC = () => {
-  const { id } = useParams<{ id: string }>();
+  const { id } = useParams<{ id?: string }>();
   const { token } = useAuth();
   const [product, setProduct] = useState<Product | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -33,8 +33,9 @@ const EditProductPage: React.FC = () => {
   const [stock, setStock] = useState(0);
   const [categoryId, setCategoryId] = useState("");
   const [isActive, setIsActive] = useState(true);
-  const [images, setImages] = useState<FileList | null>(null);
+  const [images, setImages] = useState<File[]>([]);
   const [keepImageIds, setKeepImageIds] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -72,6 +73,8 @@ const EditProductPage: React.FC = () => {
   const handleUpdateProduct = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    setIsLoading(true);
+
     const formData = new FormData();
     formData.append("name", name);
     formData.append("price", price.toString());
@@ -81,11 +84,9 @@ const EditProductPage: React.FC = () => {
     formData.append("isActive", isActive.toString());
     formData.append("keepImageIds", JSON.stringify(keepImageIds));
 
-    if (images) {
-      for (let i = 0; i < images.length; i++) {
-        formData.append("images", images[i]);
-      }
-    }
+    images.forEach((image) => {
+      formData.append("images", image);
+    });
 
     try {
       const response = await fetch(`/api/products/${id}`, {
@@ -103,6 +104,8 @@ const EditProductPage: React.FC = () => {
       }
     } catch (error) {
       console.error("Error updating product:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -214,7 +217,7 @@ const EditProductPage: React.FC = () => {
             <input
               type="file"
               multiple
-              onChange={(e) => setImages(e.target.files)}
+              onChange={(e) => setImages(Array.from(e.target.files || []))}
               className="w-full p-2 border border-gray-300 rounded"
             />
           </div>
@@ -222,7 +225,9 @@ const EditProductPage: React.FC = () => {
             <NavLink to={ADMIN_PRODUCTS}>
               <Button variant="danger">Cancel</Button>
             </NavLink>
-            <Button type="submit">Update Product</Button>
+            <Button type="submit" disabled={isLoading}>
+              {isLoading ? "Updating..." : "Update Product"}
+            </Button>
           </div>
         </form>
       </div>
