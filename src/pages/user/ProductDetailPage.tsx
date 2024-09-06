@@ -8,7 +8,6 @@ import { ExtendedProduct } from "./ProductsPage";
 import { useAuth } from "../../hooks/useAuth";
 import {
   addToCart,
-  deleteCartItem,
   getUserCartItemByProductId,
   updateCartItem,
 } from "../../apis/cartApi";
