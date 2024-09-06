@@ -14,6 +14,7 @@ import {
 } from "../../apis/cartApi";
 import { NOT_FOUND, USER_PRODUCTS } from "../../constants/routes";
 import { Cart } from "@prisma/client";
+import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/solid";
 
 const ProductDetailPage: React.FC = () => {
   const { account, token } = useAuth();
@@ -126,21 +127,49 @@ const ProductDetailPage: React.FC = () => {
   return (
     <main className="container mx-auto px-4 py-8">
       <div className="flex flex-col md:flex-row gap-8">
-        <div className="md:w-1/2">
+        <div className="md:w-1/2 relative">
           <Carousel
             selectedItem={currentImageIndex}
             onChange={setCurrentImageIndex}
-            showArrows={true}
             showStatus={false}
             showThumbs={true}
+            renderArrowPrev={(onClickHandler, hasPrev, label) =>
+              hasPrev && (
+                <button
+                  type="button"
+                  onClick={onClickHandler}
+                  title={label}
+                  className="absolute left-0 top-1/2 -translate-y-1/2 z-10 p-2 bg-black bg-opacity-50 text-white rounded-r"
+                >
+                  <ChevronLeftIcon className="w-6 h-6" />
+                </button>
+              )
+            }
+            renderArrowNext={(onClickHandler, hasNext, label) =>
+              hasNext && (
+                <button
+                  type="button"
+                  onClick={onClickHandler}
+                  title={label}
+                  className="absolute right-0 top-1/2 -translate-y-1/2 z-10 p-2 bg-black bg-opacity-50 text-white rounded-l"
+                >
+                  <ChevronRightIcon className="w-6 h-6" />
+                </button>
+              )
+            }
           >
             {product.images.map((image, index) => (
-              <div key={index} className="w-[75%]">
-                <img
-                  src={image.url}
-                  alt={`${product.name} - Image ${index + 1}`}
-                  className="w-full h-auto object-cover rounded-lg shadow-md"
-                />
+              <div
+                key={index}
+                className="w-full flex justify-center items-center"
+              >
+                <div className="max-w-[80%] max-h-[400px]">
+                  <img
+                    src={image.url}
+                    alt={`${product.name} - Image ${index + 1}`}
+                    className="w-full h-full object-contain shadow-md"
+                  />
+                </div>
               </div>
             ))}
           </Carousel>

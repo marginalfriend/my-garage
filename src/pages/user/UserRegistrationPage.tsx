@@ -64,7 +64,7 @@ const UserRegistrationPage: React.FC = () => {
           password,
         });
         console.log("Registration successful:", result);
-        navigate(HOME);
+        navigate(LOGIN);
       } catch (error: any) {
         console.error("Registration failed:", error);
         setErrors({ form: error.message });

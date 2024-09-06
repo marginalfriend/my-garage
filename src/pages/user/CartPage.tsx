@@ -90,34 +90,34 @@ const CartPage: React.FC = () => {
         body: JSON.stringify({ items: orderItems }),
       });
 
-      if (!response.ok) {
+      if (response.ok) {
+        const order = await response.json();
+
+        const productNames = await checkStock(token, order.id);
+        console.log("Product names: " + JSON.stringify(productNames));
+
+        if (productNames[0]) {
+          for (const product_name of productNames) {
+            emailjs.send(
+              import.meta.env.VITE_EMAILJS_SERVICE_ID,
+              import.meta.env.VITE_TEMPLATE_ID,
+              { product_name },
+              { publicKey: import.meta.env.VITE_EMAILJS_PUBLIC_KEY }
+            );
+          }
+        }
+
+        // Fetch updated cart items from the server
+        await fetchCartItems();
+
+        // Clear checked items
+        setCheckedItems(new Set());
+
+        // Navigate to order confirmation page
+        navigate(`${ORDER}/${order.id}`);
+      } else {
         throw new Error("Failed to create order");
       }
-
-      const order = await response.json();
-
-      const productNames = await checkStock(token, order.id);
-      console.log("Product names: " + JSON.stringify(productNames));
-
-      if (productNames[0]) {
-        for (const product_name of productNames) {
-          emailjs.send(
-            import.meta.env.VITE_EMAILJS_SERVICE_ID,
-            import.meta.env.VITE_TEMPLATE_ID,
-            { product_name },
-            { publicKey: import.meta.env.VITE_EMAILJS_PUBLIC_KEY }
-          );
-        }
-      }
-
-      // Clear checked items from the cart
-      setCartItems((prevItems) =>
-        prevItems.filter((item) => !checkedItems.has(item.id))
-      );
-      setCheckedItems(new Set());
-
-      // Navigate to order confirmation page
-      navigate(`${ORDER}/${order.id}`);
     } catch (error) {
       console.error("Error creating order:", error);
       alert("Failed to create order. Please try again.");
