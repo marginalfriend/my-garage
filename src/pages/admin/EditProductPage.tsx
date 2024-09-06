@@ -86,7 +86,7 @@ const EditProductPage: React.FC = () => {
 
     // Append new images
     images.forEach((image) => {
-      formData.append(`newImages`, image);
+      formData.append(`images`, image);
     });
 
     try {

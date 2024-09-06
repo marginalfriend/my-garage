@@ -17,10 +17,17 @@ const CreateProductPage: React.FC = () => {
   const [stock, setStock] = useState<string>("");
   const navigate = useNavigate();
   const { token } = useAuth();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      setSelectedImages([...selectedImages, ...Array.from(e.target.files)]);
+      const newImages = Array.from(e.target.files);
+      const totalImages = selectedImages.length + newImages.length;
+      if (totalImages <= 10) {
+        setSelectedImages([...selectedImages, ...newImages]);
+      } else {
+        alert("You can only upload a maximum of 10 images.");
+      }
     }
   };
 
@@ -69,6 +76,7 @@ const CreateProductPage: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsSubmitting(true);
 
     const formData = new FormData();
     formData.append("name", name);
@@ -97,6 +105,8 @@ const CreateProductPage: React.FC = () => {
       }
     } catch (error) {
       console.error("Error creating product:", error);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -196,7 +206,7 @@ const CreateProductPage: React.FC = () => {
               htmlFor="images"
               className="block text-sm font-medium text-gray-700"
             >
-              Upload Images
+              Upload Images (Max 10)
             </label>
             <input
               type="file"
@@ -204,7 +214,11 @@ const CreateProductPage: React.FC = () => {
               multiple
               onChange={handleImageChange}
               className="block w-full text-sm text-gray-500"
+              accept="image/*"
             />
+            <p className="mt-1 text-sm text-gray-500">
+              {selectedImages.length}/10 images selected
+            </p>
             <div className="mt-2 flex flex-wrap">
               {selectedImages.map((image, index) => (
                 <div key={index} className="relative w-24 h-24 m-2">
@@ -224,7 +238,13 @@ const CreateProductPage: React.FC = () => {
               ))}
             </div>
           </div>
-          <Button type="submit">Create Product</Button>
+          <Button 
+            type="submit" 
+            disabled={isSubmitting}
+            className={isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}
+          >
+            {isSubmitting ? 'Creating...' : 'Create Product'}
+          </Button>
         </form>
       </div>
     </main>
