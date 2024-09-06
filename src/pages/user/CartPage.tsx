@@ -8,6 +8,7 @@ import Button from "../../components/Button";
 import { NavLink } from "react-router-dom";
 import { checkStock } from "../../apis/orderApi";
 import emailjs from "@emailjs/browser";
+import { updateCartItem } from "../../apis/cartApi";
 
 interface CartItem {
   id: string;
@@ -126,6 +127,30 @@ const CartPage: React.FC = () => {
     }
   };
 
+  const handleQuantityChange = async (item: CartItem, newQuantity: number) => {
+    if (newQuantity < 1) return;
+
+    // Optimistic update
+    setCartItems((prevItems) =>
+      prevItems.map((cartItem) =>
+        cartItem.id === item.id ? { ...cartItem, quantity: newQuantity } : cartItem
+      )
+    );
+
+    try {
+      await updateCartItem(account!.id, item.productId, newQuantity, token);
+    } catch (error) {
+      console.error("Error updating cart item:", error);
+      // Revert the optimistic update
+      setCartItems((prevItems) =>
+        prevItems.map((cartItem) =>
+          cartItem.id === item.id ? { ...cartItem, quantity: item.quantity } : cartItem
+        )
+      );
+      alert("Failed to update cart item. Please try again.");
+    }
+  };
+
   return (
     <main className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-6 text-heading">Your Cart</h1>
@@ -153,7 +178,23 @@ const CartPage: React.FC = () => {
                     />
                   </td>
                   <td className="p-2 text-default">{item.product.name}</td>
-                  <td className="p-2 text-center">{item.quantity}</td>
+                  <td className="p-2 text-center">
+                    <div className="flex items-center justify-center">
+                      <button
+                        onClick={() => handleQuantityChange(item, item.quantity - 1)}
+                        className="px-2 py-1 bg-gray-200 rounded-l"
+                      >
+                        -
+                      </button>
+                      <span className="px-4">{item.quantity}</span>
+                      <button
+                        onClick={() => handleQuantityChange(item, item.quantity + 1)}
+                        className="px-2 py-1 bg-gray-200 rounded-r"
+                      >
+                        +
+                      </button>
+                    </div>
+                  </td>
                   <td className="p-2 text-right text-default">
                     {formatIDR(item.product.price)}
                   </td>
