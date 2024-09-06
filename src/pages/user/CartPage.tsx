@@ -9,6 +9,7 @@ import { NavLink } from "react-router-dom";
 import { checkStock } from "../../apis/orderApi";
 import emailjs from "@emailjs/browser";
 import { updateCartItem } from "../../apis/cartApi";
+import { deleteCartItem } from "../../apis/cartApi";
 
 interface CartItem {
   id: string;
@@ -151,6 +152,23 @@ const CartPage: React.FC = () => {
     }
   };
 
+  const handleDeleteItem = async (item: CartItem) => {
+    try {
+      await deleteCartItem(item.productId, token, account!.id);
+      // Remove the item from the local state
+      setCartItems((prevItems) => prevItems.filter((cartItem) => cartItem.id !== item.id));
+      // Remove the item from checked items if it was checked
+      setCheckedItems((prevChecked) => {
+        const newChecked = new Set(prevChecked);
+        newChecked.delete(item.id);
+        return newChecked;
+      });
+    } catch (error) {
+      console.error("Error deleting cart item:", error);
+      alert("Failed to delete cart item. Please try again.");
+    }
+  };
+
   return (
     <main className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-6 text-heading">Your Cart</h1>
@@ -165,6 +183,7 @@ const CartPage: React.FC = () => {
                 <th className="p-2 text-right">Price / Unit</th>
                 <th className="p-2 text-right">Total</th>
                 <th className="p-2 text-center">Select</th>
+                <th className="p-2 text-center">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -208,6 +227,14 @@ const CartPage: React.FC = () => {
                       onChange={() => handleCheckboxChange(item.id)}
                       className="form-checkbox h-5 w-5 text-accent"
                     />
+                  </td>
+                  <td className="p-2 text-center">
+                    <button
+                      onClick={() => handleDeleteItem(item)}
+                      className="bg-red-500 text-white py-1 px-2 rounded hover:bg-red-600 transition-colors"
+                    >
+                      Delete
+                    </button>
                   </td>
                 </tr>
               ))}

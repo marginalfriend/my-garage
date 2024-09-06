@@ -68,6 +68,7 @@ export const deleteCartItem = async (
   const response = await fetch("/api/cart", {
     method: "DELETE",
     headers: {
+      "Content-Type": "application/json",
       Authorization: token,
     },
     body: JSON.stringify({
@@ -77,7 +78,8 @@ export const deleteCartItem = async (
   });
 
   if (!response.ok) {
-    throw new Error("Failed to delete cart item");
+    const errorText = await response.text();
+    throw new Error(`Failed to delete cart item: ${errorText}`);
   }
 
   if (response.status === 204) return;
