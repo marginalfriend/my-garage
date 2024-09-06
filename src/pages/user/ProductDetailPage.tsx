@@ -22,7 +22,7 @@ const ProductDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [product, setProduct] = useState<ExtendedProduct | null>(null);
   const [loading, setLoading] = useState(true);
-  const [quantity, setQuantity] = useState(0);
+  const [quantityToAdd, setQuantityToAdd] = useState(0);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [cartItem, setCartItem] = useState<Cart | undefined>();
 
@@ -53,7 +53,6 @@ const ProductDetailPage: React.FC = () => {
           const cartItem = await getUserCartItemByProductId(token, id);
           if (cartItem) {
             setCartItem(cartItem);
-            setQuantity(cartItem.quantity);
           }
         } catch (error) {
           console.error("Error fetching cart quantity:", error);
@@ -78,11 +77,19 @@ const ProductDetailPage: React.FC = () => {
     }
 
     try {
+      const newQuantity = (cartItem?.quantity || 0) + quantityToAdd;
       if (cartItem) {
-        handleUpdateQuantity(quantity);
+        await updateCartItem(account.id, id, newQuantity, token);
       } else {
-        await addToCart(id, quantity, token, account.id);
+        await addToCart(id, quantityToAdd, token, account.id);
       }
+
+      setCartItem((prev) =>
+        prev
+          ? { ...prev, quantity: newQuantity }
+          : { id, userId: account.id, productId: id, quantity: quantityToAdd }
+      );
+      setQuantityToAdd(0); // Reset the input after adding to cart
 
       alert(
         "Pesanan Berhasil Ditambahkan! Produk pilihan Anda telah berhasil ditambahkan ke keranjang. Lanjutkan berbelanja atau menuju ke keranjang untuk menyelesaikan pesanan Anda."
@@ -93,26 +100,16 @@ const ProductDetailPage: React.FC = () => {
     }
   };
 
-  const handleUpdateQuantity = async (newQuantity: number) => {
-    try {
-      if (newQuantity > 0) {
-        await updateCartItem(account.id, id, newQuantity, token);
-      } else {
-        await deleteCartItem(id, token, account.id);
-        setCartItem(undefined);
-      }
-      setQuantity(newQuantity);
-    } catch (error) {
-      console.error("Error updating cart quantity:", error);
-    }
-  };
-
-  const handleChange = (e: number) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = parseInt(e.target.value);
     if (!product) return navigate(NOT_FOUND);
-    if (e > product.stock) {
+    if (value < 0) {
+      setQuantityToAdd(0);
+    } else if (value > product.stock) {
       alert("Insufficient stock.");
+      setQuantityToAdd(product.stock);
     } else {
-      setQuantity(e);
+      setQuantityToAdd(value);
     }
   };
 
@@ -180,17 +177,21 @@ const ProductDetailPage: React.FC = () => {
           <p className="font-semibold mb-4">Stock: {product.stock}</p>
           <p className="mb-4">{product.description}</p>
           <div className="flex flex-col align-middle justify-center gap-2">
-            <label>Quantity: </label>
+            <label>Quantity to add: </label>
             <input
               type="number"
-              value={quantity}
-              onChange={(e) => handleChange(parseInt(e.target.value))}
+              value={quantityToAdd}
+              onChange={handleChange}
               className="border p-1 rounded w-12 appearance-none"
+              min="0"
+              max={product.stock}
             />
+            <p>Current quantity in cart: {cartItem?.quantity || 0}</p>
             <Button
               variant="primary"
-              onClick={() => handleAddToCart()}
+              onClick={handleAddToCart}
               className="w-fit"
+              disabled={quantityToAdd === 0}
             >
               Add to Cart
             </Button>
