@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import Button from "../../components/Button";
 import { registerUser } from "../../apis/authApi";
 import { NavLink, useNavigate } from "react-router-dom";
-import { HOME, LOGIN } from "../../constants/routes";
+import { LOGIN } from "../../constants/routes";
 
 const UserRegistrationPage: React.FC = () => {
   const [name, setName] = useState("");
