@@ -75,6 +75,18 @@ const ProductDetailPage: React.FC = () => {
       return;
     }
 
+    if (!product) {
+      navigate(NOT_FOUND);
+      return;
+    }
+
+    if (cartItem) {
+      if (cartItem?.quantity + quantityToAdd > product.stock) {
+        alert("Jumlah stok tidak tersedia.");
+        return;
+      }
+    }
+
     try {
       const newQuantity = (cartItem?.quantity || 0) + quantityToAdd;
       if (cartItem) {
@@ -95,7 +107,7 @@ const ProductDetailPage: React.FC = () => {
       );
     } catch (error) {
       console.error("Error adding product to cart:", error);
-      alert("Failed to add product to cart.");
+      alert("Gagal menambahkan produk ke keranjang.");
     }
   };
 
@@ -105,7 +117,7 @@ const ProductDetailPage: React.FC = () => {
     if (value < 0) {
       setQuantityToAdd(0);
     } else if (value > product.stock) {
-      alert("Insufficient stock.");
+      alert("Jumlah stok tidak tersedia.");
       setQuantityToAdd(product.stock);
     } else {
       setQuantityToAdd(value);

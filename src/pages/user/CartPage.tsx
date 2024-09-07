@@ -10,6 +10,7 @@ import { checkStock } from "../../apis/orderApi";
 import emailjs from "@emailjs/browser";
 import { updateCartItem } from "../../apis/cartApi";
 import { deleteCartItem } from "../../apis/cartApi";
+import { MinusIcon, PlusIcon } from "@heroicons/react/24/solid";
 
 interface CartItem {
   id: string;
@@ -18,6 +19,7 @@ interface CartItem {
     id: string;
     name: string;
     price: number;
+    stock: number;
     images: { url: string }[];
   };
   quantity: number;
@@ -134,7 +136,9 @@ const CartPage: React.FC = () => {
     // Optimistic update
     setCartItems((prevItems) =>
       prevItems.map((cartItem) =>
-        cartItem.id === item.id ? { ...cartItem, quantity: newQuantity } : cartItem
+        cartItem.id === item.id
+          ? { ...cartItem, quantity: newQuantity }
+          : cartItem
       )
     );
 
@@ -145,7 +149,9 @@ const CartPage: React.FC = () => {
       // Revert the optimistic update
       setCartItems((prevItems) =>
         prevItems.map((cartItem) =>
-          cartItem.id === item.id ? { ...cartItem, quantity: item.quantity } : cartItem
+          cartItem.id === item.id
+            ? { ...cartItem, quantity: item.quantity }
+            : cartItem
         )
       );
       alert("Failed to update cart item. Please try again.");
@@ -156,7 +162,9 @@ const CartPage: React.FC = () => {
     try {
       await deleteCartItem(item.productId, token, account!.id);
       // Remove the item from the local state
-      setCartItems((prevItems) => prevItems.filter((cartItem) => cartItem.id !== item.id));
+      setCartItems((prevItems) =>
+        prevItems.filter((cartItem) => cartItem.id !== item.id)
+      );
       // Remove the item from checked items if it was checked
       setCheckedItems((prevChecked) => {
         const newChecked = new Set(prevChecked);
@@ -200,17 +208,23 @@ const CartPage: React.FC = () => {
                   <td className="p-2 text-center">
                     <div className="flex items-center justify-center">
                       <button
-                        onClick={() => handleQuantityChange(item, item.quantity - 1)}
-                        className="px-2 py-1 bg-gray-200 rounded-l"
+                        onClick={() =>
+                          handleQuantityChange(item, item.quantity - 1)
+                        }
+                        className="p-2 bg-gray-200 rounded-l disabled:opacity-30"
+                        disabled={item.quantity <= 1}
                       >
-                        -
+                        <MinusIcon className="w-4 h-4" />
                       </button>
                       <span className="px-4">{item.quantity}</span>
                       <button
-                        onClick={() => handleQuantityChange(item, item.quantity + 1)}
-                        className="px-2 py-1 bg-gray-200 rounded-r"
+                        disabled={item.quantity >= item.product.stock}
+                        onClick={() =>
+                          handleQuantityChange(item, item.quantity + 1)
+                        }
+                        className="p-2 bg-gray-200 disabled:opacity-30 rounded-r"
                       >
-                        +
+                        <PlusIcon className="w-4 h-4" />
                       </button>
                     </div>
                   </td>
