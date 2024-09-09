@@ -25,6 +25,16 @@ export const createOrder = async (req, res) => {
         if (!product) {
           throw new Error(`Product with id ${item.productId} not found`);
         }
+
+        await prisma.product.update({
+          where: {
+            id: product.id,
+          },
+          data: {
+            stock: product.stock - item.quantity,
+          },
+        });
+
         totalPrice += product.price * item.quantity;
         orderDetails.push({
           itemId: item.productId,
