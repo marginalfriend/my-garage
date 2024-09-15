@@ -1,5 +1,6 @@
 export const ADMIN_HOME_PAGE = "/admin"
 export const ADMIN_PRODUCTS = ADMIN_HOME_PAGE + "/products";
+export const ADMIN_PRODUCT_RESTOCK = ADMIN_HOME_PAGE + "/restock";
 export const CREATE_PRODUCT = ADMIN_PRODUCTS + "/create"
 export const EDIT_PRODUCT = ADMIN_PRODUCTS + "/edit"
 export const ADMIN_LOGIN = ADMIN_HOME_PAGE + "/login"

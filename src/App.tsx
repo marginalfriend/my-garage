@@ -36,7 +36,8 @@ import {
   CART,
   ORDER,
   REPORT,
-	EDIT_PRODUCT,
+  EDIT_PRODUCT,
+  ADMIN_PRODUCT_RESTOCK,
 } from "./constants/routes";
 import ProtectedRoute from "./components/ProtectedRoute";
 import ProductDetailPage from "./pages/user/ProductDetailPage";
@@ -46,6 +47,8 @@ import OrdersPage from "./pages/user/OrdersPage";
 import ReportPage from "./pages/admin/ReportPage";
 import Footer from "./components/Footer";
 import EditProductPage from "./pages/admin/EditProductPage";
+import AdminProductsRestockPage from "./pages/admin/AdminProductsRestockPage";
+import RequestRestockPage from "./pages/admin/RequestRestockPage";
 
 const UserLayout = () => {
   return (
@@ -104,12 +107,23 @@ const App: React.FC = () => {
         }
       >
         {/* Redirect /admin to /admin/products */}
-        <Route path={ADMIN_HOME_PAGE} element={<Navigate to={ADMIN_PRODUCTS} replace />} />
-        
+        <Route
+          path={ADMIN_HOME_PAGE}
+          element={<Navigate to={ADMIN_PRODUCTS} replace />}
+        />
+
         <Route element={<AdminLayout />}>
           <Route path={ADMIN_PRODUCTS} element={<AdminProductsPage />} />
+          <Route
+            path={ADMIN_PRODUCT_RESTOCK}
+            element={<AdminProductsRestockPage />}
+          />
           <Route path={CREATE_PRODUCT} element={<CreateProductPage />} />
           <Route path={EDIT_PRODUCT + "/:id"} element={<EditProductPage />} />
+          <Route
+            path={ADMIN_PRODUCT_RESTOCK + "/:id"}
+            element={<RequestRestockPage />}
+          />
           <Route path={REPORT} element={<ReportPage />} />
         </Route>
       </Route>

@@ -1,6 +1,11 @@
 import React from "react";
 import { NavLink, useLocation } from "react-router-dom";
-import { ADMIN_PRODUCTS, CREATE_PRODUCT, REPORT } from "../constants/routes";
+import {
+  ADMIN_PRODUCT_RESTOCK,
+  ADMIN_PRODUCTS,
+  CREATE_PRODUCT,
+  REPORT,
+} from "../constants/routes";
 import Button from "./Button";
 import { useAuth } from "../hooks/useAuth";
 
@@ -20,9 +25,23 @@ const AdminNavbar: React.FC = () => {
           </div>
           <div className="hidden md:block">
             <div className="ml-10 flex items-baseline space-x-4">
+              <NavLink to={ADMIN_PRODUCT_RESTOCK} end>
+                <Button
+                  className={
+                    isActive(ADMIN_PRODUCT_RESTOCK)
+                      ? "text-accent"
+                      : "text-default"
+                  }
+                  variant="glass"
+                >
+                  Restock
+                </Button>
+              </NavLink>
               <NavLink to={ADMIN_PRODUCTS} end>
                 <Button
-                  className={isActive(ADMIN_PRODUCTS) ? "text-accent" : "text-default"}
+                  className={
+                    isActive(ADMIN_PRODUCTS) ? "text-accent" : "text-default"
+                  }
                   variant="glass"
                 >
                   Products
@@ -30,7 +49,9 @@ const AdminNavbar: React.FC = () => {
               </NavLink>
               <NavLink to={CREATE_PRODUCT}>
                 <Button
-                  className={isActive(CREATE_PRODUCT) ? "text-accent" : "text-default"}
+                  className={
+                    isActive(CREATE_PRODUCT) ? "text-accent" : "text-default"
+                  }
                   variant="glass"
                 >
                   Create Product

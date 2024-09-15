@@ -104,7 +104,7 @@ const CartPage: React.FC = () => {
           for (const product_name of productNames) {
             emailjs.send(
               import.meta.env.VITE_EMAILJS_SERVICE_ID,
-              import.meta.env.VITE_TEMPLATE_ID,
+              import.meta.env.VITE_ALERT_TEMPLATE_ID,
               { product_name },
               { publicKey: import.meta.env.VITE_EMAILJS_PUBLIC_KEY }
             );
