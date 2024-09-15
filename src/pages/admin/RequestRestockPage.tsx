@@ -54,6 +54,9 @@ const RequestRestockPage: React.FC = () => {
           { publicKey: import.meta.env.VITE_EMAILJS_PUBLIC_KEY }
         )
         .then((res) => console.log("EmailJS Response: ", res));
+      alert(
+        "Informasi Restockk Barang Telah Berhasil Dikirim ke Email Supplier"
+      );
       navigate(ADMIN_PRODUCT_RESTOCK);
     } catch (error) {
       console.log(error);
