@@ -55,7 +55,7 @@ const RequestRestockPage: React.FC = () => {
         )
         .then((res) => console.log("EmailJS Response: ", res));
       alert(
-        "Informasi Restockk Barang Telah Berhasil Dikirim ke Email Supplier"
+        "Informasi Restock Barang Telah Berhasil Dikirim ke Email Supplier"
       );
       navigate(ADMIN_PRODUCT_RESTOCK);
     } catch (error) {
