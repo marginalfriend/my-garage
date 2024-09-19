@@ -75,21 +75,26 @@ const CreateProductPage: React.FC = () => {
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-
-    const formData = new FormData();
-    formData.append("name", name);
-    formData.append("price", price);
-    formData.append("description", description);
-    formData.append("stock", stock);
-    formData.append("categoryId", selectedCategory?.value || "");
-
-    selectedImages.forEach((image) => {
-      formData.append("images", image);
-    });
-
     try {
+      e.preventDefault();
+      setIsSubmitting(true);
+
+			if (!selectedImages[0]) {
+				alert("Product must have at least 1 image");
+				return
+			}
+
+      const formData = new FormData();
+      formData.append("name", name);
+      formData.append("price", price);
+      formData.append("description", description);
+      formData.append("stock", stock);
+      formData.append("categoryId", selectedCategory?.value || "");
+
+      selectedImages.forEach((image) => {
+        formData.append("images", image);
+      });
+
       const response = await fetch("/api/products", {
         method: "POST",
         headers: {
@@ -238,12 +243,12 @@ const CreateProductPage: React.FC = () => {
               ))}
             </div>
           </div>
-          <Button 
-            type="submit" 
+          <Button
+            type="submit"
             disabled={isSubmitting}
-            className={isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}
+            className={isSubmitting ? "opacity-50 cursor-not-allowed" : ""}
           >
-            {isSubmitting ? 'Creating...' : 'Create Product'}
+            {isSubmitting ? "Creating..." : "Create Product"}
           </Button>
         </form>
       </div>
