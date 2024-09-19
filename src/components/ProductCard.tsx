@@ -18,7 +18,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
       <div className="w-full h-60 border-b">
         <img
           src={
-            product.images
+            product.images[0]
               ? product.images[0].url
               : "https://lanecdr.org/wp-content/uploads/2019/08/placeholder.png"
           }
