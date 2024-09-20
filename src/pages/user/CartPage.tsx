@@ -34,7 +34,6 @@ const CartPage: React.FC = () => {
 
   useEffect(() => {
     fetchCartItems();
-    console.log(import.meta.env.VITE_EMAILJS_PUBLIC_KEY);
   }, []);
 
   const fetchCartItems = async () => {

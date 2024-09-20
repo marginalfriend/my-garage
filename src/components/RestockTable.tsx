@@ -10,7 +10,8 @@ import {
 } from "@tanstack/react-table";
 import Button from "./Button";
 import { formatIDR } from "../utils/utils";
-import { ArrowDownOnSquareIcon } from "@heroicons/react/24/outline";
+import { MinusIcon, PlusIcon } from "@heroicons/react/24/outline";
+import { ToRestock } from "../pages/admin/AdminProductsRestockPage";
 
 type Product = {
   id: string;
@@ -24,8 +25,10 @@ type Product = {
 };
 
 type ProductTableProps = {
+  handleRequestRestock: () => void;
+  toRestock: ToRestock[];
+  onRestockChange: (toRestock: ToRestock) => void;
   products: Product[];
-  onEdit: (id: string) => void;
   currentPage: number;
   totalPages: number;
   onPageChange: (page: number) => void;
@@ -33,8 +36,10 @@ type ProductTableProps = {
 };
 
 const RestockTable: React.FC<ProductTableProps> = ({
+  handleRequestRestock,
+  toRestock,
+  onRestockChange,
   products,
-  onEdit,
   currentPage,
   totalPages,
   onPageChange,
@@ -42,6 +47,27 @@ const RestockTable: React.FC<ProductTableProps> = ({
 }) => {
   const columns = useMemo<ColumnDef<Product>[]>(
     () => [
+      {
+        id: "checkbox",
+        cell: ({ row }) => {
+          const restockItem = toRestock.find((t) => t.id === row.original.id);
+          const isChecked = restockItem?.checked ?? false;
+          const isDisabled = (restockItem?.quantity ?? 0) === 0; // Disable if quantity is 0
+
+          return (
+            <input
+              type="checkbox"
+              id={row.original.id}
+              onChange={() =>
+                onRestockChange({ id: row.original.id, checked: !isChecked })
+              }
+              checked={isChecked}
+              disabled={isDisabled} // Disable checkbox if quantity is 0
+            />
+          );
+        },
+        enableSorting: true,
+      },
       {
         id: "name",
         accessorKey: "name",
@@ -69,14 +95,37 @@ const RestockTable: React.FC<ProductTableProps> = ({
       {
         id: "actions",
         header: "Actions",
-        cell: ({ row }) => (
-          <Button onClick={() => onEdit(row.original.id)}>
-            <ArrowDownOnSquareIcon height={15} width={15} />
-          </Button>
-        ),
+        cell: ({ row }) => {
+          const quantity = () =>
+            toRestock.find((t) => t.id === row.original.id)?.quantity || 0;
+          const qty = quantity();
+
+          return (
+            <div className="flex items-center justify-center">
+              <button
+                className="p-2 bg-gray-200 rounded-l disabled:opacity-30"
+                disabled={qty < 1}
+                onClick={() =>
+                  onRestockChange({ id: row.original.id, quantity: qty - 1 })
+                }
+              >
+                <MinusIcon className="w-4 h-4" />
+              </button>
+              <span className="px-4">{qty}</span>
+              <button
+                className="p-2 bg-gray-200 disabled:opacity-30 rounded-r"
+                onClick={() =>
+                  onRestockChange({ id: row.original.id, quantity: qty + 1 })
+                }
+              >
+                <PlusIcon className="w-4 h-4" />
+              </button>
+            </div>
+          );
+        },
       },
     ],
-    [onEdit]
+    [toRestock, onRestockChange]
   );
 
   const table = useReactTable({
@@ -152,6 +201,10 @@ const RestockTable: React.FC<ProductTableProps> = ({
           ))}
         </tbody>
       </table>
+
+      <div className="w-full flex justify-end py-4">
+        <Button onClick={() => handleRequestRestock()}>Request</Button>
+      </div>
 
       {/* Pagination */}
       <div className="py-3 flex items-center justify-between">
