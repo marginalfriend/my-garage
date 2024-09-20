@@ -69,19 +69,21 @@ const AdminProductsRestockPage: React.FC = () => {
     try {
       setIsLoading(true);
 
-      for (const t of toRestock) {
-        if (t.checked) {
-          const product = products.find((p) => p.id === t.id) as Product;
-          emailjs
-            .send(
-              import.meta.env.VITE_EMAILJS_SERVICE_ID,
-              import.meta.env.VITE_REQUEST_TEMPLATE_ID,
-              { productName: product.name, quantity: t.quantity },
-              { publicKey: import.meta.env.VITE_EMAILJS_PUBLIC_KEY }
-            )
-            .then((res) => console.log("EmailJS Response: ", res));
-        }
-      }
+      const productName = toRestock.map((t) => {
+        const product = products.find((p) => p.id === t.id) as Product;
+
+        return `${t.quantity} pcs of ${product.name} \n`;
+      });
+
+      emailjs
+        .send(
+          import.meta.env.VITE_EMAILJS_SERVICE_ID,
+          import.meta.env.VITE_REQUEST_TEMPLATE_ID,
+          { productName },
+          { publicKey: import.meta.env.VITE_EMAILJS_PUBLIC_KEY }
+        )
+        .then((res) => console.log("EmailJS Response: ", res));
+
       setToRestock([]);
       alert(
         "Informasi Restock Barang Telah Berhasil Dikirim ke Email Supplier"
