@@ -109,7 +109,7 @@ const AdminProductsRestockPage: React.FC = () => {
     };
 
     fetchProducts().then(() => setIsLoading(false));
-  }, [currentPage, pageSize, toRestock]);
+  }, [currentPage, pageSize]);
 
   return (
     <main className="min-h-screen bg-background p-4">
