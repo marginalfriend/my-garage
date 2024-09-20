@@ -59,7 +59,7 @@ const AdminProductsRestockPage: React.FC = () => {
       if ((request.quantity as number) > 0) {
         setToRestock((prevRestock) => [
           ...prevRestock,
-          { id: request.id, checked: false, quantity: 0 },
+          { id: request.id, checked: false, quantity: 1 },
         ]);
       }
     }
