@@ -94,7 +94,7 @@ const RestockTable: React.FC<ProductTableProps> = ({
       },
       {
         id: "actions",
-        header: "Actions",
+        header: "Quantity",
         cell: ({ row }) => {
           const quantity = () =>
             toRestock.find((t) => t.id === row.original.id)?.quantity || 0;
