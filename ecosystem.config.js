@@ -2,7 +2,8 @@ export default {
 	apps: [
 		{
 			name: 'gk5-garage-backend',
-			script: 'server.js',
+			script: 'node',
+			args: 'server.js',
 			env: {
 				NODE_ENV: 'development',
 				PORT: 3000
@@ -14,8 +15,8 @@ export default {
 		},
 		{
 			name: 'gk5-garage-frontend',
-			script: 'npm',
-			args: 'run dev:frontend',
+			script: 'npx',
+			args: 'serve dist -l 5173',
 			env: {
 				NODE_ENV: 'development'
 			},
