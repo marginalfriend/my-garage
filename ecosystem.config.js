@@ -2,6 +2,7 @@ export default {
 	apps: [
 		{
 			name: 'gk5-garage-backend',
+			cwd: '/root/my-garage',
 			script: 'node',
 			args: 'server.js',
 			env: {
@@ -15,6 +16,7 @@ export default {
 		},
 		{
 			name: 'gk5-garage-frontend',
+			cwd: '/root/my-garage',
 			script: 'npx',
 			args: 'serve dist -l 5173',
 			env: {
