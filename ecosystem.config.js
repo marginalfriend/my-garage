@@ -3,7 +3,7 @@ export default {
 		{
 			name: 'gk5-garage-backend',
 			cwd: '/root/my-garage',
-			script: 'node',
+			script: '/usr/bin/node',
 			args: 'server.js',
 			env: {
 				NODE_ENV: 'development',
@@ -17,7 +17,7 @@ export default {
 		{
 			name: 'gk5-garage-frontend',
 			cwd: '/root/my-garage',
-			script: 'npx',
+			script: '/usr/bin/npx',
 			args: 'serve dist -l 5173',
 			env: {
 				NODE_ENV: 'development'
