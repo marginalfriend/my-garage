@@ -1,4 +1,4 @@
-export default {
+module.exports = {
 	apps: [
 		{
 			name: 'gk5-garage-backend',
