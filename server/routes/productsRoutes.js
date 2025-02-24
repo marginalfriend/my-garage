@@ -1,4 +1,4 @@
-import express from 'express';
+	import express from 'express';
 import { authenticateToken } from '../middleware/auth.js';
 import * as productController from '../controllers/productController.js';
 import upload from '../middleware/upload.js';
