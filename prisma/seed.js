@@ -43,10 +43,10 @@ async function main() {
 	// Assign role to account if it doesn't exist
 	await prisma.accountRole.upsert({
 		where: {
-			AND: [
-				{ accountId: ownerAccount.id },
-				{ roleId: ownerRole.id }
-			]
+			accountId_roleId: {
+				accountId: superAdminAccount.id,
+				roleId: superAdminRole.id
+			}
 		},
 		update: {},
 		create: {
@@ -57,10 +57,10 @@ async function main() {
 
 	await prisma.accountRole.upsert({
 		where: {
-			AND: [
-				{ accountId: ownerAccount.id },
-				{ roleId: ownerRole.id }
-			]
+			accountId_roleId: {
+				accountId: ownerAccount.id,
+				roleId: ownerRole.id
+			}
 		},
 		update: {},
 		create: {
