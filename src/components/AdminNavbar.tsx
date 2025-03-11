@@ -10,9 +10,11 @@ import Button from "./Button";
 import { useAuth } from "../hooks/useAuth";
 
 const AdminNavbar: React.FC = () => {
-  const { logout } = useAuth();
+  const { logout, account } = useAuth();
   const { pathname } = useLocation();
   const isActive = (path: string) => path === pathname;
+  const isSuperAdmin = account?.roles.includes("SUPER_ADMIN");
+  const isOwner = account?.roles.includes("OWNER");
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-white bg-opacity-20 backdrop-filter backdrop-blur-lg shadow-lg">
@@ -25,46 +27,60 @@ const AdminNavbar: React.FC = () => {
           </div>
           <div className="hidden md:block">
             <div className="ml-10 flex items-baseline space-x-4">
-              <NavLink to={ADMIN_PRODUCT_RESTOCK} end>
-                <Button
-                  className={
-                    isActive(ADMIN_PRODUCT_RESTOCK)
-                      ? "text-accent"
-                      : "text-default"
-                  }
-                  variant="glass"
-                >
-                  Restock
-                </Button>
-              </NavLink>
-              <NavLink to={ADMIN_PRODUCTS} end>
-                <Button
-                  className={
-                    isActive(ADMIN_PRODUCTS) ? "text-accent" : "text-default"
-                  }
-                  variant="glass"
-                >
-                  Products
-                </Button>
-              </NavLink>
-              <NavLink to={CREATE_PRODUCT}>
-                <Button
-                  className={
-                    isActive(CREATE_PRODUCT) ? "text-accent" : "text-default"
-                  }
-                  variant="glass"
-                >
-                  Create Product
-                </Button>
-              </NavLink>
-              <NavLink to={REPORT}>
-                <Button
-                  className={isActive(REPORT) ? "text-accent" : "text-default"}
-                  variant="glass"
-                >
-                  Reports
-                </Button>
-              </NavLink>
+              {isSuperAdmin && (
+                <>
+                  <NavLink to={ADMIN_PRODUCTS} end>
+                    <Button
+                      className={
+                        isActive(ADMIN_PRODUCTS)
+                          ? "text-accent"
+                          : "text-default"
+                      }
+                      variant="glass"
+                    >
+                      Products
+                    </Button>
+                  </NavLink>
+                  <NavLink to={CREATE_PRODUCT}>
+                    <Button
+                      className={
+                        isActive(CREATE_PRODUCT)
+                          ? "text-accent"
+                          : "text-default"
+                      }
+                      variant="glass"
+                    >
+                      Create Product
+                    </Button>
+                  </NavLink>
+                </>
+              )}
+              {isOwner && (
+                <>
+                  <NavLink to={ADMIN_PRODUCT_RESTOCK} end>
+                    <Button
+                      className={
+                        isActive(ADMIN_PRODUCT_RESTOCK)
+                          ? "text-accent"
+                          : "text-default"
+                      }
+                      variant="glass"
+                    >
+                      Restock
+                    </Button>
+                  </NavLink>
+                  <NavLink to={REPORT}>
+                    <Button
+                      className={
+                        isActive(REPORT) ? "text-accent" : "text-default"
+                      }
+                      variant="glass"
+                    >
+                      Reports
+                    </Button>
+                  </NavLink>
+                </>
+              )}
               <Button onClick={logout}>Logout</Button>
             </div>
           </div>
