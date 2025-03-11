@@ -5,7 +5,8 @@ const prisma = new PrismaClient();
 import { hash } from "bcrypt";
 
 async function main() {
-	const hashedPassword = await hash('superadminpassword', 10);
+	const superAdminPassword = await hash('superadminpassword', 10);
+	const ownerPassword = await hash('superadminpassword', 10);
 
 	// Create super admin role
 	const superAdminRole = await prisma.role.create({
@@ -14,11 +15,24 @@ async function main() {
 		}
 	});
 
+	const ownerRole = await prisma.role.create({
+		data: {
+			name: 'OWNER'
+		}
+	});
+
 	// Create super admin account
 	const superAdminAccount = await prisma.account.create({
 		data: {
 			email: 'superadmin@gk5garage.com',
-			password: hashedPassword
+			password: superAdminPassword
+		}
+	});
+
+	const ownerAccount = await prisma.account.create({
+		data: {
+			email: 'owner@gk5garage.com',
+			password: ownerPassword
 		}
 	});
 
@@ -30,6 +44,13 @@ async function main() {
 		}
 	});
 
+	await prisma.accountRole.create({
+		data: {
+			accountId: ownerAccount.id,
+			roleId: ownerRole.id
+		}
+	});
+
 	// Create user profile
 	await prisma.user.create({
 		data: {
@@ -38,7 +59,15 @@ async function main() {
 		}
 	});
 
+	await prisma.user.create({
+		data: {
+			accountId: ownerAccount.id,
+			name: 'Owner'
+		}
+	});
+
 	console.log('Seeded Super Admin');
+	console.log('Seeded Owner');
 }
 
 main()
