@@ -8,59 +8,81 @@ async function main() {
 	const superAdminPassword = await hash('superadminpassword', 10);
 	const ownerPassword = await hash('superadminpassword', 10);
 
-	// Create super admin role
-	const superAdminRole = await prisma.role.create({
-		data: {
-			name: 'SUPER_ADMIN'
-		}
+	// Create super admin role if it doesn't exist
+	const superAdminRole = await prisma.role.upsert({
+		where: { name: 'SUPER_ADMIN' },
+		update: {},
+		create: { name: 'SUPER_ADMIN' }
 	});
 
-	const ownerRole = await prisma.role.create({
-		data: {
-			name: 'OWNER'
-		}
+	const ownerRole = await prisma.role.upsert({
+		where: { name: 'OWNER' },
+		update: {},
+		create: { name: 'OWNER' }
 	});
 
-	// Create super admin account
-	const superAdminAccount = await prisma.account.create({
-		data: {
+	// Create super admin account if it doesn't exist
+	const superAdminAccount = await prisma.account.upsert({
+		where: { email: 'superadmin@gk5garage.com' },
+		update: {},
+		create: {
 			email: 'superadmin@gk5garage.com',
 			password: superAdminPassword
 		}
 	});
 
-	const ownerAccount = await prisma.account.create({
-		data: {
+	const ownerAccount = await prisma.account.upsert({
+		where: { email: 'owner@gk5garage.com' },
+		update: {},
+		create: {
 			email: 'owner@gk5garage.com',
 			password: ownerPassword
 		}
 	});
 
-	// Assign role to account
-	await prisma.accountRole.create({
-		data: {
+	// Assign role to account if it doesn't exist
+	await prisma.accountRole.upsert({
+		where: {
+			accountId_roleId: {
+				accountId: superAdminAccount.id,
+				roleId: superAdminRole.id
+			}
+		},
+		update: {},
+		create: {
 			accountId: superAdminAccount.id,
 			roleId: superAdminRole.id
 		}
 	});
 
-	await prisma.accountRole.create({
-		data: {
+	await prisma.accountRole.upsert({
+		where: {
+			accountId_roleId: {
+				accountId: ownerAccount.id,
+				roleId: ownerRole.id
+			}
+		},
+		update: {},
+		create: {
 			accountId: ownerAccount.id,
 			roleId: ownerRole.id
 		}
 	});
 
-	// Create user profile
-	await prisma.user.create({
-		data: {
+	// Create user profile if it doesn't exist
+	await prisma.user.upsert({
+		where: { accountId: superAdminAccount.id },
+		update: {},
+		create: {
 			accountId: superAdminAccount.id,
 			name: 'Super Admin'
 		}
 	});
 
-	await prisma.user.create({
-		data: {
+	await prisma.user.upsert({
+		where: { accountId: ownerAccount.id },
+		update: {},
+		create: {
 			accountId: ownerAccount.id,
 			name: 'Owner'
 		}
