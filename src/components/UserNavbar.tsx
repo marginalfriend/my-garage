@@ -9,6 +9,7 @@ import {
   USER_PRODUCTS,
   CART,
   ORDER,
+  ADMIN_LOGIN,
 } from "../constants/routes";
 import { useAuth } from "../hooks/useAuth";
 import {
@@ -74,9 +75,14 @@ const UserNavbar: React.FC = () => {
               </Button>
             </NavLink>
             {user === null ? (
-              <NavLink to={LOGIN}>
-                <Button>Login</Button>
-              </NavLink>
+              <div className="flex gap-1">
+                <NavLink to={LOGIN}>
+                  <Button>Login</Button>
+                </NavLink>
+                <NavLink to={ADMIN_LOGIN}>
+                  <Button>Admin Login</Button>
+                </NavLink>
+              </div>
             ) : (
               <div className="flex items-center gap-4">
                 <NavLink
@@ -174,9 +180,14 @@ const UserNavbar: React.FC = () => {
                   Orders
                 </NavLink>
                 {user === null ? (
-                  <NavLink to={LOGIN}>
-                    <Button>Login</Button>
-                  </NavLink>
+                  <div className="flex gap-1">
+                    <NavLink to={LOGIN}>
+                      <Button>Login</Button>
+                    </NavLink>
+                    <NavLink to={ADMIN_LOGIN}>
+                      <Button>Admin Login</Button>
+                    </NavLink>
+                  </div>
                 ) : (
                   <div className="flex flex-col gap-2">
                     <NavLink
