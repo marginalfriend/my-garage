@@ -116,7 +116,7 @@ const AdminProductsRestockPage: React.FC = () => {
   return (
     <main className="min-h-screen bg-background p-4">
       <div className="max-w-7xl mx-auto px-4">
-        <h1 className="text-heading text-2xl font-semibold mb-4">Products</h1>
+        <h1 className="text-heading text-2xl font-semibold mb-4">Restock</h1>
         {isLoading ? (
           <div className="w-screen h-screen">Loading...</div>
         ) : (

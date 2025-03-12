@@ -22,7 +22,7 @@ const AdminNavbar: React.FC = () => {
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center">
             <div className="flex-shrink-0 text-heading text-2xl font-bold">
-              GK5 Admin Panel
+              GK5 {isOwner ? "Owner" : "Admin"} Panel
             </div>
           </div>
           <div className="hidden md:block">
@@ -70,6 +70,18 @@ const AdminNavbar: React.FC = () => {
                       variant="glass"
                     >
                       Products
+                    </Button>
+                  </NavLink>
+                  <NavLink to={CREATE_PRODUCT}>
+                    <Button
+                      className={
+                        isActive(CREATE_PRODUCT)
+                          ? "text-accent"
+                          : "text-default"
+                      }
+                      variant="glass"
+                    >
+                      Create Product
                     </Button>
                   </NavLink>
                   <NavLink to={ADMIN_PRODUCT_RESTOCK}>

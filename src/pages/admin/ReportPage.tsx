@@ -169,9 +169,7 @@ const ReportPage: React.FC = () => {
 
   return (
     <main className="px-6 mb-20">
-      <h1 className="text-heading text-2xl font-semibold mb-4 py-5">
-        Products
-      </h1>
+      <h1 className="text-heading text-2xl font-semibold mb-4 py-5">Reports</h1>
       <div className="mb-4 flex justify-between items-center">
         <button
           onClick={handleSortChange}
