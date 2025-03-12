@@ -24,6 +24,9 @@ const UserNavbar: React.FC = () => {
   const { pathname } = useLocation();
   const isActive = (path: string) => path === pathname;
 
+  const isCustomer = user?.roles.includes("CUSTOMER");
+  const showCartAndOrders = isCustomer; // Only show cart and orders for customers
+
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-default bg-opacity-80 backdrop-filter backdrop-blur-lg shadow-lg">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -66,25 +69,16 @@ const UserNavbar: React.FC = () => {
                 About
               </Button>
             </NavLink>
-            <NavLink to={ORDER}>
-              <Button
-                variant="glass"
-                className={isActive(ORDER) ? "text-accent" : ""}
-              >
-                Orders
-              </Button>
-            </NavLink>
-            {user === null ? (
-              <div className="flex gap-1">
-                <NavLink to={LOGIN}>
-                  <Button>Login</Button>
+            {showCartAndOrders ? (
+              <>
+                <NavLink to={ORDER}>
+                  <Button
+                    variant="glass"
+                    className={isActive(ORDER) ? "text-accent" : ""}
+                  >
+                    Orders
+                  </Button>
                 </NavLink>
-                <NavLink to={ADMIN_LOGIN}>
-                  <Button>Admin Login</Button>
-                </NavLink>
-              </div>
-            ) : (
-              <div className="flex items-center gap-4">
                 <NavLink
                   to={CART}
                   className={({ isActive }) =>
@@ -97,6 +91,19 @@ const UserNavbar: React.FC = () => {
                     <ShoppingBagIcon width={22} height={22} className="" />
                   </button>
                 </NavLink>
+              </>
+            ) : null}
+            {user === null ? (
+              <div className="flex gap-1">
+                <NavLink to={LOGIN}>
+                  <Button>Login</Button>
+                </NavLink>
+                <NavLink to={ADMIN_LOGIN}>
+                  <Button>Admin Login</Button>
+                </NavLink>
+              </div>
+            ) : (
+              <div className="flex items-center gap-4">
                 <p className="text-sm text-white bg-black bg-opacity-20 py-1 px-2 rounded-md">
                   {user.name}
                 </p>
@@ -169,16 +176,32 @@ const UserNavbar: React.FC = () => {
                 >
                   About
                 </NavLink>
-                <NavLink
-                  to={ORDER}
-                  className={({ isActive }) =>
-                    isActive
-                      ? "text-accent block px-3 py-2 rounded-md text-base font-medium"
-                      : "text-contrast hover:text-heading block px-3 py-2 rounded-md text-base font-medium"
-                  }
-                >
-                  Orders
-                </NavLink>
+                {showCartAndOrders ? (
+                  <>
+                    <NavLink
+                      to={ORDER}
+                      className={({ isActive }) =>
+                        isActive
+                          ? "text-accent block px-3 py-2 rounded-md text-base font-medium"
+                          : "text-contrast hover:text-heading block px-3 py-2 rounded-md text-base font-medium"
+                      }
+                    >
+                      Orders
+                    </NavLink>
+                    <NavLink
+                      to={CART}
+                      className={({ isActive }) =>
+                        isActive
+                          ? "text-accent block px-3 py-2 rounded-md text-base font-medium"
+                          : "text-contrast hover:text-heading block px-3 py-2 rounded-md text-base font-medium"
+                      }
+                    >
+                      <button>
+                        <ShoppingBagIcon width={22} height={22} className="" />
+                      </button>
+                    </NavLink>
+                  </>
+                ) : null}
                 {user === null ? (
                   <div className="flex gap-1">
                     <NavLink to={LOGIN}>

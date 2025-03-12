@@ -27,6 +27,7 @@ const AdminNavbar: React.FC = () => {
           </div>
           <div className="hidden md:block">
             <div className="ml-10 flex items-baseline space-x-4">
+              {/* Super Admin Routes */}
               {isSuperAdmin && (
                 <>
                   <NavLink to={ADMIN_PRODUCTS} end>
@@ -55,9 +56,23 @@ const AdminNavbar: React.FC = () => {
                   </NavLink>
                 </>
               )}
+
+              {/* Owner Routes */}
               {isOwner && (
                 <>
-                  <NavLink to={ADMIN_PRODUCT_RESTOCK} end>
+                  <NavLink to={ADMIN_PRODUCTS} end>
+                    <Button
+                      className={
+                        isActive(ADMIN_PRODUCTS)
+                          ? "text-accent"
+                          : "text-default"
+                      }
+                      variant="glass"
+                    >
+                      Products
+                    </Button>
+                  </NavLink>
+                  <NavLink to={ADMIN_PRODUCT_RESTOCK}>
                     <Button
                       className={
                         isActive(ADMIN_PRODUCT_RESTOCK)

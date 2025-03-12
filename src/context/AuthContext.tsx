@@ -1,7 +1,16 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { createContext, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ADMIN_PRODUCTS, HOME, CREATE_PRODUCT } from "../constants/routes";
+import {
+  ADMIN_PRODUCTS,
+  HOME,
+  ADMIN_PRODUCT_RESTOCK,
+  REPORT,
+  CART,
+  ORDER,
+  LOGIN,
+  ADMIN_LOGIN,
+} from "../constants/routes";
 
 export interface AuthContextType {
   account: any;
@@ -88,24 +97,30 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         currentPath === "/login" || currentPath === "/admin/login";
       const isSuperAdmin = decodedAccount.roles.includes("SUPER_ADMIN");
       const isOwner = decodedAccount.roles.includes("OWNER");
+      const isCustomer = decodedAccount.roles.includes("CUSTOMER");
 
       if (isSuperAdmin) {
         setIsAdmin(true);
-        // Only allow access to products and create products pages
-        const allowedPaths = [ADMIN_PRODUCTS, CREATE_PRODUCT];
-        if (!allowedPaths.includes(currentPath) && !isLoginPage) {
-          navigate(ADMIN_PRODUCTS);
-        } else if (isLoginPage) {
+        const prohibitedPaths = [
+          ADMIN_PRODUCT_RESTOCK,
+          REPORT,
+          CART,
+          ORDER,
+          LOGIN,
+          ADMIN_LOGIN,
+        ];
+        if (prohibitedPaths.some((path) => currentPath.startsWith(path))) {
           navigate(ADMIN_PRODUCTS);
         }
       } else if (isOwner) {
         setIsAdmin(true);
-        if (isLoginPage) {
+        const prohibitedPaths = [CART, ORDER, LOGIN, ADMIN_LOGIN];
+        if (prohibitedPaths.some((path) => currentPath.startsWith(path))) {
           navigate(ADMIN_PRODUCTS);
         }
-      } else if (decodedAccount.roles.some((x: string) => x === "CUSTOMER")) {
+      } else if (isCustomer) {
         setIsUser(true);
-        if (isLoginPage) {
+        if (currentPath.startsWith("/admin") || isLoginPage) {
           navigate(HOME);
         }
       }
