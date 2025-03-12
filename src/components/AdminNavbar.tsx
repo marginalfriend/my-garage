@@ -60,30 +60,6 @@ const AdminNavbar: React.FC = () => {
               {/* Owner Routes */}
               {isOwner && (
                 <>
-                  <NavLink to={ADMIN_PRODUCTS} end>
-                    <Button
-                      className={
-                        isActive(ADMIN_PRODUCTS)
-                          ? "text-accent"
-                          : "text-default"
-                      }
-                      variant="glass"
-                    >
-                      Products
-                    </Button>
-                  </NavLink>
-                  <NavLink to={CREATE_PRODUCT}>
-                    <Button
-                      className={
-                        isActive(CREATE_PRODUCT)
-                          ? "text-accent"
-                          : "text-default"
-                      }
-                      variant="glass"
-                    >
-                      Create Product
-                    </Button>
-                  </NavLink>
                   <NavLink to={ADMIN_PRODUCT_RESTOCK}>
                     <Button
                       className={

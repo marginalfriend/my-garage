@@ -10,6 +10,7 @@ import {
   ORDER,
   LOGIN,
   ADMIN_LOGIN,
+  CREATE_PRODUCT,
 } from "../constants/routes";
 
 export interface AuthContextType {
@@ -114,7 +115,14 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         }
       } else if (isOwner) {
         setIsAdmin(true);
-        const prohibitedPaths = [CART, ORDER, LOGIN, ADMIN_LOGIN];
+        const prohibitedPaths = [
+          CART,
+          ORDER,
+          LOGIN,
+          ADMIN_LOGIN,
+          ADMIN_PRODUCTS,
+          CREATE_PRODUCT,
+        ];
         if (prohibitedPaths.some((path) => currentPath.startsWith(path))) {
           navigate(ADMIN_PRODUCTS);
         }
