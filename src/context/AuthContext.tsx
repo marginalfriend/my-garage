@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { createContext, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ADMIN_PRODUCTS, HOME } from "../constants/routes";
+import { ADMIN_PRODUCTS, HOME, CREATE_PRODUCT } from "../constants/routes";
 
 export interface AuthContextType {
   account: any;
@@ -51,7 +51,7 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
       if (
         decodedAccount.roles.some(
-          (x: string) => x === "SUPER_ADMIN" || x === "ADMIN"
+          (x: string) => x === "SUPER_ADMIN" || x === "ADMIN" || x === "OWNER"
         )
       ) {
         setIsAdmin(true);
@@ -63,7 +63,7 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         navigate(HOME);
       }
     } catch (error) {
-      alert("Login failed: invalid credentials");
+      alert(`Login failed: ${error}`);
       console.log(error);
     }
   };
@@ -83,19 +83,36 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       setToken(token);
       setAccount(decodedAccount);
 
-      if (
-        decodedAccount.roles.some(
-          (x: string) => x === "SUPER_ADMIN" || x === "ADMIN"
-        )
-      ) {
+      const currentPath = window.location.pathname;
+      const isLoginPage =
+        currentPath === "/login" || currentPath === "/admin/login";
+      const isSuperAdmin = decodedAccount.roles.includes("SUPER_ADMIN");
+      const isOwner = decodedAccount.roles.includes("OWNER");
+
+      if (isSuperAdmin) {
         setIsAdmin(true);
+        // Only allow access to products and create products pages
+        const allowedPaths = [ADMIN_PRODUCTS, CREATE_PRODUCT];
+        if (!allowedPaths.includes(currentPath) && !isLoginPage) {
+          navigate(ADMIN_PRODUCTS);
+        } else if (isLoginPage) {
+          navigate(ADMIN_PRODUCTS);
+        }
+      } else if (isOwner) {
+        setIsAdmin(true);
+        if (isLoginPage) {
+          navigate(ADMIN_PRODUCTS);
+        }
       } else if (decodedAccount.roles.some((x: string) => x === "CUSTOMER")) {
         setIsUser(true);
+        if (isLoginPage) {
+          navigate(HOME);
+        }
       }
     }
 
-    setLoading(false); // Set loading to false after checking token
-  }, []);
+    setLoading(false);
+  }, [navigate]);
 
   return (
     <AuthContext.Provider
