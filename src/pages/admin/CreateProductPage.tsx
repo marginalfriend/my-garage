@@ -97,6 +97,7 @@ const CreateProductPage: React.FC = () => {
       formData.append("price", price);
       formData.append("description", description);
       formData.append("stock", stock);
+      formData.append("cost", cost);
       formData.append("categoryId", selectedCategory?.value || "");
 
       selectedImages.forEach((image) => {

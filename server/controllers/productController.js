@@ -16,43 +16,46 @@ export const createProduct = async (req, res, next) => {
 		const { categoryId, name, price, description, stock, cost } = req.body;
 		const imageUrls = req.files.map(file => `/uploads/${file.filename}`);
 
-		const product = await prisma.product.create({
-			data: {
-				isActive: true,
-				categoryId,
-				name,
-				price: Number(price),
-				description,
-				stock: Number(stock),
-			},
-		});
+		const productWithImages = await prisma.$transaction(async (prisma) => {
+			// Create the product first
+			const product = await prisma.product.create({
+				data: {
+					isActive: true,
+					categoryId,
+					name,
+					price: Number(price),
+					description,
+					stock: Number(stock),
+				},
+			});
 
-		await prisma.productBatch.create({
-			data: {
-				batchNumber: generateBatchNumber(product),
-				cost,
-				quantity: Number(stock),
-				remainingQuantity: Number(stock),
-				product,
-				productId: product.id
-			}
-		})
+			// Create the product batch
+			await prisma.productBatch.create({
+				data: {
+					batchNumber: generateBatchNumber(product),
+					cost: Number(cost),
+					quantity: Number(stock),
+					remainingQuantity: Number(stock),
+					productId: product.id
+				}
+			});
 
-		const imageRecords = imageUrls.map(url => ({
-			url,
-			productId: product.id,
-		}));
+			// Create the image records
+			await prisma.image.createMany({
+				data: imageUrls.map(url => ({
+					url,
+					productId: product.id,
+				})),
+			});
 
-		await prisma.image.createMany({
-			data: imageRecords,
-		});
-
-		const productWithImages = await prisma.product.findUnique({
-			where: { id: product.id },
-			include: {
-				images: true,
-				ProductBatch: true
-			},
+			// Return the product with its relations
+			return prisma.product.findUnique({
+				where: { id: product.id },
+				include: {
+					images: true,
+					ProductBatch: true
+				},
+			});
 		});
 
 		res.status(201).json(productWithImages);
