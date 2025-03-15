@@ -15,6 +15,7 @@ const CreateProductPage: React.FC = () => {
   const [price, setPrice] = useState<string>("");
   const [description, setDescription] = useState<string>("");
   const [stock, setStock] = useState<string>("");
+  const [cost, setCost] = useState<string>("");
   const navigate = useNavigate();
   const { token } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -74,15 +75,22 @@ const CreateProductPage: React.FC = () => {
     }
   };
 
+  const handleCostChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    if (value === "" || /^\d+$/.test(value)) {
+      setCost(value);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     try {
       e.preventDefault();
       setIsSubmitting(true);
 
-			if (!selectedImages[0]) {
-				alert("Product must have at least 1 image");
-				return
-			}
+      if (!selectedImages[0]) {
+        alert("Product must have at least 1 image");
+        return;
+      }
 
       const formData = new FormData();
       formData.append("name", name);
@@ -144,6 +152,24 @@ const CreateProductPage: React.FC = () => {
               htmlFor="price"
               className="block text-sm font-medium text-gray-700"
             >
+              Cost (in IDR)
+            </label>
+            <input
+              type="text"
+              id="cost"
+              value={cost}
+              onChange={handleCostChange}
+              required
+              placeholder="e.g., 400000"
+              className="mt-1 block w-full p-2 border border-gray-300 rounded-md [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+            />
+          </div>
+
+          <div>
+            <label
+              htmlFor="price"
+              className="block text-sm font-medium text-gray-700"
+            >
               Price (in IDR)
             </label>
             <input
@@ -176,7 +202,7 @@ const CreateProductPage: React.FC = () => {
               htmlFor="stock"
               className="block text-sm font-medium text-gray-700"
             >
-              Stock
+              Initial Stock
             </label>
             <input
               type="text"
