@@ -2,6 +2,7 @@ import { prisma } from '../../prisma-client.js';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { generateBatchNumber } from '../lib/utils.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -12,7 +13,7 @@ export const createProduct = async (req, res, next) => {
 			return res.sendStatus(403);
 		}
 
-		const { categoryId, name, price, description, stock } = req.body;
+		const { categoryId, name, price, description, stock, cost } = req.body;
 		const imageUrls = req.files.map(file => `/uploads/${file.filename}`);
 
 		const product = await prisma.product.create({
@@ -26,9 +27,14 @@ export const createProduct = async (req, res, next) => {
 			},
 		});
 
-		const productBatch = await prisma.productBatch.create({
+		await prisma.productBatch.create({
 			data: {
-				batchNumber: ``
+				batchNumber: generateBatchNumber(product),
+				cost,
+				quantity: Number(stock),
+				remainingQuantity: Number(stock),
+				product,
+				productId: product.id
 			}
 		})
 
@@ -45,6 +51,7 @@ export const createProduct = async (req, res, next) => {
 			where: { id: product.id },
 			include: {
 				images: true,
+				ProductBatch: true
 			},
 		});
 
@@ -108,13 +115,13 @@ export const updateProduct = async (req, res, next) => {
 			// Update the product details
 			return prisma.product.update({
 				where: { id },
-				data: { 
-					isActive: isActiveBoolean, 
-					categoryId, 
-					name, 
-					price: Number(price), 
-					description, 
-					stock: Number(stock) 
+				data: {
+					isActive: isActiveBoolean,
+					categoryId,
+					name,
+					price: Number(price),
+					description,
+					stock: Number(stock)
 				},
 				include: {
 					images: true,
