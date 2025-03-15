@@ -22,9 +22,15 @@ export const createProduct = async (req, res, next) => {
 				name,
 				price: Number(price),
 				description,
-				stock: Number(stock)
+				stock: Number(stock),
 			},
 		});
+
+		const productBatch = await prisma.productBatch.create({
+			data: {
+				batchNumber: ``
+			}
+		})
 
 		const imageRecords = imageUrls.map(url => ({
 			url,

@@ -64,17 +64,38 @@ model Image {
 }
 
 model Product {
-  id           String        @id @default(uuid())
+  id           String         @id @default(uuid())
   isActive     Boolean
   categoryId   String
   name         String
   price        Int
   description  String?
   images       Image[]
-  category     Category      @relation(fields: [categoryId], references: [id])
+  category     Category       @relation(fields: [categoryId], references: [id])
   orderDetails OrderDetail[]
   stock        Int
   Cart         Cart[]
+  ProductBatch ProductBatch[]
+}
+
+model ProductBatch {
+  id                String      @id @default(uuid())
+  batchNumber       String      @unique
+  orderDate         DateTime    @default(now())
+  cost              Int
+  quantity          Int
+  remainingQuantity Int
+  status            BatchStatus @default(ACTIVE)
+  product           Product     @relation(fields: [productId], references: [id])
+  productId         String
+
+  @@index([batchNumber])
+}
+
+enum BatchStatus {
+  ACTIVE
+  DEPLETED
+  CANCELLED
 }
 
 enum PaymentStatus {
