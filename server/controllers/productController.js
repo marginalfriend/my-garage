@@ -245,3 +245,70 @@ export const getProductById = async (req, res, next) => {
 		next(error);
 	}
 };
+
+export const restockProduct = async (req, res, next) => {
+	try {
+		if (!req.user.roles.includes('ADMIN') && !req.user.roles.includes('SUPER_ADMIN')) {
+			return res.sendStatus(403);
+		}
+
+		const { id } = req.params;
+		const { quantity, cost } = req.body;
+
+		if (!quantity || !cost) {
+			return res.status(400).json({ message: 'Quantity and cost are required' });
+		}
+
+		const product = await prisma.product.findUnique({
+			where: { id },
+			include: {
+				ProductBatch: true
+			}
+		});
+
+		if (!product) {
+			return res.status(404).json({ message: 'Product not found' });
+		}
+
+		const result = await prisma.$transaction(async (prisma) => {
+			// Create new batch
+			const newBatch = await prisma.productBatch.create({
+				data: {
+					batchNumber: generateBatchNumber(product),
+					cost: Number(cost),
+					quantity: Number(quantity),
+					remainingQuantity: Number(quantity),
+					status: 'ACTIVE',
+					productId: id
+				}
+			});
+
+			// Update product total stock
+			const updatedProduct = await prisma.product.update({
+				where: { id },
+				data: {
+					stock: {
+						increment: Number(quantity)
+					}
+				},
+				include: {
+					ProductBatch: {
+						orderBy: {
+							orderDate: 'desc'
+						}
+					}
+				}
+			});
+
+			return {
+				product: updatedProduct,
+				newBatch
+			};
+		});
+
+		res.status(200).json(result);
+	} catch (error) {
+		next(error);
+	}
+};
+
