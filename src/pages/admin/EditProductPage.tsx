@@ -163,8 +163,11 @@ const EditProductPage: React.FC = () => {
             ></textarea>
           </div>
           <div>
-            <label className="block text-default font-medium">Stock</label>
+            <label className="block text-default font-medium">
+              Stock (read-only)
+            </label>
             <input
+              readOnly
               type="number"
               value={stock}
               onChange={(e) => setStock(Number(e.target.value))}
