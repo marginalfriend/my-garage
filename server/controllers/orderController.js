@@ -18,18 +18,58 @@ export const createOrder = async (req, res) => {
 			// Calculate total price and prepare order details
 			let totalPrice = 0;
 			const orderDetails = [];
+
 			for (const item of items) {
 				const product = await prisma.product.findUnique({
 					where: { id: item.productId },
+					include: {
+						ProductBatch: {
+							where: { status: 'ACTIVE' },
+							orderBy: { orderDate: 'asc' }
+						}
+					}
 				});
+
 				if (!product) {
 					throw new Error(`Product with id ${item.productId} not found`);
 				}
 
+				// Check if we have enough stock across all active batches
+				const totalAvailableStock = product.ProductBatch.reduce(
+					(sum, batch) => sum + batch.remainingQuantity,
+					0
+				);
+
+				if (totalAvailableStock < item.quantity) {
+					throw new Error(`Insufficient stock for product ${product.name}`);
+				}
+
+				// Update batches using FIFO method
+				let remainingQuantityToFulfill = item.quantity;
+				for (const batch of product.ProductBatch) {
+					if (remainingQuantityToFulfill <= 0) break;
+
+					const quantityFromBatch = Math.min(
+						batch.remainingQuantity,
+						remainingQuantityToFulfill
+					);
+
+					await prisma.productBatch.update({
+						where: { id: batch.id },
+						data: {
+							remainingQuantity: batch.remainingQuantity - quantityFromBatch,
+							status: batch.remainingQuantity - quantityFromBatch <= 0
+								? 'DEPLETED'
+								: 'ACTIVE'
+						}
+					});
+
+					remainingQuantityToFulfill -= quantityFromBatch;
+				}
+
+				// Update product total stock
 				await prisma.product.update({
-					where: {
-						id: product.id,
-					},
+					where: { id: product.id },
 					data: {
 						stock: product.stock - item.quantity,
 					},
@@ -59,14 +99,12 @@ export const createOrder = async (req, res) => {
 			});
 
 			// Remove the purchased items from the cart
-			for (const item of items) {
-				await prisma.cart.deleteMany({
-					where: {
-						userId: user.id,
-						productId: item.productId,
-					},
-				});
-			}
+			await prisma.cart.deleteMany({
+				where: {
+					userId: user.id,
+					productId: { in: items.map(item => item.productId) },
+				},
+			});
 
 			return newOrder;
 		});
@@ -76,13 +114,12 @@ export const createOrder = async (req, res) => {
 		console.error("Error creating order:", error);
 		if (
 			error.message === "User not found" ||
-			error.message.includes("Product with id")
+			error.message.includes("Product with id") ||
+			error.message.includes("Insufficient stock")
 		) {
 			res.status(404).json({ error: error.message });
 		} else {
-			res
-				.status(500)
-				.json({ error: "An error occurred while creating the order" });
+			res.status(500).json({ error: "An error occurred while creating the order" });
 		}
 	}
 };
@@ -126,79 +163,84 @@ export const getUserOrders = async (req, res) => {
 
 export const cancelOrder = async (req, res) => {
 	try {
-		console.log(req.body);
 		const { orderId } = req.body;
 		const authorization = req.get("Authorization");
 		const account = JSON.parse(atob(authorization.split(".")[1]));
 		const accountId = account.id;
 
 		const client = await prisma.user.findFirst({
-			where: {
-				accountId: accountId,
-			},
+			where: { accountId: accountId },
 		});
 
-		console.log(orderId);
-
 		const toBeCancelled = await prisma.order.findUnique({
-			where: {
-				id: orderId,
-			},
+			where: { id: orderId },
 			include: {
 				customer: true,
 				orderDetails: {
 					include: {
-						product: true,
+						product: {
+							include: {
+								ProductBatch: {
+									where: { status: { in: ['ACTIVE', 'DEPLETED'] } },
+									orderBy: { orderDate: 'desc' }
+								}
+							}
+						},
 					},
 				},
 			},
 		});
-
-		console.log(toBeCancelled);
 
 		if (!toBeCancelled) {
 			return res.status(404).json({ error: "Order not found" });
 		}
 
 		if (toBeCancelled.customer.id !== client.id) {
-			return res
-				.status(403)
-				.json({ error: "You are not authorized to cancel this order" });
+			return res.status(403).json({ error: "You are not authorized to cancel this order" });
 		}
 
-		// Use a transaction to ensure all operations are atomic
 		const updatedOrder = await prisma.$transaction(async (prisma) => {
 			// Update the order status
 			const cancelledOrder = await prisma.order.update({
-				where: {
-					id: toBeCancelled.id,
-				},
-				data: {
-					paymentStatus: "CANCELLED",
-				},
+				where: { id: toBeCancelled.id },
+				data: { paymentStatus: "CANCELLED" },
 			});
 
-			// Update product stock for each order detail
+			// Return stock to the most recent batches
 			for (const detail of toBeCancelled.orderDetails) {
-				console.log(`Updating product ${detail.product.id}:`);
-				console.log(`  Current stock: ${detail.product.stock}`);
-				console.log(`  Quantity to add back: ${detail.quantity}`);
-				console.log(
-					`  Expected new stock: ${detail.product.stock + detail.quantity}`
-				);
+				let remainingToReturn = detail.quantity;
 
-				const updatedProduct = await prisma.product.update({
-					where: {
-						id: detail.product.id,
-					},
+				// Sort batches by most recent first
+				const batches = detail.product.ProductBatch;
+
+				for (const batch of batches) {
+					if (remainingToReturn <= 0) break;
+
+					const quantityToReturn = Math.min(
+						remainingToReturn,
+						batch.quantity - batch.remainingQuantity
+					);
+
+					if (quantityToReturn > 0) {
+						await prisma.productBatch.update({
+							where: { id: batch.id },
+							data: {
+								remainingQuantity: batch.remainingQuantity + quantityToReturn,
+								status: 'ACTIVE'
+							}
+						});
+
+						remainingToReturn -= quantityToReturn;
+					}
+				}
+
+				// Update product total stock
+				await prisma.product.update({
+					where: { id: detail.product.id },
 					data: {
-						stock: {
-							increment: detail.quantity,
-						},
+						stock: { increment: detail.quantity }
 					},
 				});
-
-				console.log(`Actual new stock: ${updatedProduct.stock}`);
 			}
 
 			return cancelledOrder;
@@ -207,9 +249,7 @@ export const cancelOrder = async (req, res) => {
 		res.status(200).json(updatedOrder);
 	} catch (error) {
 		console.error("Error cancelling order:", error);
-		res
-			.status(500)
-			.json({ error: "An error occurred while cancelling the order" });
+		res.status(500).json({ error: "An error occurred while cancelling the order" });
 	}
 };
 
