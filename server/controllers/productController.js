@@ -248,7 +248,7 @@ export const getProductById = async (req, res, next) => {
 
 export const restockProduct = async (req, res, next) => {
 	try {
-		if (!req.user.roles.includes('ADMIN') && !req.user.roles.includes('SUPER_ADMIN')) {
+		if (!req.user.roles.includes('OWNER') && !req.user.roles.includes('SUPER_ADMIN')) {
 			return res.sendStatus(403);
 		}
 

@@ -9,8 +9,6 @@ import {
   flexRender,
 } from "@tanstack/react-table";
 import Button from "./Button";
-import { formatIDR } from "../utils/utils";
-import { MinusIcon, PlusIcon } from "@heroicons/react/24/outline";
 import { ToRestock } from "../pages/admin/AdminProductsRestockPage";
 
 type Product = {
@@ -52,75 +50,74 @@ const RestockTable: React.FC<ProductTableProps> = ({
         cell: ({ row }) => {
           const restockItem = toRestock.find((t) => t.id === row.original.id);
           const isChecked = restockItem?.checked ?? false;
-          const isDisabled = (restockItem?.quantity ?? 0) === 0; // Disable if quantity is 0
+          const isDisabled = !restockItem?.quantity || !restockItem?.cost;
 
           return (
             <input
               type="checkbox"
-              id={row.original.id}
               onChange={() =>
                 onRestockChange({ id: row.original.id, checked: !isChecked })
               }
               checked={isChecked}
-              disabled={isDisabled} // Disable checkbox if quantity is 0
+              disabled={isDisabled}
             />
           );
         },
-        enableSorting: true,
       },
       {
         id: "name",
         accessorKey: "name",
         header: "Name",
-        enableSorting: true,
-      },
-      {
-        accessorKey: "price",
-        header: "Price",
-        cell: ({ getValue }: { getValue: () => any }) =>
-          `${formatIDR(getValue())}`,
-        enableSorting: true,
       },
       {
         accessorKey: "stock",
-        header: "Stock",
-        enableSorting: true,
+        header: "Current Stock",
       },
       {
-        id: "category",
-        accessorKey: "category.name",
-        header: "Category",
-        enableSorting: true,
-      },
-      {
-        id: "actions",
+        id: "quantity",
         header: "Quantity",
         cell: ({ row }) => {
-          const quantity = () =>
-            toRestock.find((t) => t.id === row.original.id)?.quantity || 0;
-          const qty = quantity();
-
+          const restockItem = toRestock.find((t) => t.id === row.original.id);
           return (
-            <div className="flex items-center justify-center">
-              <button
-                className="p-2 bg-gray-200 rounded-l disabled:opacity-30"
-                disabled={qty < 1}
-                onClick={() =>
-                  onRestockChange({ id: row.original.id, quantity: qty - 1 })
-                }
-              >
-                <MinusIcon className="w-4 h-4" />
-              </button>
-              <span className="px-4">{qty}</span>
-              <button
-                className="p-2 bg-gray-200 disabled:opacity-30 rounded-r"
-                onClick={() =>
-                  onRestockChange({ id: row.original.id, quantity: qty + 1 })
-                }
-              >
-                <PlusIcon className="w-4 h-4" />
-              </button>
-            </div>
+            <input
+              type="number"
+              min="1"
+              defaultValue={restockItem?.quantity || ""}
+              onBlur={(e) => {
+                const value = e.target.value;
+                onRestockChange({
+                  id: row.original.id,
+                  quantity: value ? parseInt(value) : undefined,
+                  cost: restockItem?.cost,
+                });
+              }}
+              className="w-24 p-1 border rounded"
+              placeholder="Qty"
+            />
+          );
+        },
+      },
+      {
+        id: "cost",
+        header: "Cost (in cents)",
+        cell: ({ row }) => {
+          const restockItem = toRestock.find((t) => t.id === row.original.id);
+          return (
+            <input
+              type="number"
+              min="1"
+              defaultValue={restockItem?.cost || ""}
+              onBlur={(e) => {
+                const value = e.target.value;
+                onRestockChange({
+                  id: row.original.id,
+                  cost: value ? parseInt(value) : undefined,
+                  quantity: restockItem?.quantity,
+                });
+              }}
+              className="w-32 p-1 border rounded"
+              placeholder="Cost"
+            />
           );
         },
       },

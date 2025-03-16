@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import RestockTable from "../../components/RestockTable";
 import emailjs from "@emailjs/browser";
+import { useAuth } from "../../hooks/useAuth";
 
 type Product = {
   id: string;
@@ -16,6 +17,7 @@ type Product = {
 export type ToRestock = {
   id: string;
   quantity?: number;
+  cost?: number;
   checked?: boolean;
 };
 
@@ -26,6 +28,7 @@ const AdminProductsRestockPage: React.FC = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [isLoading, setIsLoading] = useState(false);
+  const { token } = useAuth();
 
   const handlePageChange = (newPage: number) => {
     setCurrentPage(newPage);
@@ -40,56 +43,62 @@ const AdminProductsRestockPage: React.FC = () => {
     const existingRestock = toRestock.find((t) => t.id === request.id);
 
     if (existingRestock) {
-      if (request.quantity === 0) {
-        // Remove the item if quantity is 0
-        setToRestock((prevRestock) =>
-          prevRestock.filter((item) => item.id !== request.id)
-        );
-      } else {
-        // Update existing entry with new quantity or checked state
-        const updatedRestock = { ...existingRestock, ...request };
-        setToRestock((prevRestock) =>
-          prevRestock.map((item) =>
-            item.id === request.id ? updatedRestock : item
-          )
-        );
-      }
+      const updatedRestock = { ...existingRestock, ...request };
+      setToRestock((prevRestock) =>
+        prevRestock.map((item) =>
+          item.id === request.id ? updatedRestock : item
+        )
+      );
     } else {
-      // Add new entry if it doesn't exist and quantity is greater than 0
-      if ((request.quantity as number) > 0) {
-        setToRestock((prevRestock) => [
-          ...prevRestock,
-          { id: request.id, checked: false, quantity: 1 },
-        ]);
-      }
+      setToRestock((prevRestock) => [...prevRestock, request]);
     }
   };
 
-  const handleRequestRestock = () => {
+  const handleRequestRestock = async () => {
     try {
       setIsLoading(true);
+      const selectedItems = toRestock.filter((item) => item.checked);
 
-      const productName = toRestock.map((t) => {
-        const product = products.find((p) => p.id === t.id) as Product;
+      if (selectedItems.length === 0) {
+        alert("Please select products to restock");
+        return;
+      }
 
-        return `${t.quantity} pcs of ${product.name} \n`;
-      });
+      // Send restock requests
+      for (const item of selectedItems) {
+        await fetch(`/api/products/${item.id}/restock`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: token,
+          },
+          body: JSON.stringify({
+            quantity: item.quantity,
+            cost: item.cost,
+          }),
+        });
+      }
 
-      emailjs
-        .send(
-          import.meta.env.VITE_EMAILJS_SERVICE_ID,
-          import.meta.env.VITE_REQUEST_TEMPLATE_ID,
-          { productName },
-          { publicKey: import.meta.env.VITE_EMAILJS_PUBLIC_KEY }
-        )
-        .then((res) => console.log("EmailJS Response: ", res));
+      // Send email notification
+      const productDetails = selectedItems
+        .map((item) => {
+          const product = products.find((p) => p.id === item.id);
+          return `${item.quantity} pcs of ${product?.name}`;
+        })
+        .join("\n");
 
-      setToRestock([]);
-      alert(
-        "Informasi Restock Barang Telah Berhasil Dikirim ke Email Supplier"
+      await emailjs.send(
+        import.meta.env.VITE_EMAILJS_SERVICE_ID,
+        import.meta.env.VITE_REQUEST_TEMPLATE_ID,
+        { productName: productDetails },
+        { publicKey: import.meta.env.VITE_EMAILJS_PUBLIC_KEY }
       );
+
+      alert("Products restocked successfully and notification sent!");
+      setToRestock([]);
     } catch (error) {
-      console.log(error);
+      console.error(error);
+      alert("Failed to process restock request");
     } finally {
       setIsLoading(false);
     }
