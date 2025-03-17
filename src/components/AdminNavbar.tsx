@@ -4,7 +4,7 @@ import {
   ADMIN_PRODUCT_RESTOCK,
   ADMIN_PRODUCTS,
   CREATE_PRODUCT,
-  REPORT,
+  ADMIN_ORDER,
 } from "../constants/routes";
 import Button from "./Button";
 import { useAuth } from "../hooks/useAuth";
@@ -72,10 +72,10 @@ const AdminNavbar: React.FC = () => {
                       Restock
                     </Button>
                   </NavLink>
-                  <NavLink to={REPORT}>
+                  <NavLink to={ADMIN_ORDER}>
                     <Button
                       className={
-                        isActive(REPORT) ? "text-accent" : "text-default"
+                        isActive(ADMIN_ORDER) ? "text-accent" : "text-default"
                       }
                       variant="glass"
                     >

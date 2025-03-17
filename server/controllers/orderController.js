@@ -371,9 +371,8 @@ export const getPaginatedOrders = async (req, res) => {
 		]);
 
 		// Calculate average cost for each order detail
-		const ordersWithCost = orders.map(order => ({
-			...order,
-			orderDetails: order.orderDetails.map(detail => ({
+		const ordersWithCost = orders.map(order => {
+			const orderDetails = order.orderDetails.map(detail => ({
 				...detail,
 				cost: detail.product.ProductBatch.length > 0
 					? Math.round(detail.product.ProductBatch.reduce((sum, batch) => sum + batch.cost, 0) / detail.product.ProductBatch.length)
@@ -382,8 +381,19 @@ export const getPaginatedOrders = async (req, res) => {
 					...detail.product,
 					ProductBatch: undefined // Remove ProductBatch from response
 				}
-			}))
-		}));
+			}));
+
+			// Calculate total cost for the order
+			const totalCost = orderDetails.reduce((sum, detail) =>
+				sum + (detail.cost * detail.quantity), 0
+			);
+
+			return {
+				...order,
+				orderDetails,
+				cost: totalCost
+			};
+		});
 
 		res.json({
 			orders: ordersWithCost,

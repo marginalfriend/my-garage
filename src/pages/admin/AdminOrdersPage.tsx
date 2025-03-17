@@ -16,12 +16,11 @@ interface OrderReport {
   id: string;
   orderDate: string;
   totalPrice: number;
-  cost: number;
   itemCount: number;
   paymentStatus: PaymentStatus;
 }
 
-const ReportPage: React.FC = () => {
+const OrderPage: React.FC = () => {
   const [orders, setOrders] = useState<OrderReport[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -84,14 +83,24 @@ const ReportPage: React.FC = () => {
       cell: (info) => formatIDR(info.getValue() as number),
     },
     {
-      accessorKey: "cost",
-      header: "Total Cost",
-      cell: (info) => formatIDR(info.getValue() as number),
-    },
-    {
       accessorKey: "paymentStatus",
       header: "Payment Status",
-      cell: (info) => <div>{info.row.original.paymentStatus}</div>,
+      cell: (info) => (
+        <select
+          value={info.getValue() as PaymentStatus}
+          onChange={(e) =>
+            handleStatusChange(
+              info.row.original.id,
+              e.target.value as PaymentStatus
+            )
+          }
+          className="border border-gray-300 rounded-md p-1"
+        >
+          <option value="PENDING">PENDING</option>
+          <option value="PAID">PAID</option>
+          <option value="CANCELLED">CANCELLED</option>
+        </select>
+      ),
     },
   ];
 
@@ -104,6 +113,35 @@ const ReportPage: React.FC = () => {
   const handleFilterIDChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setFilterID(event.target.value);
     setCurrentPage(1); // Reset to the first page on filter change
+  };
+
+  const handleStatusChange = async (
+    orderId: string,
+    newStatus: PaymentStatus
+  ) => {
+    try {
+      const response = await fetch(`/api/orders/${orderId}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token,
+        },
+        body: JSON.stringify({ paymentStatus: newStatus }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to update payment status");
+      }
+
+      setOrders((prevOrders) =>
+        prevOrders.map((order) =>
+          order.id === orderId ? { ...order, paymentStatus: newStatus } : order
+        )
+      );
+    } catch (error) {
+      console.error("Error updating payment status:", error);
+      setError("Failed to update payment status. Please try again later.");
+    }
   };
 
   const handlePageChange = (newPage: number) => {
@@ -131,7 +169,7 @@ const ReportPage: React.FC = () => {
 
   return (
     <main className="px-6 mb-20">
-      <h1 className="text-heading text-2xl font-semibold mb-4 py-5">Reports</h1>
+      <h1 className="text-heading text-2xl font-semibold mb-4 py-5">Orders</h1>
       <div className="mb-4 flex justify-between items-center">
         <button
           onClick={handleSortChange}
@@ -230,4 +268,4 @@ const ReportPage: React.FC = () => {
   );
 };
 
-export default ReportPage;
+export default OrderPage;

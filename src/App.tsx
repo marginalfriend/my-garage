@@ -35,20 +35,22 @@ import {
   LOGIN,
   CART,
   ORDER,
-  REPORT,
+  ADMIN_ORDER,
   EDIT_PRODUCT,
   ADMIN_PRODUCT_RESTOCK,
+  REPORT,
 } from "./constants/routes";
 import ProtectedRoute from "./components/ProtectedRoute";
 import ProductDetailPage from "./pages/user/ProductDetailPage";
 import CartPage from "./pages/user/CartPage";
 import OrderConfirmationPage from "./pages/user/OrderConfirmationPage";
 import OrdersPage from "./pages/user/OrdersPage";
-import ReportPage from "./pages/admin/ReportPage";
+import OrderPage from "./pages/admin/AdminOrdersPage";
 import Footer from "./components/Footer";
 import EditProductPage from "./pages/admin/EditProductPage";
 import AdminProductsRestockPage from "./pages/admin/AdminProductsRestockPage";
 import RequestRestockPage from "./pages/admin/RequestRestockPage";
+import ReportPage from "./pages/admin/ReportPage";
 
 const UserLayout = () => {
   return (
@@ -124,6 +126,7 @@ const App: React.FC = () => {
             path={ADMIN_PRODUCT_RESTOCK + "/:id"}
             element={<RequestRestockPage />}
           />
+          <Route path={ADMIN_ORDER} element={<OrderPage />} />
           <Route path={REPORT} element={<ReportPage />} />
         </Route>
       </Route>

@@ -5,6 +5,7 @@ export const CREATE_PRODUCT = ADMIN_PRODUCTS + "/create"
 export const EDIT_PRODUCT = ADMIN_PRODUCTS + "/edit"
 export const ADMIN_LOGIN = ADMIN_HOME_PAGE + "/login"
 export const NOT_FOUND = "/page-not-found"
+export const ADMIN_ORDER = ADMIN_HOME_PAGE + "/order"
 export const REPORT = ADMIN_HOME_PAGE + "/report"
 
 export const HOME = "/"

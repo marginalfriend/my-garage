@@ -5,7 +5,7 @@ import {
   ADMIN_PRODUCTS,
   HOME,
   ADMIN_PRODUCT_RESTOCK,
-  REPORT,
+  ADMIN_ORDER,
   CART,
   ORDER,
   LOGIN,
@@ -104,7 +104,7 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         setIsAdmin(true);
         const prohibitedPaths = [
           ADMIN_PRODUCT_RESTOCK,
-          REPORT,
+          ADMIN_ORDER,
           CART,
           ORDER,
           LOGIN,
