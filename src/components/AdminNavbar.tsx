@@ -5,6 +5,7 @@ import {
   ADMIN_PRODUCTS,
   CREATE_PRODUCT,
   ADMIN_ORDER,
+  REPORT,
 } from "../constants/routes";
 import Button from "./Button";
 import { useAuth } from "../hooks/useAuth";
@@ -79,7 +80,17 @@ const AdminNavbar: React.FC = () => {
                       }
                       variant="glass"
                     >
-                      Reports
+                      Orders
+                    </Button>
+                  </NavLink>
+                  <NavLink to={REPORT}>
+                    <Button
+                      className={
+                        isActive(REPORT) ? "text-accent" : "text-default"
+                      }
+                      variant="glass"
+                    >
+                      Report
                     </Button>
                   </NavLink>
                 </>
