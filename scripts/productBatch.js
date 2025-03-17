@@ -2,7 +2,7 @@ import { PrismaClient } from '@prisma/client'
 import { generateBatchNumber } from '../server/lib/utils'
 const prisma = new PrismaClient()
 
-async function initializeProductBatches() {
+async function main() {
 	// Get all existing products
 	const products = await prisma.product.findMany()
 
@@ -23,6 +23,6 @@ async function initializeProductBatches() {
 	console.log('Initial product batches created!')
 }
 
-initializeProductBatches()
+main()
 	.catch(console.error)
 	.finally(() => prisma.$disconnect())
