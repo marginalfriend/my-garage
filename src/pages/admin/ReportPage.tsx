@@ -11,7 +11,6 @@ import {
   SortingState,
   flexRender,
 } from "@tanstack/react-table";
-import { ArrowLeftIcon, ArrowRightIcon } from "@heroicons/react/24/outline";
 import Button from "../../components/Button";
 import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 
@@ -111,7 +110,7 @@ const ReportPage: React.FC = () => {
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
-    globalFilterFn: (row, columnId, filterValue) => {
+    globalFilterFn: (row, _columnId, filterValue) => {
       const productName = row.getValue("product.name") as string;
       return productName.toLowerCase().includes(filterValue.toLowerCase());
     },
