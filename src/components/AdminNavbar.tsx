@@ -55,6 +55,16 @@ const AdminNavbar: React.FC = () => {
                       Create Product
                     </Button>
                   </NavLink>
+                  <NavLink to={ADMIN_ORDER}>
+                    <Button
+                      className={
+                        isActive(ADMIN_ORDER) ? "text-accent" : "text-default"
+                      }
+                      variant="glass"
+                    >
+                      Orders
+                    </Button>
+                  </NavLink>
                 </>
               )}
 
@@ -71,16 +81,6 @@ const AdminNavbar: React.FC = () => {
                       variant="glass"
                     >
                       Restock
-                    </Button>
-                  </NavLink>
-                  <NavLink to={ADMIN_ORDER}>
-                    <Button
-                      className={
-                        isActive(ADMIN_ORDER) ? "text-accent" : "text-default"
-                      }
-                      variant="glass"
-                    >
-                      Orders
                     </Button>
                   </NavLink>
                   <NavLink to={REPORT}>

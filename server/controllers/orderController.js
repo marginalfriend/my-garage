@@ -496,3 +496,46 @@ export const checkStock = async (req, res) => {
 		res.status(500).json({ error: "An error occurred while fetching orders" });
 	}
 };
+
+export const getAllProductBatches = async (req, res) => {
+	try {
+		const { page = 1, limit = 10, productId } = req.query;
+		const skip = (page - 1) * limit;
+
+		// Build where clause
+		const whereClause = {};
+		if (productId) {
+			whereClause.productId = productId;
+		}
+
+		const [batches, totalBatches] = await prisma.$transaction([
+			prisma.productBatch.findMany({
+				where: whereClause,
+				skip: skip,
+				take: parseInt(limit),
+				orderBy: { orderDate: 'desc' },
+				include: {
+					product: {
+						select: {
+							name: true,
+							price: true
+						}
+					}
+				}
+			}),
+			prisma.productBatch.count({
+				where: whereClause
+			})
+		]);
+
+		res.json({
+			batches,
+			totalBatches,
+			totalPages: Math.ceil(totalBatches / limit),
+			currentPage: parseInt(page)
+		});
+	} catch (error) {
+		console.error("Error fetching product batches:", error);
+		res.status(500).json({ error: "An error occurred while fetching product batches" });
+	}
+};

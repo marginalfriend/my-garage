@@ -2,41 +2,49 @@
 import React, { useEffect, useState } from "react";
 import { useAuth } from "../../hooks/useAuth";
 import { formatIDR } from "../../utils/utils";
-import { PaymentStatus } from "@prisma/client";
 import {
   useReactTable as useTable,
   ColumnDef,
   getCoreRowModel,
+  getFilteredRowModel,
+  getSortedRowModel,
+  SortingState,
   flexRender,
 } from "@tanstack/react-table";
 import { ArrowLeftIcon, ArrowRightIcon } from "@heroicons/react/24/outline";
 import Button from "../../components/Button";
+import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 
-interface OrderReport {
+interface ProductBatch {
   id: string;
   orderDate: string;
-  totalPrice: number;
+  batchNumber: string;
   cost: number;
-  itemCount: number;
-  paymentStatus: PaymentStatus;
+  quantity: number;
+  remainingQuantity: number;
+  status: string;
+  product: {
+    name: string;
+    price: number;
+  };
 }
 
 const ReportPage: React.FC = () => {
-  const [orders, setOrders] = useState<OrderReport[]>([]);
+  const [batches, setBatches] = useState<ProductBatch[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [sort, setSort] = useState<"asc" | "desc">("desc");
-  const [filterStatus, setFilterStatus] = useState<PaymentStatus | "">("");
-  const [filterID, setFilterID] = useState<string>("");
+  const [sorting, setSorting] = useState<SortingState>([]);
+  const [nameFilter, setNameFilter] = useState("");
   const { token } = useAuth();
+  const [pageSize, setPageSize] = useState(10);
 
-  const fetchOrders = async () => {
+  const fetchBatches = async () => {
     setIsLoading(true);
     try {
       const response = await fetch(
-        `/api/orders/admin?page=${currentPage}&sort=${sort}&paymentStatus=${filterStatus}&id=${filterID}`,
+        `/api/orders/admin/batches?page=${currentPage}&limit=${pageSize}`,
         {
           headers: {
             Authorization: token,
@@ -45,80 +53,72 @@ const ReportPage: React.FC = () => {
       );
 
       if (!response.ok) {
-        throw new Error("Failed to fetch order report");
+        throw new Error("Failed to fetch batch report");
       }
 
       const data = await response.json();
-      setOrders(data.orders);
+      setBatches(data.batches);
       setTotalPages(data.totalPages);
     } catch (error) {
-      console.error("Error fetching order report:", error);
-      setError("Failed to load order report. Please try again later.");
+      console.error("Error fetching batch report:", error);
+      setError("Failed to load batch report. Please try again later.");
     } finally {
       setIsLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchOrders();
-  }, [token, currentPage, sort, filterStatus, filterID]);
+    fetchBatches();
+  }, [token, currentPage, pageSize]);
 
-  const columns: ColumnDef<OrderReport>[] = [
-    {
-      accessorKey: "id",
-      header: "Order ID",
-    },
+  const columns: ColumnDef<ProductBatch>[] = [
     {
       accessorKey: "orderDate",
-      header: "Date",
+      header: "Order Date",
       cell: (info) =>
-        new Date(info.getValue() as string).toLocaleTimeString("id-ID", {
+        new Date(info.getValue() as string).toLocaleString("id-ID", {
           year: "numeric",
           month: "short",
           day: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
         }),
     },
     {
-      accessorKey: "totalPrice",
-      header: "Total Price",
-      cell: (info) => formatIDR(info.getValue() as number),
+      accessorKey: "product.name",
+      header: "Product Name",
+      filterFn: "includesString",
     },
     {
       accessorKey: "cost",
-      header: "Total Cost",
+      header: "Cost",
       cell: (info) => formatIDR(info.getValue() as number),
     },
     {
-      accessorKey: "paymentStatus",
-      header: "Payment Status",
-      cell: (info) => <div>{info.row.original.paymentStatus}</div>,
+      accessorKey: "quantity",
+      header: "Quantity",
     },
   ];
 
   const table = useTable({
-    data: orders || [], // Provide a fallback empty array if orders is undefined
+    data: batches,
     columns,
+    state: {
+      sorting,
+      globalFilter: nameFilter,
+    },
+    onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    globalFilterFn: (row, columnId, filterValue) => {
+      const productName = row.getValue("product.name") as string;
+      return productName.toLowerCase().includes(filterValue.toLowerCase());
+    },
   });
-
-  const handleFilterIDChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setFilterID(event.target.value);
-    setCurrentPage(1); // Reset to the first page on filter change
-  };
 
   const handlePageChange = (newPage: number) => {
     setCurrentPage(newPage);
-  };
-
-  const handleSortChange = () => {
-    setSort((prevSort) => (prevSort === "asc" ? "desc" : "asc"));
-  };
-
-  const handleFilterStatusChange = (
-    event: React.ChangeEvent<HTMLSelectElement>
-  ) => {
-    setFilterStatus(event.target.value as PaymentStatus | "");
-    setCurrentPage(1); // Reset to the first page on filter change
   };
 
   if (isLoading) {
@@ -131,41 +131,29 @@ const ReportPage: React.FC = () => {
 
   return (
     <main className="px-6 mb-20">
-      <h1 className="text-heading text-2xl font-semibold mb-4 py-5">Reports</h1>
-      <div className="mb-4 flex justify-between items-center">
-        <button
-          onClick={handleSortChange}
-          className="px-4 py-2 bg-blue-500 text-white rounded"
-        >
-          Sort by Date ({sort === "asc" ? "Ascending" : "Descending"})
-        </button>
-        <div className="flex items-center gap-2">
-          <input
-            type="text"
-            value={filterID}
-            onChange={handleFilterIDChange}
-            placeholder="Filter by ID"
-            className="p-2 border border-gray-300 rounded"
-          />
-          <select
-            value={filterStatus}
-            onChange={handleFilterStatusChange}
-            className="p-2 border border-gray-300 rounded"
-          >
-            <option value="">All</option>
-            <option value="PENDING">PENDING</option>
-            <option value="PAID">PAID</option>
-            <option value="CANCELLED">CANCELLED</option>
-          </select>
-        </div>
+      <h1 className="text-heading text-2xl font-semibold mb-4 py-5">
+        Product Batch Reports
+      </h1>
+
+      {/* Search Input */}
+      <div className="mb-4 relative">
+        <input
+          type="text"
+          value={nameFilter}
+          onChange={(e) => setNameFilter(e.target.value)}
+          placeholder="Search by product name..."
+          className="pl-10 pr-4 py-2 border rounded-lg w-full max-w-md"
+        />
+        <MagnifyingGlassIcon className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
       </div>
-      {!orders || orders.length === 0 ? (
+
+      {!batches || batches.length === 0 ? (
         <div className="flex flex-col gap-4 justify-center items-center">
           <img
             src="https://img.freepik.com/premium-vector/illustration-vector-graphic-cartoon-character-404-network-disruption_516790-2345.jpg?w=740"
             width={250}
           />
-          <p>No orders found...</p>
+          <p>No batches found...</p>
         </div>
       ) : (
         <>
@@ -176,12 +164,22 @@ const ReportPage: React.FC = () => {
                   {headerGroup.headers.map((header) => (
                     <th
                       key={header.id}
-                      className="px-6 py-3 border-b-2 border-gray-300 text-left leading-4"
+                      className="px-6 py-3 border-b-2 border-gray-300 text-left leading-4 cursor-pointer"
+                      onClick={header.column.getToggleSortingHandler()}
                     >
-                      {flexRender(
-                        header.column.columnDef.header,
-                        header.getContext()
-                      )}
+                      <div className="flex items-center gap-2">
+                        {flexRender(
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
+                        {header.column.getIsSorted() && (
+                          <span>
+                            {header.column.getIsSorted() === "asc"
+                              ? "🔼"
+                              : "🔽"}
+                          </span>
+                        )}
+                      </div>
                     </th>
                   ))}
                 </tr>
@@ -205,24 +203,42 @@ const ReportPage: React.FC = () => {
               ))}
             </tbody>
           </table>
-          <div className="flex justify-center gap-4 items-center mt-4">
-            <Button
-              onClick={() => handlePageChange(currentPage - 1)}
-              disabled={currentPage === 1}
-              className="disabled:opacity-50"
-            >
-              <ArrowLeftIcon className="w-4 h-4" />
-            </Button>
-            <span>
-              Page {currentPage} of {totalPages}
-            </span>
-            <Button
-              onClick={() => handlePageChange(currentPage + 1)}
-              disabled={currentPage === totalPages}
-              className="disabled:opacity-50"
-            >
-              <ArrowRightIcon className="w-4 h-4" />
-            </Button>
+
+          {/* Updated Pagination Section */}
+          <div className="py-3 flex items-center justify-between">
+            <div className="flex-1 flex justify-between">
+              <Button
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+                className="px-4 py-2 bg-accent text-contrast rounded"
+              >
+                Previous
+              </Button>
+              <Button
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                className="px-4 py-2 bg-accent text-contrast rounded"
+              >
+                Next
+              </Button>
+            </div>
+            <div>
+              <select
+                value={pageSize}
+                onChange={(e) => {
+                  const newPageSize = Number(e.target.value);
+                  setPageSize(newPageSize);
+                  setCurrentPage(1); // Reset to first page when changing page size
+                }}
+                className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none sm:text-sm rounded-md"
+              >
+                {[5, 10, 15, 20, 25].map((size) => (
+                  <option key={size} value={size}>
+                    Show {size}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
         </>
       )}

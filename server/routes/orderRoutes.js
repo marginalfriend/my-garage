@@ -12,5 +12,6 @@ router.get('/:orderId', orderController.getOrderDetails);
 router.get('/checkstok/:orderId', orderController.checkStock)
 router.patch('/:orderId', orderController.updateOrder);
 router.patch('/', orderController.cancelOrder)
+router.get('/admin/batches', orderController.getAllProductBatches);
 
 export default router;

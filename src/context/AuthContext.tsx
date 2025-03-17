@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { createContext, useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import {
   ADMIN_PRODUCTS,
   HOME,
@@ -11,6 +11,7 @@ import {
   LOGIN,
   ADMIN_LOGIN,
   CREATE_PRODUCT,
+  REPORT,
 } from "../constants/routes";
 
 export interface AuthContextType {
@@ -36,6 +37,7 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const [isUser, setIsUser] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true); // Add this line
   const navigate = useNavigate();
+  const currentPath = window.location.pathname;
 
   const login = async (email: string, password: string) => {
     try {
@@ -93,7 +95,6 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       setToken(token);
       setAccount(decodedAccount);
 
-      const currentPath = window.location.pathname;
       const isLoginPage =
         currentPath === "/login" || currentPath === "/admin/login";
       const isSuperAdmin = decodedAccount.roles.includes("SUPER_ADMIN");
@@ -104,7 +105,7 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         setIsAdmin(true);
         const prohibitedPaths = [
           ADMIN_PRODUCT_RESTOCK,
-          ADMIN_ORDER,
+          REPORT,
           CART,
           ORDER,
           LOGIN,
@@ -121,10 +122,11 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
           LOGIN,
           ADMIN_LOGIN,
           ADMIN_PRODUCTS,
+          ADMIN_ORDER,
           CREATE_PRODUCT,
         ];
         if (prohibitedPaths.some((path) => currentPath.startsWith(path))) {
-          navigate(ADMIN_PRODUCTS);
+          navigate(ADMIN_PRODUCT_RESTOCK);
         }
       } else if (isCustomer) {
         setIsUser(true);
@@ -135,7 +137,7 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     }
 
     setLoading(false);
-  }, [navigate]);
+  }, [navigate, currentPath]);
 
   return (
     <AuthContext.Provider
