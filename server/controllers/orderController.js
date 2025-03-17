@@ -272,7 +272,15 @@ export const getOrderDetails = async (req, res) => {
 			include: {
 				orderDetails: {
 					include: {
-						product: true,
+						product: {
+							include: {
+								ProductBatch: {
+									select: {
+										cost: true
+									}
+								}
+							}
+						},
 					},
 				},
 			},
@@ -283,17 +291,28 @@ export const getOrderDetails = async (req, res) => {
 		}
 
 		if (order.customerId !== user.id) {
-			return res
-				.status(403)
-				.json({ error: "You are not authorized to view this order" });
+			return res.status(403).json({ error: "You are not authorized to view this order" });
 		}
 
-		res.json(order);
+		// Calculate average cost for each order detail
+		const orderWithCost = {
+			...order,
+			orderDetails: order.orderDetails.map(detail => ({
+				...detail,
+				cost: detail.product.ProductBatch.length > 0
+					? Math.round(detail.product.ProductBatch.reduce((sum, batch) => sum + batch.cost, 0) / detail.product.ProductBatch.length)
+					: 0,
+				product: {
+					...detail.product,
+					ProductBatch: undefined // Remove ProductBatch from response
+				}
+			}))
+		};
+
+		res.json(orderWithCost);
 	} catch (error) {
 		console.error("Error fetching order details:", error);
-		res
-			.status(500)
-			.json({ error: "An error occurred while fetching order details" });
+		res.status(500).json({ error: "An error occurred while fetching order details" });
 	}
 };
 
@@ -313,22 +332,11 @@ export const getPaginatedOrders = async (req, res) => {
 		}
 
 		// Check if the user has ADMIN or SUPER_ADMIN role
-		if (
-			!account.roles.includes("OWNER") &&
-			!account.roles.includes("SUPER_ADMIN")
-		) {
-			return res
-				.status(403)
-				.json({ error: "You are not authorized to access this information" });
+		if (!account.roles.includes("OWNER") && !account.roles.includes("SUPER_ADMIN")) {
+			return res.status(403).json({ error: "You are not authorized to access this information" });
 		}
 
-		const {
-			page = 1,
-			limit = 10,
-			sort = "desc",
-			paymentStatus,
-			id,
-		} = req.query;
+		const { page = 1, limit = 10, sort = "desc", paymentStatus, id } = req.query;
 		const skip = (page - 1) * limit;
 
 		const whereClause = {};
@@ -341,14 +349,44 @@ export const getPaginatedOrders = async (req, res) => {
 				skip: skip,
 				take: parseInt(limit),
 				orderBy: { orderDate: sort === "asc" ? "asc" : "desc" },
+				include: {
+					orderDetails: {
+						include: {
+							product: {
+								include: {
+									ProductBatch: {
+										select: {
+											cost: true
+										}
+									}
+								}
+							}
+						}
+					}
+				}
 			}),
 			prisma.order.count({
 				where: whereClause,
 			}),
 		]);
 
+		// Calculate average cost for each order detail
+		const ordersWithCost = orders.map(order => ({
+			...order,
+			orderDetails: order.orderDetails.map(detail => ({
+				...detail,
+				cost: detail.product.ProductBatch.length > 0
+					? Math.round(detail.product.ProductBatch.reduce((sum, batch) => sum + batch.cost, 0) / detail.product.ProductBatch.length)
+					: 0,
+				product: {
+					...detail.product,
+					ProductBatch: undefined // Remove ProductBatch from response
+				}
+			}))
+		}));
+
 		res.json({
-			orders,
+			orders: ordersWithCost,
 			totalOrders,
 			totalPages: Math.ceil(totalOrders / limit),
 			currentPage: parseInt(page),
