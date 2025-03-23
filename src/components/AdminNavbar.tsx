@@ -90,7 +90,7 @@ const AdminNavbar: React.FC = () => {
                       }
                       variant="glass"
                     >
-                      Report
+                      Riwayat
                     </Button>
                   </NavLink>
                 </>

@@ -97,6 +97,15 @@ const ReportPage: React.FC = () => {
       accessorKey: "quantity",
       header: "Quantity",
     },
+    {
+      id: "subTotal",
+      header: "Sub Total",
+      cell: (info) => {
+        const quantity = info.row.original.quantity;
+        const cost = info.row.original.cost;
+        return formatIDR(quantity * cost);
+      },
+    },
   ];
 
   const table = useTable({
